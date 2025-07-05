@@ -382,6 +382,12 @@
                 };
 
                 document.getElementById('amountInput').onkeypress = (e) => {
+                    if (e.key === 'Enter') {
+                        document.getElementById('notesInput').focus();
+                    }
+                };
+
+                document.getElementById('notesInput').onkeypress = (e) => {
                     if (e.key === 'Enter') this.addSpending();
                 };
             }
@@ -410,9 +416,23 @@
             openModal(day) {
                 this.selectedDay = day;
                 const dateKey = this.getDateKey(day);
-                const dayData = this.spending[dateKey] || {};
-                const amount = dayData.amount || 0;
-                const notes = dayData.notes || '';
+                const dayData = this.spending[dateKey];
+                
+                // Handle both old format (just number) and new format (object)
+                let amount = 0;
+                let notes = '';
+                
+                if (dayData) {
+                    if (typeof dayData === 'object') {
+                        // New format: {amount: 123, notes: "text"}
+                        amount = dayData.amount || 0;
+                        notes = dayData.notes || '';
+                    } else {
+                        // Old format: just a number
+                        amount = dayData;
+                        notes = '';
+                    }
+                }
                 
                 document.getElementById('modalDate').textContent = 
                     `${this.months[this.currentDate.getMonth()]} ${day}`;
@@ -433,13 +453,17 @@
 
             addSpending() {
                 const amount = parseFloat(document.getElementById('amountInput').value);
+                const notes = document.getElementById('notesInput').value.trim();
                 if (isNaN(amount) || amount < 0) return;
 
                 const dateKey = this.getDateKey(this.selectedDay);
                 if (amount === 0) {
                     delete this.spending[dateKey];
                 } else {
-                    this.spending[dateKey] = amount;
+                    this.spending[dateKey] = {
+                        amount: amount,
+                        notes: notes
+                    };
                 }
                 
                 this.saveData();
@@ -462,7 +486,10 @@
                         return parseInt(year) === this.currentDate.getFullYear() && 
                                parseInt(month) === this.currentDate.getMonth();
                     })
-                    .reduce((sum, [, amount]) => sum + amount, 0);
+                    .reduce((sum, [, dayData]) => {
+                        const amount = typeof dayData === 'object' ? dayData.amount : dayData;
+                        return sum + (amount || 0);
+                    }, 0);
             }
 
             render() {
@@ -497,7 +524,24 @@
                 for (let day = 1; day <= daysInMonth; day++) {
                     const dayEl = document.createElement('div');
                     const dateKey = this.getDateKey(day);
-                    const amount = this.spending[dateKey];
+                    const dayData = this.spending[dateKey];
+                    
+                    // Handle both old format (just number) and new format (object)
+                    let amount = null;
+                    let hasNotes = false;
+                    
+                    if (dayData) {
+                        if (typeof dayData === 'object') {
+                            // New format: {amount: 123, notes: "text"}
+                            amount = dayData.amount;
+                            hasNotes = dayData.notes && dayData.notes.trim() !== '';
+                        } else {
+                            // Old format: just a number
+                            amount = dayData;
+                            hasNotes = false;
+                        }
+                    }
+                    
                     const isToday = today.toDateString() === 
                         new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day).toDateString();
 
@@ -508,7 +552,7 @@
                     dayEl.innerHTML = `
                         <div class="day-number">${day}</div>
                         ${amount ? 
-                            `<div class="day-amount">£${amount.toFixed(2)}</div>` : 
+                            `<div class="day-amount">£${amount.toFixed(2)}${hasNotes ? ' 📝' : ''}</div>` : 
                             '<div class="plus-icon">+</div>'
                         }
                     `;
