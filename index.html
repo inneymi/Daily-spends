@@ -336,7 +336,13 @@
                        step="0.01" 
                        class="amount-input" 
                        id="amountInput" 
-                       placeholder="Enter amount (£)">
+                       placeholder="Enter amount (£)"
+                       style="margin-bottom: 8px;">
+                <input type="text" 
+                       class="amount-input" 
+                       id="notesInput" 
+                       placeholder="Notes (optional)"
+                       style="font-size: 14px; text-align: left;">
             </div>
             <div class="modal-buttons">
                 <button class="modal-btn btn-add" id="addBtn">Add</button>
@@ -404,13 +410,16 @@
             openModal(day) {
                 this.selectedDay = day;
                 const dateKey = this.getDateKey(day);
-                const amount = this.spending[dateKey] || 0;
+                const dayData = this.spending[dateKey] || {};
+                const amount = dayData.amount || 0;
+                const notes = dayData.notes || '';
                 
                 document.getElementById('modalDate').textContent = 
                     `${this.months[this.currentDate.getMonth()]} ${day}`;
                 document.getElementById('currentTotal').textContent = 
                     `Total: £${amount.toFixed(2)}`;
                 document.getElementById('amountInput').value = amount || '';
+                document.getElementById('notesInput').value = notes;
                 document.getElementById('deleteBtn').style.display = amount ? 'block' : 'none';
                 document.getElementById('modal').classList.add('show');
                 
