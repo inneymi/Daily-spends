@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spending Tracker</title>
+    <meta name="description" content="Simple daily spending tracker">
+    <meta name="theme-color" content="#1f2937">
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111827;
+            color: #f9fafb;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: #1f2937;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .title {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f9fafb;
+        }
+
+        .total {
+            background: #059669;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            background: #374151;
+            border: none;
+            color: #d1d5db;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #4b5563;
+        }
+
+        .month-title {
+            font-size: 20px;
+            font-weight: bold;
+            color: #f9fafb;
+        }
+
+        .calendar {
+            background: #374151;
+            border-radius: 12px;
+            padding: 15px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-weight: 600;
+            color: #9ca3af;
+            font-size: 12px;
+            padding: 8px 0;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            border: 2px solid #4b5563;
+            background: #4b5563;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .day:hover {
+            border-color: #6b7280;
+            background: #6b7280;
+        }
+
+        .day.today {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .day.has-spending {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .day-number {
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .day-amount {
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 2px;
+            color: #34d399;
+        }
+
+        .plus-icon {
+            font-size: 12px;
+            color: #6b7280;
+            margin-top: 2px;
+        }
+
+        .empty-day {
+            border: none;
+            background: none;
+            cursor: default;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1f2937;
+            border-radius: 16px;
+            padding: 24px;
+            width: 100%;
+            max-width: 320px;
+            border: 1px solid #374151;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f9fafb;
+            margin-bottom: 8px;
+        }
+
+        .current-total {
+            background: #059669;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .input-section {
+            margin-bottom: 20px;
+        }
+
+        .amount-input {
+            width: 100%;
+            padding: 16px;
+            background: #374151;
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            color: #f9fafb;
+            font-size: 18px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .amount-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .amount-input::placeholder {
+            color: #6b7280;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 16px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-add {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-add:hover {
+            background: #2563eb;
+        }
+
+        .btn-delete {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-delete:hover {
+            background: #dc2626;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-cancel:hover {
+            background: #5b6572;
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="title">Calendar</div>
+            <div class="total" id="monthTotal">Total: £0.00</div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <button class="nav-btn" id="prevBtn">‹ Previous</button>
+            <div class="month-title" id="monthTitle">July 2025</div>
+            <button class="nav-btn" id="nextBtn">Next ›</button>
+        </div>
+
+        <!-- Calendar -->
+        <div class="calendar">
+            <div class="weekdays">
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
+            </div>
+            <div class="days" id="daysGrid">
+                <!-- Days populated by JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalDate">July 5</div>
+                <div class="current-total" id="currentTotal">Total: £0.00</div>
+            </div>
+            <div class="input-section">
+                <input type="number" 
+                       step="0.01" 
+                       class="amount-input" 
+                       id="amountInput" 
+                       placeholder="Enter amount (£)">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-add" id="addBtn">Add</button>
+                <button class="modal-btn btn-delete" id="deleteBtn" style="display: none;">Delete</button>
+                <button class="modal-btn btn-cancel" id="cancelBtn">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        class SpendingTracker {
+            constructor() {
+                this.currentDate = new Date();
+                this.spending = this.loadData();
+                this.selectedDay = null;
+                this.months = [
+                    'January', 'February', 'March', 'April', 'May', 'June',
+                    'July', 'August', 'September', 'October', 'November', 'December'
+                ];
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.render();
+            }
+
+            bindEvents() {
+                document.getElementById('prevBtn').onclick = () => this.navigateMonth(-1);
+                document.getElementById('nextBtn').onclick = () => this.navigateMonth(1);
+                document.getElementById('addBtn').onclick = () => this.addSpending();
+                document.getElementById('deleteBtn').onclick = () => this.deleteSpending();
+                document.getElementById('cancelBtn').onclick = () => this.closeModal();
+                
+                document.getElementById('modal').onclick = (e) => {
+                    if (e.target.id === 'modal') this.closeModal();
+                };
+
+                document.getElementById('amountInput').onkeypress = (e) => {
+                    if (e.key === 'Enter') this.addSpending();
+                };
+            }
+
+            loadData() {
+                try {
+                    return JSON.parse(localStorage.getItem('spendingData') || '{}');
+                } catch {
+                    return {};
+                }
+            }
+
+            saveData() {
+                localStorage.setItem('spendingData', JSON.stringify(this.spending));
+            }
+
+            getDateKey(day) {
+                return `${this.currentDate.getFullYear()}-${this.currentDate.getMonth()}-${day}`;
+            }
+
+            navigateMonth(direction) {
+                this.currentDate.setMonth(this.currentDate.getMonth() + direction);
+                this.render();
+            }
+
+            openModal(day) {
+                this.selectedDay = day;
+                const dateKey = this.getDateKey(day);
+                const amount = this.spending[dateKey] || 0;
+                
+                document.getElementById('modalDate').textContent = 
+                    `${this.months[this.currentDate.getMonth()]} ${day}`;
+                document.getElementById('currentTotal').textContent = 
+                    `Total: £${amount.toFixed(2)}`;
+                document.getElementById('amountInput').value = amount || '';
+                document.getElementById('deleteBtn').style.display = amount ? 'block' : 'none';
+                document.getElementById('modal').classList.add('show');
+                
+                setTimeout(() => document.getElementById('amountInput').focus(), 100);
+            }
+
+            closeModal() {
+                document.getElementById('modal').classList.remove('show');
+                this.selectedDay = null;
+            }
+
+            addSpending() {
+                const amount = parseFloat(document.getElementById('amountInput').value);
+                if (isNaN(amount) || amount < 0) return;
+
+                const dateKey = this.getDateKey(this.selectedDay);
+                if (amount === 0) {
+                    delete this.spending[dateKey];
+                } else {
+                    this.spending[dateKey] = amount;
+                }
+                
+                this.saveData();
+                this.render();
+                this.closeModal();
+            }
+
+            deleteSpending() {
+                const dateKey = this.getDateKey(this.selectedDay);
+                delete this.spending[dateKey];
+                this.saveData();
+                this.render();
+                this.closeModal();
+            }
+
+            getMonthTotal() {
+                return Object.entries(this.spending)
+                    .filter(([key]) => {
+                        const [year, month] = key.split('-');
+                        return parseInt(year) === this.currentDate.getFullYear() && 
+                               parseInt(month) === this.currentDate.getMonth();
+                    })
+                    .reduce((sum, [, amount]) => sum + amount, 0);
+            }
+
+            render() {
+                // Update month title
+                document.getElementById('monthTitle').textContent = 
+                    `${this.months[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
+                
+                // Update month total
+                document.getElementById('monthTotal').textContent = 
+                    `Total: £${this.getMonthTotal().toFixed(2)}`;
+
+                // Render calendar
+                this.renderCalendar();
+            }
+
+            renderCalendar() {
+                const grid = document.getElementById('daysGrid');
+                const daysInMonth = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0).getDate();
+                const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1).getDay();
+                const today = new Date();
+                
+                grid.innerHTML = '';
+
+                // Empty cells for days before month starts
+                for (let i = 0; i < firstDay; i++) {
+                    const emptyDay = document.createElement('div');
+                    emptyDay.className = 'day empty-day';
+                    grid.appendChild(emptyDay);
+                }
+
+                // Days of the month
+                for (let day = 1; day <= daysInMonth; day++) {
+                    const dayEl = document.createElement('div');
+                    const dateKey = this.getDateKey(day);
+                    const amount = this.spending[dateKey];
+                    const isToday = today.toDateString() === 
+                        new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day).toDateString();
+
+                    dayEl.className = 'day';
+                    if (isToday) dayEl.classList.add('today');
+                    if (amount) dayEl.classList.add('has-spending');
+
+                    dayEl.innerHTML = `
+                        <div class="day-number">${day}</div>
+                        ${amount ? 
+                            `<div class="day-amount">£${amount.toFixed(2)}</div>` : 
+                            '<div class="plus-icon">+</div>'
+                        }
+                    `;
+
+                    dayEl.onclick = () => this.openModal(day);
+                    grid.appendChild(dayEl);
+                }
+            }
+        }
+
+        new SpendingTracker();
+    </script>
+</body>
+</html>
