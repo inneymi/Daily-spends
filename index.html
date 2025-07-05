@@ -34,14 +34,25 @@
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 16px;
+        }
+
+        .title-section {
+            flex: 1;
         }
 
         .title {
             font-size: 18px;
             font-weight: bold;
             color: #f9fafb;
+            margin-bottom: 2px;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: #9ca3af;
+            line-height: 1.3;
         }
 
         .total {
@@ -296,7 +307,10 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="title">Calendar</div>
+            <div class="title-section">
+                <div class="title">Daily Spends</div>
+                <div class="subtitle">Click any day to track spending</div>
+            </div>
             <div class="total" id="monthTotal">Total: £0.00</div>
         </div>
 
@@ -487,8 +501,16 @@
                                parseInt(month) === this.currentDate.getMonth();
                     })
                     .reduce((sum, [, dayData]) => {
-                        const amount = typeof dayData === 'object' ? dayData.amount : dayData;
-                        return sum + (amount || 0);
+                        // Handle both old format (just number) and new format (object)
+                        let amount = 0;
+                        if (dayData) {
+                            if (typeof dayData === 'object') {
+                                amount = dayData.amount || 0;
+                            } else {
+                                amount = dayData;
+                            }
+                        }
+                        return sum + amount;
                     }, 0);
             }
 
