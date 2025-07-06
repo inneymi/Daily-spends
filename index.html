@@ -106,17 +106,20 @@
             color: #9ca3af;
             font-size: 10px;
             padding: 4px 0;
+            min-height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .days {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
             gap: 3px;
-            min-height: 200px;
+            align-items: start;
         }
 
         .day {
-            aspect-ratio: 1;
             border: 2px solid #4b5563;
             background: #4b5563;
             border-radius: 6px;
@@ -125,8 +128,10 @@
             justify-content: center;
             align-items: center;
             cursor: pointer;
-            min-height: 36px;
+            height: 40px;
+            width: 100%;
             padding: 2px;
+            box-sizing: border-box;
         }
 
         .day:hover {
@@ -172,15 +177,8 @@
             border: none;
             background: none;
             cursor: default;
-        }
-
-        .debug {
-            background: #dc2626;
-            color: white;
-            padding: 8px;
-            margin: 8px 0;
-            border-radius: 6px;
-            font-size: 12px;
+            height: 40px;
+            width: 100%;
         }
 
         /* Modal */
@@ -297,9 +295,6 @@
             <div class="total" id="monthTotal">Total: £0.00</div>
         </div>
 
-        <!-- Debug Info -->
-        <div class="debug" id="debugInfo">Script loading...</div>
-
         <!-- Navigation -->
         <div class="nav">
             <button class="nav-btn" id="prevBtn">‹ Prev</button>
@@ -319,7 +314,7 @@
                 <div class="weekday">Sat</div>
             </div>
             <div class="days" id="daysGrid">
-                <div class="debug">Calendar will appear here...</div>
+                <!-- Calendar will be populated here -->
             </div>
         </div>
     </div>
@@ -337,6 +332,11 @@
                        class="amount-input" 
                        id="amountInput" 
                        placeholder="Amount to add (£)">
+                <input type="text" 
+                       class="amount-input" 
+                       id="notesInput" 
+                       placeholder="Notes (optional)"
+                       style="font-size: 14px; text-align: left;">
             </div>
             <div class="modal-buttons">
                 <button class="modal-btn btn-add" id="addBtn">Add</button>
@@ -346,239 +346,298 @@
     </div>
 
     <script>
-        function updateDebug(message) {
-            var debugEl = document.getElementById('debugInfo');
-            if (debugEl) {
-                debugEl.textContent = message;
+        (function() {
+            'use strict';
+            
+            // Variables
+            var spendingData = {};
+            var currentMonth = 6; // July
+            var currentYear = 2025;
+            var selectedDay = null;
+            var isInitialized = false;
+
+            var months = ['January', 'February', 'March', 'April', 'May', 'June',
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+
+            // Storage functions
+            function loadData() {
+                try {
+                    var saved = localStorage.getItem('spendingData');
+                    if (saved) {
+                        spendingData = JSON.parse(saved);
+                    }
+                } catch (e) {
+                    // Fallback to memory storage
+                }
             }
-        }
 
-        updateDebug('Script started');
-
-        // Very simple variables
-        var currentMonth = 6; // July
-        var currentYear = 2025;
-        var selectedDay = null;
-        var spendingData = {};
-
-        var months = ['January', 'February', 'March', 'April', 'May', 'June',
-                      'July', 'August', 'September', 'October', 'November', 'December'];
-
-        updateDebug('Variables set');
-
-        function getDateKey(day) {
-            return currentYear + '-' + currentMonth + '-' + day;
-        }
-
-        function getDayTotal(day) {
-            var key = getDateKey(day);
-            return spendingData[key] || 0;
-        }
-
-        function updateDisplay() {
-            updateDebug('Updating display...');
-            
-            var monthTitle = document.getElementById('monthTitle');
-            var monthTotal = document.getElementById('monthTotal');
-            
-            if (monthTitle) {
-                monthTitle.textContent = months[currentMonth] + ' ' + currentYear;
+            function saveData() {
+                try {
+                    localStorage.setItem('spendingData', JSON.stringify(spendingData));
+                } catch (e) {
+                    // Fallback to memory storage
+                }
             }
-            
-            if (monthTotal) {
+
+            // Date functions
+            function getDateKey(day) {
+                return currentYear + '-' + currentMonth + '-' + day;
+            }
+
+            function getDayTotal(day) {
+                var key = getDateKey(day);
+                var data = spendingData[key];
+                if (!data) return 0;
+                
+                if (typeof data === 'number') return data;
+                if (data.amount) return data.amount;
+                if (data.transactions) {
+                    var total = 0;
+                    for (var i = 0; i < data.transactions.length; i++) {
+                        total += data.transactions[i].amount || 0;
+                    }
+                    return total;
+                }
+                return 0;
+            }
+
+            function getMonthTotal() {
                 var total = 0;
                 for (var day = 1; day <= 31; day++) {
                     total += getDayTotal(day);
                 }
-                monthTotal.textContent = 'Total: £' + total.toFixed(2);
+                return total;
             }
-            
-            updateDebug('Display updated');
-        }
 
-        function buildCalendar() {
-            updateDebug('Building calendar...');
-            
-            var grid = document.getElementById('daysGrid');
-            if (!grid) {
-                updateDebug('ERROR: daysGrid not found!');
-                return;
-            }
-            
-            grid.innerHTML = '';
-            
-            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            var firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            var today = new Date();
-            
-            updateDebug('Days in month: ' + daysInMonth + ', First day: ' + firstDay);
-            
-            // Empty days at start
-            for (var i = 0; i < firstDay; i++) {
-                var emptyDay = document.createElement('div');
-                emptyDay.className = 'day empty-day';
-                grid.appendChild(emptyDay);
-            }
-            
-            // Actual days
-            for (var day = 1; day <= daysInMonth; day++) {
-                var dayEl = document.createElement('div');
-                dayEl.className = 'day';
+            // Display functions
+            function updateDisplay() {
+                var monthTitle = document.getElementById('monthTitle');
+                var monthTotal = document.getElementById('monthTotal');
                 
-                var amount = getDayTotal(day);
-                var isToday = (today.getDate() === day && 
-                              today.getMonth() === currentMonth && 
-                              today.getFullYear() === currentYear);
-                
-                if (isToday) dayEl.className += ' today';
-                if (amount > 0) dayEl.className += ' has-spending';
-                
-                var content = '<div class="day-number">' + day + '</div>';
-                if (amount > 0) {
-                    content += '<div class="day-amount">£' + amount.toFixed(2) + '</div>';
-                } else {
-                    content += '<div class="plus-icon">+</div>';
+                if (monthTitle) {
+                    monthTitle.textContent = months[currentMonth] + ' ' + currentYear;
                 }
                 
-                dayEl.innerHTML = content;
-                
-                // Click handler
-                dayEl.onclick = function(d) {
-                    return function() {
-                        updateDebug('Clicked day ' + d);
-                        openModal(d);
-                    };
-                }(day);
-                
-                grid.appendChild(dayEl);
+                if (monthTotal) {
+                    monthTotal.textContent = 'Total: £' + getMonthTotal().toFixed(2);
+                }
             }
-            
-            updateDebug('Calendar built with ' + daysInMonth + ' days');
-        }
 
-        function openModal(day) {
-            updateDebug('Opening modal for day ' + day);
-            selectedDay = day;
-            
-            var modal = document.getElementById('modal');
-            var modalDate = document.getElementById('modalDate');
-            var currentTotal = document.getElementById('currentTotal');
-            var amountInput = document.getElementById('amountInput');
-            
-            if (modalDate) {
-                modalDate.textContent = months[currentMonth] + ' ' + day;
+            function buildCalendar() {
+                var grid = document.getElementById('daysGrid');
+                if (!grid) return;
+                
+                grid.innerHTML = '';
+                
+                var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+                var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+                var today = new Date();
+                
+                // Empty days at start - ensure proper alignment
+                for (var i = 0; i < firstDay; i++) {
+                    var emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'empty-day';
+                    grid.appendChild(emptyDiv);
+                }
+                
+                // Actual days
+                for (var day = 1; day <= daysInMonth; day++) {
+                    var dayDiv = document.createElement('div');
+                    dayDiv.className = 'day';
+                    
+                    var amount = getDayTotal(day);
+                    var isToday = (today.getDate() === day && 
+                                  today.getMonth() === currentMonth && 
+                                  today.getFullYear() === currentYear);
+                    
+                    if (isToday) {
+                        dayDiv.className += ' today';
+                    }
+                    if (amount > 0) {
+                        dayDiv.className += ' has-spending';
+                    }
+                    
+                    var numberDiv = document.createElement('div');
+                    numberDiv.className = 'day-number';
+                    numberDiv.textContent = day;
+                    dayDiv.appendChild(numberDiv);
+                    
+                    if (amount > 0) {
+                        var amountDiv = document.createElement('div');
+                        amountDiv.className = 'day-amount';
+                        amountDiv.textContent = '£' + amount.toFixed(2);
+                        dayDiv.appendChild(amountDiv);
+                    } else {
+                        var plusDiv = document.createElement('div');
+                        plusDiv.className = 'plus-icon';
+                        plusDiv.textContent = '+';
+                        dayDiv.appendChild(plusDiv);
+                    }
+                    
+                    // Add click handler using closure
+                    (function(currentDay) {
+                        dayDiv.addEventListener('click', function() {
+                            openModal(currentDay);
+                        });
+                    })(day);
+                    
+                    grid.appendChild(dayDiv);
+                }
             }
-            
-            if (currentTotal) {
-                currentTotal.textContent = 'Total: £' + getDayTotal(day).toFixed(2);
+
+            // Modal functions
+            function openModal(day) {
+                selectedDay = day;
+                
+                var modal = document.getElementById('modal');
+                var modalDate = document.getElementById('modalDate');
+                var currentTotal = document.getElementById('currentTotal');
+                var amountInput = document.getElementById('amountInput');
+                var notesInput = document.getElementById('notesInput');
+                
+                if (modalDate) {
+                    modalDate.textContent = months[currentMonth] + ' ' + day;
+                }
+                
+                if (currentTotal) {
+                    currentTotal.textContent = 'Total: £' + getDayTotal(day).toFixed(2);
+                }
+                
+                if (amountInput) {
+                    amountInput.value = '';
+                }
+                
+                if (notesInput) {
+                    notesInput.value = '';
+                }
+                
+                if (modal) {
+                    modal.classList.add('show');
+                }
+                
+                // Focus after a short delay
+                setTimeout(function() {
+                    if (amountInput) {
+                        amountInput.focus();
+                    }
+                }, 200);
             }
-            
-            if (amountInput) {
+
+            function closeModal() {
+                var modal = document.getElementById('modal');
+                if (modal) {
+                    modal.classList.remove('show');
+                }
+                selectedDay = null;
+            }
+
+            function addSpending() {
+                var amountInput = document.getElementById('amountInput');
+                var notesInput = document.getElementById('notesInput');
+                
+                if (!amountInput || !selectedDay) return;
+                
+                var amount = parseFloat(amountInput.value);
+                var notes = notesInput ? notesInput.value.trim() : '';
+                
+                if (isNaN(amount) || amount <= 0) return;
+                
+                var key = getDateKey(selectedDay);
+                var existing = getDayTotal(selectedDay);
+                var newTotal = existing + amount;
+                
+                // Store as simple total for now
+                spendingData[key] = newTotal;
+                
+                // Clear inputs
                 amountInput.value = '';
+                if (notesInput) {
+                    notesInput.value = '';
+                }
+                
+                // Update display
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                
+                var currentTotal = document.getElementById('currentTotal');
+                if (currentTotal) {
+                    currentTotal.textContent = 'Total: £' + getDayTotal(selectedDay).toFixed(2);
+                }
             }
-            
-            if (modal) {
-                modal.classList.add('show');
-                updateDebug('Modal opened');
-            }
-        }
 
-        function closeModal() {
-            updateDebug('Closing modal');
-            var modal = document.getElementById('modal');
-            if (modal) {
-                modal.classList.remove('show');
+            function navigateMonth(direction) {
+                currentMonth += direction;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                } else if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                updateDisplay();
+                buildCalendar();
             }
-            selectedDay = null;
-        }
 
-        function addSpending() {
-            updateDebug('Adding spending...');
-            var amountInput = document.getElementById('amountInput');
-            
-            if (!amountInput || !selectedDay) {
-                updateDebug('ERROR: Missing input or day');
-                return;
-            }
-            
-            var amount = parseFloat(amountInput.value);
-            if (isNaN(amount) || amount <= 0) {
-                updateDebug('ERROR: Invalid amount');
-                return;
-            }
-            
-            var key = getDateKey(selectedDay);
-            var existing = spendingData[key] || 0;
-            spendingData[key] = existing + amount;
-            
-            updateDebug('Added £' + amount + ' to day ' + selectedDay);
-            
-            amountInput.value = '';
-            updateDisplay();
-            buildCalendar();
-            
-            var currentTotal = document.getElementById('currentTotal');
-            if (currentTotal) {
-                currentTotal.textContent = 'Total: £' + getDayTotal(selectedDay).toFixed(2);
-            }
-        }
-
-        function initApp() {
-            updateDebug('Initializing app...');
-            
-            // Update display first
-            updateDisplay();
-            
-            // Build calendar
-            buildCalendar();
-            
-            // Set up buttons
-            var prevBtn = document.getElementById('prevBtn');
-            var nextBtn = document.getElementById('nextBtn');
-            var addBtn = document.getElementById('addBtn');
-            var cancelBtn = document.getElementById('cancelBtn');
-            
-            if (prevBtn) {
-                prevBtn.onclick = function() {
-                    currentMonth--;
-                    if (currentMonth < 0) {
-                        currentMonth = 11;
-                        currentYear--;
-                    }
-                    updateDisplay();
-                    buildCalendar();
-                };
-            }
-            
-            if (nextBtn) {
-                nextBtn.onclick = function() {
-                    currentMonth++;
-                    if (currentMonth > 11) {
-                        currentMonth = 0;
-                        currentYear++;
-                    }
-                    updateDisplay();
-                    buildCalendar();
-                };
-            }
-            
-            if (addBtn) {
-                addBtn.onclick = addSpending;
-            }
-            
-            if (cancelBtn) {
-                cancelBtn.onclick = closeModal;
-            }
-            
-            updateDebug('App ready! Click any day to add spending.');
-        }
-
-        // Start the app
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initApp);
-        } else {
-            initApp();
-        }
-    </script>
-</body>
-</html>
+            // Initialize function
+            function initialize() {
+                if (isInitialized) return;
+                isInitialized = true;
+                
+                // Load data
+                loadData();
+                
+                // Set up event listeners
+                var prevBtn = document.getElementById('prevBtn');
+                var nextBtn = document.getElementById('nextBtn');
+                var addBtn = document.getElementById('addBtn');
+                var cancelBtn = document.getElementById('cancelBtn');
+                var modal = document.getElementById('modal');
+                var amountInput = document.getElementById('amountInput');
+                var notesInput = document.getElementById('notesInput');
+                
+                if (prevBtn) {
+                    prevBtn.addEventListener('click', function() {
+                        navigateMonth(-1);
+                    });
+                }
+                
+                if (nextBtn) {
+                    nextBtn.addEventListener('click', function() {
+                        navigateMonth(1);
+                    });
+                }
+                
+                if (addBtn) {
+                    addBtn.addEventListener('click', addSpending);
+                }
+                
+                if (cancelBtn) {
+                    cancelBtn.addEventListener('click', closeModal);
+                }
+                
+                if (modal) {
+                    modal.addEventListener('click', function(e) {
+                        if (e.target.id === 'modal') {
+                            closeModal();
+                        }
+                    });
+                }
+                
+                if (amountInput) {
+                    amountInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            if (notesInput) {
+                                notesInput.focus();
+                            } else {
+                                addSpending();
+                            }
+                        }
+                    });
+                }
+                
+                if (notesInput) {
+                    notesInput.addEventListener('keypress', function(e) {
+                        if (e.key === 'Enter') {
+                            addSpending();
+          
