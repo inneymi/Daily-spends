@@ -59,15 +59,6 @@
             border-radius: 6px;
             font-weight: 600;
             font-size: 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-
-        .total:hover {
-            background: #047857;
-            border-color: #10b981;
-            transform: translateY(-1px);
         }
 
         .nav {
@@ -208,8 +199,6 @@
             width: 100%;
             max-width: 280px;
             border: 1px solid #374151;
-            max-height: 80vh;
-            overflow-y: auto;
         }
 
         .modal-header {
@@ -232,15 +221,6 @@
             font-size: 12px;
             font-weight: 600;
             display: inline-block;
-            cursor: pointer;
-            transition: all 0.2s;
-            border: 2px solid transparent;
-        }
-
-        .current-total:hover {
-            background: #047857;
-            border-color: #10b981;
-            transform: translateY(-1px);
         }
 
         .input-section {
@@ -294,288 +274,6 @@
             background: #6b7280;
             color: white;
         }
-
-        .transaction-summary {
-            background: #374151;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin: 12px 0;
-            font-size: 11px;
-            color: #d1d5db;
-            border: 1px solid #4b5563;
-            text-align: center;
-        }
-
-        .transaction-summary.has-transactions {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .transaction-summary.has-transactions:hover {
-            background: #4b5563;
-            border-color: #6b7280;
-        }
-
-        .transaction-indicator {
-            color: #34d399;
-            font-weight: 600;
-        }
-
-        .view-details-hint {
-            color: #9ca3af;
-            font-size: 10px;
-            margin-top: 2px;
-        }
-
-        /* Transaction Page */
-        .transaction-page {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: #111827;
-            z-index: 2000;
-            display: none;
-            flex-direction: column;
-        }
-
-        .transaction-page.show {
-            display: flex;
-        }
-
-        .transaction-page-header {
-            background: #1f2937;
-            padding: 16px;
-            border-bottom: 1px solid #374151;
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
-
-        .back-to-modal {
-            background: #374151;
-            border: none;
-            color: #d1d5db;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: 600;
-        }
-
-        .back-to-modal:hover {
-            background: #4b5563;
-        }
-
-        .transaction-page-title {
-            flex: 1;
-        }
-
-        .transaction-page-title > div:first-child {
-            font-size: 18px;
-            font-weight: bold;
-            color: #f9fafb;
-        }
-
-        .transaction-page-title > div:last-child {
-            background: #059669;
-            color: white;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 4px;
-        }
-
-        .transaction-page-content {
-            flex: 1;
-            padding: 16px;
-            overflow-y: auto;
-            max-width: 400px;
-            margin: 0 auto;
-            width: 100%;
-        }
-
-        .transactions-section {
-            background: #1f2937;
-            border-radius: 12px;
-            padding: 16px;
-            border: 1px solid #374151;
-        }
-
-        .transactions-section-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin-bottom: 12px;
-        }
-
-        .page-transaction-item {
-            background: #374151;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 12px;
-            border: 1px solid #4b5563;
-        }
-
-        .page-transaction-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .page-transaction-amount {
-            font-weight: 600;
-            color: #34d399;
-            font-size: 16px;
-        }
-
-        .page-transaction-time {
-            font-size: 11px;
-            color: #9ca3af;
-        }
-
-        .page-transaction-actions {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-
-        .page-transaction-edit, .page-transaction-delete {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .page-transaction-edit {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .page-transaction-delete {
-            background: #dc2626;
-            color: white;
-        }
-
-        .page-transaction-notes {
-            font-size: 14px;
-            color: #d1d5db;
-            margin-top: 8px;
-            font-style: italic;
-        }
-
-        .page-edit-inputs {
-            margin-top: 12px;
-            display: none;
-        }
-
-        .page-edit-inputs.show {
-            display: block;
-        }
-
-        .page-edit-amount, .page-edit-notes {
-            width: 100%;
-            padding: 8px;
-            background: #4b5563;
-            border: 1px solid #6b7280;
-            border-radius: 4px;
-            color: #f9fafb;
-            font-size: 14px;
-            margin-bottom: 8px;
-        }
-
-        .page-edit-buttons {
-            display: flex;
-            gap: 8px;
-        }
-
-        .page-edit-save, .page-edit-cancel {
-            flex: 1;
-            padding: 8px;
-            border: none;
-            border-radius: 6px;
-            font-size: 12px;
-            cursor: pointer;
-            font-weight: 600;
-        }
-
-        .page-edit-save {
-            background: #059669;
-            color: white;
-        }
-
-        .page-edit-cancel {
-            background: #6b7280;
-            color: white;
-        }
-
-        /* Monthly Overview */
-        .day-group {
-            margin-bottom: 16px;
-        }
-
-        .day-header {
-            background: #4b5563;
-            color: #f9fafb;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .day-total {
-            color: #34d399;
-            font-size: 11px;
-        }
-
-        .monthly-transaction-item {
-            background: #374151;
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 6px;
-            border: 1px solid #4b5563;
-            font-size: 12px;
-        }
-
-        .monthly-transaction-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .monthly-transaction-amount {
-            font-weight: 600;
-            color: #34d399;
-        }
-
-        .monthly-transaction-time {
-            font-size: 10px;
-            color: #9ca3af;
-        }
-
-        .monthly-transaction-notes {
-            font-size: 11px;
-            color: #d1d5db;
-            margin-top: 4px;
-            font-style: italic;
-        }
-
-        .no-transactions {
-            text-align: center;
-            color: #9ca3af;
-            padding: 40px 20px;
-            font-size: 14px;
-        }
     </style>
 </head>
 <body>
@@ -620,7 +318,6 @@
                 <div class="modal-title" id="modalDate">July 6</div>
                 <div class="current-total" id="currentTotal">Total: £0.00</div>
             </div>
-            
             <div class="input-section">
                 <input type="number" 
                        step="0.01" 
@@ -633,13 +330,6 @@
                        placeholder="Notes (optional)"
                        style="font-size: 14px; text-align: left;">
             </div>
-            
-            <!-- Transaction Summary -->
-            <div class="transaction-summary" id="transactionSummary">
-                <div id="summaryText">No transactions yet</div>
-                <div class="view-details-hint" id="summaryHint" style="display: none;">Tap to view details</div>
-            </div>
-            
             <div class="modal-buttons">
                 <button class="modal-btn btn-add" id="addBtn">Add</button>
                 <button class="modal-btn btn-cancel" id="cancelBtn">Close</button>
@@ -647,47 +337,9 @@
         </div>
     </div>
 
-    <!-- Transaction Management Page -->
-    <div class="transaction-page" id="transactionPage">
-        <div class="transaction-page-header">
-            <button class="back-to-modal" id="backToModal">← Back</button>
-            <div class="transaction-page-title">
-                <div id="transactionPageDate">July 6</div>
-                <div id="transactionPageTotal">Total: £0.00</div>
-            </div>
-        </div>
-        
-        <div class="transaction-page-content">
-            <div class="transactions-section">
-                <div class="transactions-section-title">Transactions</div>
-                <div id="pageTransactionList">
-                    <!-- Transactions will be populated here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Monthly Overview Modal -->
-    <div class="modal" id="monthlyModal">
-        <div class="modal-content" style="max-width: 320px; max-height: 80vh;">
-            <div class="modal-header">
-                <div class="modal-title" id="monthlyModalTitle">July 2025 Overview</div>
-                <div class="current-total" id="monthlyModalTotal">Total: £0.00</div>
-            </div>
-            
-            <div style="max-height: 60vh; overflow-y: auto; margin-bottom: 16px;">
-                <div id="monthlyTransactionList">
-                    <!-- Monthly transactions will be populated here -->
-                </div>
-            </div>
-            
-            <div class="modal-buttons">
-                <button class="modal-btn btn-cancel" id="closeMonthlyBtn">Close</button>
-            </div>
-        </div>
-    </div>
-
     <script>
+        console.log('Script starting...');
+
         // Global variables
         var spendingData = {};
         var currentMonth = 6; // July = 6 (0-based)
@@ -699,12 +351,15 @@
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
 
+        console.log('Variables initialized');
+
         // Load data from localStorage
         function loadData() {
             try {
                 var saved = localStorage.getItem('spendingData');
                 if (saved) {
                     spendingData = JSON.parse(saved);
+                    console.log('Data loaded:', spendingData);
                 }
             } catch (e) {
                 console.log('Using memory storage');
@@ -715,6 +370,7 @@
         function saveData() {
             try {
                 localStorage.setItem('spendingData', JSON.stringify(spendingData));
+                console.log('Data saved');
             } catch (e) {
                 console.log('Using memory storage');
             }
@@ -731,7 +387,6 @@
             var data = spendingData[dateKey];
             if (!data) return 0;
             
-            // Handle both old and new format
             if (typeof data === 'number') return data;
             if (data.amount) return data.amount;
             if (data.transactions) {
@@ -744,15 +399,262 @@
             return 0;
         }
 
-        // Get transactions for a day
-        function getDayTransactions(day) {
-            var dateKey = getDateKey(day);
-            var data = spendingData[dateKey];
-            if (!data) return [];
+        // Get month total
+        function getMonthTotal() {
+            var total = 0;
+            for (var day = 1; day <= 31; day++) {
+                total += getDayTotal(day);
+            }
+            return total;
+        }
+
+        // Update display
+        function updateDisplay() {
+            console.log('Updating display...');
+            document.getElementById('monthTitle').textContent = 
+                months[currentMonth] + ' ' + currentYear;
+            document.getElementById('monthTotal').textContent = 
+                'Total: £' + getMonthTotal().toFixed(2);
+            console.log('Display updated');
+        }
+
+        // Build calendar
+        function buildCalendar() {
+            console.log('Building calendar...');
             
-            if (typeof data === 'number') {
-                // Convert simple total to transaction
-                return [{
-                    id: 'legacy-' + dateKey,
-                    amount: data,
-                    notes: ''
+            var grid = document.getElementById('daysGrid');
+            if (!grid) {
+                console.error('daysGrid element not found!');
+                return;
+            }
+            
+            grid.innerHTML = '';
+
+            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            var today = new Date();
+
+            // Empty days
+            for (var i = 0; i < firstDay; i++) {
+                var emptyDay = document.createElement('div');
+                emptyDay.className = 'day empty-day';
+                grid.appendChild(emptyDay);
+            }
+
+            // Days
+            for (var day = 1; day <= daysInMonth; day++) {
+                var dayEl = document.createElement('div');
+                dayEl.className = 'day';
+                
+                var amount = getDayTotal(day);
+                var isToday = (today.getDate() === day && 
+                              today.getMonth() === currentMonth && 
+                              today.getFullYear() === currentYear);
+
+                if (isToday) dayEl.className += ' today';
+                if (amount > 0) dayEl.className += ' has-spending';
+
+                var content = '<div class="day-number">' + day + '</div>';
+                if (amount > 0) {
+                    content += '<div class="day-amount">£' + amount.toFixed(2) + '</div>';
+                } else {
+                    content += '<div class="plus-icon">+</div>';
+                }
+                
+                dayEl.innerHTML = content;
+                
+                // Add click handler
+                (function(d) {
+                    dayEl.onclick = function() { 
+                        console.log('Day clicked:', d);
+                        openModal(d); 
+                    };
+                })(day);
+                
+                grid.appendChild(dayEl);
+            }
+            
+            console.log('Calendar built with', daysInMonth, 'days');
+        }
+
+        // Open modal
+        function openModal(day) {
+            console.log('Opening modal for day:', day);
+            selectedDay = day;
+            
+            var modal = document.getElementById('modal');
+            var modalDate = document.getElementById('modalDate');
+            var currentTotal = document.getElementById('currentTotal');
+            var amountInput = document.getElementById('amountInput');
+            var notesInput = document.getElementById('notesInput');
+            
+            if (!modal || !modalDate || !currentTotal) {
+                console.error('Modal elements not found!');
+                return;
+            }
+            
+            modalDate.textContent = months[currentMonth] + ' ' + day;
+            currentTotal.textContent = 'Total: £' + getDayTotal(day).toFixed(2);
+            amountInput.value = '';
+            notesInput.value = '';
+            
+            modal.classList.add('show');
+            
+            setTimeout(function() {
+                if (amountInput) amountInput.focus();
+            }, 100);
+        }
+
+        // Close modal
+        function closeModal() {
+            console.log('Closing modal');
+            var modal = document.getElementById('modal');
+            if (modal) {
+                modal.classList.remove('show');
+            }
+            selectedDay = null;
+        }
+
+        // Add spending
+        function addSpending() {
+            console.log('Adding spending...');
+            try {
+                var amountInput = document.getElementById('amountInput');
+                var notesInput = document.getElementById('notesInput');
+                
+                if (!amountInput || !notesInput) {
+                    console.error('Input elements not found!');
+                    return;
+                }
+                
+                var amount = parseFloat(amountInput.value);
+                var notes = notesInput.value.trim();
+                
+                console.log('Amount:', amount, 'Notes:', notes, 'Day:', selectedDay);
+                
+                if (isNaN(amount) || amount === 0 || !selectedDay) {
+                    console.log('Invalid input');
+                    return;
+                }
+
+                var dateKey = getDateKey(selectedDay);
+                var existing = getDayTotal(selectedDay);
+                var newTotal = existing + amount;
+                
+                console.log('Saving new total:', newTotal);
+                spendingData[dateKey] = newTotal;
+
+                amountInput.value = '';
+                notesInput.value = '';
+
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                
+                var currentTotal = document.getElementById('currentTotal');
+                if (currentTotal) {
+                    currentTotal.textContent = 'Total: £' + getDayTotal(selectedDay).toFixed(2);
+                }
+                
+                console.log('Spending added successfully');
+                
+            } catch (error) {
+                console.error('Error adding spending:', error);
+                alert('Error adding spending. Please try again.');
+            }
+        }
+
+        // Navigate months
+        function navigateMonth(direction) {
+            console.log('Navigating month:', direction);
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateDisplay();
+            buildCalendar();
+        }
+
+        // Initialize app
+        function initApp() {
+            console.log('Initializing app...');
+            
+            // Load data
+            loadData();
+            
+            // Update display
+            updateDisplay();
+            
+            // Build calendar
+            buildCalendar();
+            
+            // Set up event listeners
+            var prevBtn = document.getElementById('prevBtn');
+            var nextBtn = document.getElementById('nextBtn');
+            var addBtn = document.getElementById('addBtn');
+            var cancelBtn = document.getElementById('cancelBtn');
+            var modal = document.getElementById('modal');
+            var amountInput = document.getElementById('amountInput');
+            var notesInput = document.getElementById('notesInput');
+            
+            if (prevBtn) {
+                prevBtn.onclick = function() { navigateMonth(-1); };
+                console.log('Prev button connected');
+            }
+            
+            if (nextBtn) {
+                nextBtn.onclick = function() { navigateMonth(1); };
+                console.log('Next button connected');
+            }
+            
+            if (addBtn) {
+                addBtn.onclick = addSpending;
+                console.log('Add button connected');
+            }
+            
+            if (cancelBtn) {
+                cancelBtn.onclick = closeModal;
+                console.log('Cancel button connected');
+            }
+            
+            if (modal) {
+                modal.onclick = function(e) {
+                    if (e.target.id === 'modal') closeModal();
+                };
+                console.log('Modal click outside connected');
+            }
+            
+            if (amountInput) {
+                amountInput.onkeypress = function(e) {
+                    if (e.key === 'Enter') {
+                        if (notesInput) notesInput.focus();
+                    }
+                };
+                console.log('Amount input Enter connected');
+            }
+            
+            if (notesInput) {
+                notesInput.onkeypress = function(e) {
+                    if (e.key === 'Enter') addSpending();
+                };
+                console.log('Notes input Enter connected');
+            }
+            
+            console.log('App initialized successfully!');
+        }
+
+        // Wait for DOM to be ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initApp);
+        } else {
+            initApp();
+        }
+
+        console.log('Script loaded');
+    </script>
+</body>
+</html>
