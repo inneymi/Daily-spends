@@ -5,18 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spends</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: Arial, sans-serif;
             background: #111827;
             color: #f9fafb;
-            min-height: 100vh;
-            padding: 16px;
+            margin: 16px;
+            padding: 0;
         }
 
         .container {
@@ -25,31 +19,19 @@
             background: #1f2937;
             border-radius: 16px;
             padding: 16px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: flex-start;
+            align-items: center;
             margin-bottom: 16px;
-        }
-
-        .title-section {
-            flex: 1;
         }
 
         .title {
             font-size: 18px;
             font-weight: bold;
             color: #f9fafb;
-            margin-bottom: 2px;
-        }
-
-        .subtitle {
-            font-size: 11px;
-            color: #9ca3af;
-            line-height: 1.3;
         }
 
         .total {
@@ -57,34 +39,19 @@
             color: white;
             padding: 6px 10px;
             border-radius: 6px;
-            font-weight: 600;
+            font-weight: bold;
             font-size: 12px;
         }
 
         .nav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            text-align: center;
             margin-bottom: 16px;
-            gap: 8px;
-        }
-
-        .nav-btn {
-            background: #374151;
-            border: none;
-            color: #d1d5db;
-            padding: 8px 12px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 12px;
         }
 
         .month-title {
             font-size: 16px;
             font-weight: bold;
             color: #f9fafb;
-            text-align: center;
-            flex: 1;
         }
 
         .calendar {
@@ -93,42 +60,31 @@
             padding: 12px;
         }
 
-        .weekdays {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
-            margin-bottom: 8px;
+        table {
+            width: 100%;
+            border-collapse: collapse;
         }
 
         .weekday {
             text-align: center;
-            font-weight: 600;
+            font-weight: bold;
             color: #9ca3af;
             font-size: 10px;
-            padding: 4px 0;
-            min-height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .days {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 3px;
+            padding: 4px;
+            border: none;
         }
 
         .day {
             border: 2px solid #4b5563;
             background: #4b5563;
             border-radius: 6px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
+            text-align: center;
             cursor: pointer;
             height: 40px;
-            width: 100%;
+            width: 40px;
+            margin: 1px;
+            display: inline-block;
+            vertical-align: top;
             padding: 2px;
             box-sizing: border-box;
         }
@@ -151,33 +107,34 @@
         }
 
         .day-number {
-            font-weight: 600;
+            font-weight: bold;
             font-size: 11px;
-            line-height: 1;
             color: #f9fafb;
         }
 
         .day-amount {
             font-size: 7px;
-            font-weight: 600;
-            margin-top: 1px;
+            font-weight: bold;
             color: #34d399;
-            line-height: 1;
-            text-align: center;
+            margin-top: 1px;
         }
 
         .plus-icon {
             font-size: 8px;
             color: #6b7280;
-            margin-top: 1px;
+            margin-top: 2px;
         }
 
         .empty-day {
-            border: none;
-            background: none;
-            cursor: default;
             height: 40px;
-            width: 100%;
+            width: 40px;
+            margin: 1px;
+            display: inline-block;
+        }
+
+        .calendar-row {
+            text-align: center;
+            margin-bottom: 3px;
         }
 
         /* Modal */
@@ -189,22 +146,20 @@
             bottom: 0;
             background: rgba(0,0,0,0.8);
             display: none;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
             z-index: 1000;
         }
 
         .modal.show {
-            display: flex;
+            display: block;
         }
 
         .modal-content {
             background: #1f2937;
             border-radius: 16px;
             padding: 20px;
-            width: 100%;
             max-width: 280px;
+            margin: 50px auto;
             border: 1px solid #374151;
         }
 
@@ -226,8 +181,7 @@
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
+            font-weight: bold;
         }
 
         .input-section {
@@ -243,33 +197,22 @@
             color: #f9fafb;
             font-size: 16px;
             text-align: center;
-            outline: none;
-            transition: border-color 0.2s;
             margin-bottom: 8px;
-        }
-
-        .amount-input:focus {
-            border-color: #3b82f6;
-        }
-
-        .amount-input::placeholder {
-            color: #6b7280;
+            box-sizing: border-box;
         }
 
         .modal-buttons {
-            display: flex;
-            gap: 8px;
+            text-align: center;
         }
 
         .modal-btn {
-            flex: 1;
-            padding: 12px;
+            padding: 12px 24px;
             border: none;
             border-radius: 8px;
-            font-weight: 600;
+            font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
             font-size: 14px;
+            margin: 0 4px;
         }
 
         .btn-add {
@@ -287,66 +230,174 @@
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="title-section">
-                <div class="title">Daily Spends</div>
-                <div class="subtitle">Click any day to track spending</div>
-            </div>
+            <div class="title">Daily Spends</div>
             <div class="total" id="monthTotal">Total: £0.00</div>
         </div>
 
         <!-- Navigation -->
         <div class="nav">
-            <button class="nav-btn" id="prevBtn">‹ Prev</button>
-            <div class="month-title" id="monthTitle">July 2025</div>
-            <button class="nav-btn" id="nextBtn">Next ›</button>
+            <div class="month-title">July 2025</div>
         </div>
 
         <!-- Calendar -->
         <div class="calendar">
-            <div class="weekdays">
-                <div class="weekday">Sun</div>
-                <div class="weekday">Mon</div>
-                <div class="weekday">Tue</div>
-                <div class="weekday">Wed</div>
-                <div class="weekday">Thu</div>
-                <div class="weekday">Fri</div>
-                <div class="weekday">Sat</div>
+            <!-- Weekday headers -->
+            <div class="calendar-row">
+                <div class="weekday" style="display: inline-block; width: 40px;">Sun</div>
+                <div class="weekday" style="display: inline-block; width: 40px;">Mon</div>
+                <div class="weekday" style="display: inline-block; width: 40px;">Tue</div>
+                <div class="weekday" style="display: inline-block; width: 40px;">Wed</div>
+                <div class="weekday" style="display: inline-block; width: 40px;">Thu</div>
+                <div class="weekday" style="display: inline-block; width: 40px;">Fri</div>
+                <div class="weekday" style="display: inline-block; width: 40px;">Sat</div>
             </div>
-            <div class="days" id="daysGrid">
-                <!-- Default July 2025 calendar - will be populated by JavaScript if it works -->
+
+            <!-- Week 1 -->
+            <div class="calendar-row">
                 <div class="empty-day"></div>
                 <div class="empty-day"></div>
-                <div class="day" onclick="openModal(1)"><div class="day-number">1</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(2)"><div class="day-number">2</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(3)"><div class="day-number">3</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(4)"><div class="day-number">4</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(5)"><div class="day-number">5</div><div class="plus-icon">+</div></div>
-                <div class="day today" onclick="openModal(6)"><div class="day-number">6</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(7)"><div class="day-number">7</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(8)"><div class="day-number">8</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(9)"><div class="day-number">9</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(10)"><div class="day-number">10</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(11)"><div class="day-number">11</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(12)"><div class="day-number">12</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(13)"><div class="day-number">13</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(14)"><div class="day-number">14</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(15)"><div class="day-number">15</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(16)"><div class="day-number">16</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(17)"><div class="day-number">17</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(18)"><div class="day-number">18</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(19)"><div class="day-number">19</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(20)"><div class="day-number">20</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(21)"><div class="day-number">21</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(22)"><div class="day-number">22</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(23)"><div class="day-number">23</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(24)"><div class="day-number">24</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(25)"><div class="day-number">25</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(26)"><div class="day-number">26</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(27)"><div class="day-number">27</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(28)"><div class="day-number">28</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(29)"><div class="day-number">29</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(30)"><div class="day-number">30</div><div class="plus-icon">+</div></div>
-                <div class="day" onclick="openModal(31)"><div class="day-number">31</div><div class="plus-icon">+</div></div>
+                <div class="day" onclick="openModal(1)">
+                    <div class="day-number">1</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(2)">
+                    <div class="day-number">2</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(3)">
+                    <div class="day-number">3</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(4)">
+                    <div class="day-number">4</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(5)">
+                    <div class="day-number">5</div>
+                    <div class="plus-icon">+</div>
+                </div>
+            </div>
+
+            <!-- Week 2 -->
+            <div class="calendar-row">
+                <div class="day today" onclick="openModal(6)">
+                    <div class="day-number">6</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(7)">
+                    <div class="day-number">7</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(8)">
+                    <div class="day-number">8</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(9)">
+                    <div class="day-number">9</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(10)">
+                    <div class="day-number">10</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(11)">
+                    <div class="day-number">11</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(12)">
+                    <div class="day-number">12</div>
+                    <div class="plus-icon">+</div>
+                </div>
+            </div>
+
+            <!-- Week 3 -->
+            <div class="calendar-row">
+                <div class="day" onclick="openModal(13)">
+                    <div class="day-number">13</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(14)">
+                    <div class="day-number">14</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(15)">
+                    <div class="day-number">15</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(16)">
+                    <div class="day-number">16</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(17)">
+                    <div class="day-number">17</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(18)">
+                    <div class="day-number">18</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(19)">
+                    <div class="day-number">19</div>
+                    <div class="plus-icon">+</div>
+                </div>
+            </div>
+
+            <!-- Week 4 -->
+            <div class="calendar-row">
+                <div class="day" onclick="openModal(20)">
+                    <div class="day-number">20</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(21)">
+                    <div class="day-number">21</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(22)">
+                    <div class="day-number">22</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(23)">
+                    <div class="day-number">23</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(24)">
+                    <div class="day-number">24</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(25)">
+                    <div class="day-number">25</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(26)">
+                    <div class="day-number">26</div>
+                    <div class="plus-icon">+</div>
+                </div>
+            </div>
+
+            <!-- Week 5 -->
+            <div class="calendar-row">
+                <div class="day" onclick="openModal(27)">
+                    <div class="day-number">27</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(28)">
+                    <div class="day-number">28</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(29)">
+                    <div class="day-number">29</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(30)">
+                    <div class="day-number">30</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="day" onclick="openModal(31)">
+                    <div class="day-number">31</div>
+                    <div class="plus-icon">+</div>
+                </div>
+                <div class="empty-day"></div>
+                <div class="empty-day"></div>
             </div>
         </div>
     </div>
@@ -364,11 +415,6 @@
                        class="amount-input" 
                        id="amountInput" 
                        placeholder="Amount to add (£)">
-                <input type="text" 
-                       class="amount-input" 
-                       id="notesInput" 
-                       placeholder="Notes (optional)"
-                       style="font-size: 14px; text-align: left;">
             </div>
             <div class="modal-buttons">
                 <button class="modal-btn btn-add" onclick="addSpending()">Add</button>
@@ -378,16 +424,9 @@
     </div>
 
     <script>
-        // Global variables
         var spendingData = {};
-        var currentMonth = 6; // July
-        var currentYear = 2025;
         var selectedDay = null;
 
-        var months = ['January', 'February', 'March', 'April', 'May', 'June',
-                      'July', 'August', 'September', 'October', 'November', 'December'];
-
-        // Storage functions
         function loadData() {
             try {
                 var saved = localStorage.getItem('spendingData');
@@ -395,7 +434,7 @@
                     spendingData = JSON.parse(saved);
                 }
             } catch (e) {
-                // Use memory storage as fallback
+                // Use memory storage
             }
         }
 
@@ -403,17 +442,12 @@
             try {
                 localStorage.setItem('spendingData', JSON.stringify(spendingData));
             } catch (e) {
-                // Use memory storage as fallback
+                // Use memory storage
             }
         }
 
-        // Data functions
-        function getDateKey(day) {
-            return currentYear + '-' + currentMonth + '-' + day;
-        }
-
         function getDayTotal(day) {
-            var key = getDateKey(day);
+            var key = '2025-6-' + day;
             return spendingData[key] || 0;
         }
 
@@ -425,61 +459,13 @@
             return total;
         }
 
-        // Display functions
         function updateDisplay() {
-            var monthTitle = document.getElementById('monthTitle');
             var monthTotal = document.getElementById('monthTotal');
-            
-            if (monthTitle) {
-                monthTitle.textContent = months[currentMonth] + ' ' + currentYear;
-            }
-            
             if (monthTotal) {
                 monthTotal.textContent = 'Total: £' + getMonthTotal().toFixed(2);
             }
         }
 
-        function updateCalendar() {
-            // Update spending amounts for days that have spending
-            for (var day = 1; day <= 31; day++) {
-                var amount = getDayTotal(day);
-                var dayElements = document.querySelectorAll('.day');
-                
-                for (var i = 0; i < dayElements.length; i++) {
-                    var dayEl = dayElements[i];
-                    var numberEl = dayEl.querySelector('.day-number');
-                    if (numberEl && numberEl.textContent == day) {
-                        var plusEl = dayEl.querySelector('.plus-icon');
-                        var amountEl = dayEl.querySelector('.day-amount');
-                        
-                        if (amount > 0) {
-                            dayEl.className = dayEl.className.replace(' has-spending', '') + ' has-spending';
-                            if (plusEl) {
-                                plusEl.style.display = 'none';
-                            }
-                            if (!amountEl) {
-                                amountEl = document.createElement('div');
-                                amountEl.className = 'day-amount';
-                                dayEl.appendChild(amountEl);
-                            }
-                            amountEl.textContent = '£' + amount.toFixed(2);
-                            amountEl.style.display = 'block';
-                        } else {
-                            dayEl.className = dayEl.className.replace(' has-spending', '');
-                            if (plusEl) {
-                                plusEl.style.display = 'block';
-                            }
-                            if (amountEl) {
-                                amountEl.style.display = 'none';
-                            }
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-
-        // Modal functions
         function openModal(day) {
             selectedDay = day;
             
@@ -487,10 +473,9 @@
             var modalDate = document.getElementById('modalDate');
             var currentTotal = document.getElementById('currentTotal');
             var amountInput = document.getElementById('amountInput');
-            var notesInput = document.getElementById('notesInput');
             
             if (modalDate) {
-                modalDate.textContent = months[currentMonth] + ' ' + day;
+                modalDate.textContent = 'July ' + day;
             }
             
             if (currentTotal) {
@@ -501,25 +486,15 @@
                 amountInput.value = '';
             }
             
-            if (notesInput) {
-                notesInput.value = '';
-            }
-            
             if (modal) {
-                modal.style.display = 'flex';
+                modal.className = 'modal show';
             }
-            
-            setTimeout(function() {
-                if (amountInput) {
-                    amountInput.focus();
-                }
-            }, 200);
         }
 
         function closeModal() {
             var modal = document.getElementById('modal');
             if (modal) {
-                modal.style.display = 'none';
+                modal.className = 'modal';
             }
             selectedDay = null;
         }
@@ -533,7 +508,7 @@
             
             if (isNaN(amount) || amount <= 0) return;
             
-            var key = getDateKey(selectedDay);
+            var key = '2025-6-' + selectedDay;
             var existing = getDayTotal(selectedDay);
             var newTotal = existing + amount;
             
@@ -543,7 +518,6 @@
             
             saveData();
             updateDisplay();
-            updateCalendar();
             
             var currentTotal = document.getElementById('currentTotal');
             if (currentTotal) {
@@ -551,36 +525,19 @@
             }
         }
 
-        // Initialize app
-        function init() {
-            loadData();
-            updateDisplay();
-            updateCalendar();
-            
-            // Modal click outside to close
-            var modal = document.getElementById('modal');
-            if (modal) {
-                modal.onclick = function(e) {
-                    if (e.target.id === 'modal') {
-                        closeModal();
-                    }
-                };
-            }
+        // Initialize
+        loadData();
+        updateDisplay();
 
-            // Enter key support
-            var amountInput = document.getElementById('amountInput');
-            var notesInput = document.getElementById('notesInput');
-            
-            if (amountInput) {
-                amountInput.onkeypress = function(e) {
-                    if (e.key === 'Enter') {
-                        if (notesInput) {
-                            notesInput.focus();
-                        } else {
-                            addSpending();
-                        }
-                    }
-                };
-            }
-            
-         
+        // Modal click outside to close
+        var modal = document.getElementById('modal');
+        if (modal) {
+            modal.onclick = function(e) {
+                if (e.target.id === 'modal') {
+                    closeModal();
+                }
+            };
+        }
+    </script>
+</body>
+</html>
