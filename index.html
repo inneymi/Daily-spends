@@ -70,10 +70,6 @@
             transform: translateY(-1px);
         }
 
-        .total:active {
-            transform: translateY(0px);
-        }
-
         .nav {
             display: flex;
             justify-content: space-between;
@@ -247,43 +243,6 @@
             transform: translateY(-1px);
         }
 
-        .current-total.breakdown-mode {
-            background: #374151;
-            border-color: #6b7280;
-        }
-
-        .transaction-summary {
-            background: #374151;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin: 12px 0;
-            font-size: 11px;
-            color: #d1d5db;
-            border: 1px solid #4b5563;
-            text-align: center;
-        }
-
-        .transaction-summary.has-transactions {
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .transaction-summary.has-transactions:hover {
-            background: #4b5563;
-            border-color: #6b7280;
-        }
-
-        .transaction-indicator {
-            color: #34d399;
-            font-weight: 600;
-        }
-
-        .view-details-hint {
-            color: #9ca3af;
-            font-size: 10px;
-            margin-top: 2px;
-        }
-
         .input-section {
             margin-bottom: 16px;
         }
@@ -336,259 +295,36 @@
             color: white;
         }
 
-        .btn-back {
-            background: #6b7280;
-            color: white;
-        }
-
-        /* Breakdown view */
-        .breakdown-view {
-            display: none;
-        }
-
-        .breakdown-view.show {
-            display: block;
-        }
-
-        .transactions-header {
+        .transaction-summary {
             background: #374151;
             border-radius: 8px;
-            padding: 12px;
+            padding: 8px 12px;
             margin: 12px 0;
-            text-align: center;
-            cursor: pointer;
+            font-size: 11px;
+            color: #d1d5db;
             border: 1px solid #4b5563;
-            transition: all 0.2s;
-            user-select: none;
+            text-align: center;
         }
 
-        .transactions-header:hover {
+        .transaction-summary.has-transactions {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .transaction-summary.has-transactions:hover {
             background: #4b5563;
             border-color: #6b7280;
         }
 
-        .transactions-header.collapsed {
-            background: #4b5563;
-        }
-
-        .transactions-count {
-            font-size: 12px;
-            color: #9ca3af;
-            font-weight: normal;
-        }
-
-        .transactions-title {
-            color: #f9fafb;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .transactions-toggle {
-            font-size: 10px;
-            color: #6b7280;
-            margin-top: 4px;
-        }
-
-        .transaction-list {
-            margin-bottom: 16px;
-            transition: all 0.3s ease;
-        }
-
-        .transaction-list.collapsed {
-            display: none;
-        }
-
-        .transaction-item {
-            background: #374151;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 8px;
-            border: 1px solid #4b5563;
-        }
-
-        .transaction-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 4px;
-        }
-
-        .transaction-amount {
-            font-weight: 600;
+        .transaction-indicator {
             color: #34d399;
-            font-size: 14px;
-        }
-
-        .transaction-time {
-            font-size: 10px;
-            color: #9ca3af;
-        }
-
-        .transaction-actions {
-            display: flex;
-            gap: 4px;
-        }
-
-        .transaction-edit {
-            background: #3b82f6;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 10px;
-            cursor: pointer;
-        }
-
-        .transaction-delete {
-            background: #dc2626;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 10px;
-            cursor: pointer;
-        }
-
-        .transaction-save {
-            background: #059669;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 10px;
-            cursor: pointer;
-        }
-
-        .transaction-cancel {
-            background: #6b7280;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            padding: 4px 8px;
-            font-size: 10px;
-            cursor: pointer;
-        }
-
-        .transaction-notes {
-            font-size: 12px;
-            color: #d1d5db;
-            margin-top: 4px;
-            font-style: italic;
-        }
-
-        .edit-inputs {
-            margin-top: 8px;
-            display: none;
-        }
-
-        .edit-inputs.show {
-            display: block;
-        }
-
-        .edit-amount-input {
-            width: 100%;
-            padding: 8px;
-            background: #4b5563;
-            border: 1px solid #6b7280;
-            border-radius: 4px;
-            color: #f9fafb;
-            font-size: 12px;
-            margin-bottom: 6px;
-        }
-
-        .edit-notes-input {
-            width: 100%;
-            padding: 8px;
-            background: #4b5563;
-            border: 1px solid #6b7280;
-            border-radius: 4px;
-            color: #f9fafb;
-            font-size: 12px;
-            margin-bottom: 8px;
-        }
-
-        .edit-buttons {
-            display: flex;
-            gap: 4px;
-        }
-
-        .add-transaction {
-            background: #374151;
-            border: 2px dashed #6b7280;
-            border-radius: 8px;
-            padding: 12px;
-            margin-bottom: 16px;
-        }
-
-        .simple-view {
-            display: block;
-        }
-
-        .simple-view.hide {
-            display: none;
-        }
-
-        /* Monthly Overview */
-        .day-group {
-            margin-bottom: 16px;
-        }
-
-        .day-header {
-            background: #4b5563;
-            color: #f9fafb;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
             font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
 
-        .day-total {
-            color: #34d399;
-            font-size: 11px;
-        }
-
-        .monthly-transaction-item {
-            background: #374151;
-            border-radius: 6px;
-            padding: 10px;
-            margin-bottom: 6px;
-            border: 1px solid #4b5563;
-            font-size: 12px;
-        }
-
-        .monthly-transaction-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .monthly-transaction-amount {
-            font-weight: 600;
-            color: #34d399;
-        }
-
-        .monthly-transaction-time {
+        .view-details-hint {
+            color: #9ca3af;
             font-size: 10px;
-            color: #9ca3af;
-        }
-
-        .monthly-transaction-notes {
-            font-size: 11px;
-            color: #d1d5db;
-            margin-top: 4px;
-            font-style: italic;
-        }
-
-        .no-transactions {
-            text-align: center;
-            color: #9ca3af;
-            padding: 40px 20px;
-            font-size: 14px;
+            margin-top: 2px;
         }
 
         /* Transaction Page */
@@ -778,6 +514,68 @@
             background: #6b7280;
             color: white;
         }
+
+        /* Monthly Overview */
+        .day-group {
+            margin-bottom: 16px;
+        }
+
+        .day-header {
+            background: #4b5563;
+            color: #f9fafb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-total {
+            color: #34d399;
+            font-size: 11px;
+        }
+
+        .monthly-transaction-item {
+            background: #374151;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 6px;
+            border: 1px solid #4b5563;
+            font-size: 12px;
+        }
+
+        .monthly-transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .monthly-transaction-amount {
+            font-weight: 600;
+            color: #34d399;
+        }
+
+        .monthly-transaction-time {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        .monthly-transaction-notes {
+            font-size: 11px;
+            color: #d1d5db;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .no-transactions {
+            text-align: center;
+            color: #9ca3af;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
@@ -788,6 +586,66 @@
                 <div class="title">Daily Spends</div>
                 <div class="subtitle">Click any day to track spending</div>
             </div>
+            <div class="total" id="monthTotal">Total: £0.00</div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav">
+            <button class="nav-btn" id="prevBtn">‹ Prev</button>
+            <div class="month-title" id="monthTitle">July 2025</div>
+            <button class="nav-btn" id="nextBtn">Next ›</button>
+        </div>
+
+        <!-- Calendar -->
+        <div class="calendar">
+            <div class="weekdays">
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
+            </div>
+            <div class="days" id="daysGrid">
+                <!-- Days will be populated by JavaScript -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalDate">July 6</div>
+                <div class="current-total" id="currentTotal">Total: £0.00</div>
+            </div>
+            
+            <div class="input-section">
+                <input type="number" 
+                       step="0.01" 
+                       class="amount-input" 
+                       id="amountInput" 
+                       placeholder="Amount to add (£)">
+                <input type="text" 
+                       class="amount-input" 
+                       id="notesInput" 
+                       placeholder="Notes (optional)"
+                       style="font-size: 14px; text-align: left;">
+            </div>
+            
+            <!-- Transaction Summary -->
+            <div class="transaction-summary" id="transactionSummary">
+                <div id="summaryText">No transactions yet</div>
+                <div class="view-details-hint" id="summaryHint" style="display: none;">Tap to view details</div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn btn-add" id="addBtn">Add</button>
+                <button class="modal-btn btn-cancel" id="cancelBtn">Close</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Transaction Management Page -->
     <div class="transaction-page" id="transactionPage">
@@ -800,7 +658,6 @@
         </div>
         
         <div class="transaction-page-content">
-            <!-- Transactions list only - no add section -->
             <div class="transactions-section">
                 <div class="transactions-section-title">Transactions</div>
                 <div id="pageTransactionList">
@@ -826,4 +683,76 @@
             
             <div class="modal-buttons">
                 <button class="modal-btn btn-cancel" id="closeMonthlyBtn">Close</button>
-            </d
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        var spendingData = {};
+        var currentMonth = 6; // July = 6 (0-based)
+        var currentYear = 2025;
+        var selectedDay = null;
+
+        var months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        // Load data from localStorage
+        function loadData() {
+            try {
+                var saved = localStorage.getItem('spendingData');
+                if (saved) {
+                    spendingData = JSON.parse(saved);
+                }
+            } catch (e) {
+                console.log('Using memory storage');
+            }
+        }
+
+        // Save data to localStorage
+        function saveData() {
+            try {
+                localStorage.setItem('spendingData', JSON.stringify(spendingData));
+            } catch (e) {
+                console.log('Using memory storage');
+            }
+        }
+
+        // Get date key
+        function getDateKey(day) {
+            return currentYear + '-' + currentMonth + '-' + day;
+        }
+
+        // Get total for a day
+        function getDayTotal(day) {
+            var dateKey = getDateKey(day);
+            var data = spendingData[dateKey];
+            if (!data) return 0;
+            
+            // Handle both old and new format
+            if (typeof data === 'number') return data;
+            if (data.amount) return data.amount;
+            if (data.transactions) {
+                var total = 0;
+                for (var i = 0; i < data.transactions.length; i++) {
+                    total += data.transactions[i].amount || 0;
+                }
+                return total;
+            }
+            return 0;
+        }
+
+        // Get transactions for a day
+        function getDayTransactions(day) {
+            var dateKey = getDateKey(day);
+            var data = spendingData[dateKey];
+            if (!data) return [];
+            
+            if (typeof data === 'number') {
+                // Convert simple total to transaction
+                return [{
+                    id: 'legacy-' + dateKey,
+                    amount: data,
+                    notes: ''
