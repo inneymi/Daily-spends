@@ -236,6 +236,15 @@
             font-size: 12px;
             font-weight: 600;
             display: inline-block;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .current-total:hover {
+            background: #047857;
+            border-color: #10b981;
+            transform: translateY(-1px);
         }
 
         .current-total.breakdown-mode {
@@ -653,53 +662,6 @@
             width: 100%;
         }
 
-        .add-section {
-            background: #1f2937;
-            border-radius: 12px;
-            padding: 16px;
-            margin-bottom: 20px;
-            border: 1px solid #374151;
-        }
-
-        .add-section-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #f9fafb;
-            margin-bottom: 12px;
-        }
-
-        .page-amount-input, .page-notes-input {
-            width: 100%;
-            padding: 12px;
-            background: #374151;
-            border: 2px solid #4b5563;
-            border-radius: 8px;
-            color: #f9fafb;
-            font-size: 16px;
-            outline: none;
-            margin-bottom: 12px;
-        }
-
-        .page-amount-input:focus, .page-notes-input:focus {
-            border-color: #3b82f6;
-        }
-
-        .page-add-btn {
-            width: 100%;
-            padding: 12px;
-            background: #3b82f6;
-            border: none;
-            border-radius: 8px;
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .page-add-btn:hover {
-            background: #2563eb;
-        }
-
         .transactions-section {
             background: #1f2937;
             border-radius: 12px;
@@ -838,9 +800,30 @@
         </div>
         
         <div class="transaction-page-content">
-            <!-- Add new transaction section -->
-            <div class="add-section">
-                <div class="add-section-title">Add Transaction</div>
-                <input type="number" 
-                       step="0.01" 
-                       class="page-a
+            <!-- Transactions list only - no add section -->
+            <div class="transactions-section">
+                <div class="transactions-section-title">Transactions</div>
+                <div id="pageTransactionList">
+                    <!-- Transactions will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Overview Modal -->
+    <div class="modal" id="monthlyModal">
+        <div class="modal-content" style="max-width: 320px; max-height: 80vh;">
+            <div class="modal-header">
+                <div class="modal-title" id="monthlyModalTitle">July 2025 Overview</div>
+                <div class="current-total" id="monthlyModalTotal">Total: £0.00</div>
+            </div>
+            
+            <div style="max-height: 60vh; overflow-y: auto; margin-bottom: 16px;">
+                <div id="monthlyTransactionList">
+                    <!-- Monthly transactions will be populated here -->
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" id="closeMonthlyBtn">Close</button>
+            </d
