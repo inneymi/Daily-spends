@@ -5,12 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spends</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: #111827;
             color: #f9fafb;
-            margin: 16px;
-            padding: 0;
+            min-height: 100vh;
+            padding: 16px;
         }
 
         .container {
@@ -19,19 +25,31 @@
             background: #1f2937;
             border-radius: 16px;
             padding: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
         .header {
             display: flex;
             justify-content: space-between;
-            align-items: center;
+            align-items: flex-start;
             margin-bottom: 16px;
+        }
+
+        .title-section {
+            flex: 1;
         }
 
         .title {
             font-size: 18px;
             font-weight: bold;
             color: #f9fafb;
+            margin-bottom: 2px;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: #9ca3af;
+            line-height: 1.3;
         }
 
         .total {
@@ -39,19 +57,43 @@
             color: white;
             padding: 6px 10px;
             border-radius: 6px;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .total:hover {
+            background: #047857;
+            border-color: #10b981;
+            transform: translateY(-1px);
         }
 
         .nav {
-            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 16px;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: #374151;
+            border: none;
+            color: #d1d5db;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
         }
 
         .month-title {
             font-size: 16px;
             font-weight: bold;
             color: #f9fafb;
+            text-align: center;
+            flex: 1;
         }
 
         .calendar {
@@ -60,33 +102,39 @@
             padding: 12px;
         }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            margin-bottom: 8px;
         }
 
         .weekday {
             text-align: center;
-            font-weight: bold;
+            font-weight: 600;
             color: #9ca3af;
             font-size: 10px;
-            padding: 4px;
-            border: none;
+            padding: 4px 0;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
         }
 
         .day {
+            aspect-ratio: 1;
             border: 2px solid #4b5563;
             background: #4b5563;
             border-radius: 6px;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
             cursor: pointer;
-            height: 40px;
-            width: 40px;
-            margin: 1px;
-            display: inline-block;
-            vertical-align: top;
+            min-height: 36px;
             padding: 2px;
-            box-sizing: border-box;
         }
 
         .day:hover {
@@ -107,34 +155,31 @@
         }
 
         .day-number {
-            font-weight: bold;
+            font-weight: 600;
             font-size: 11px;
+            line-height: 1;
             color: #f9fafb;
         }
 
         .day-amount {
             font-size: 7px;
-            font-weight: bold;
-            color: #34d399;
+            font-weight: 600;
             margin-top: 1px;
+            color: #34d399;
+            line-height: 1;
+            text-align: center;
         }
 
         .plus-icon {
             font-size: 8px;
             color: #6b7280;
-            margin-top: 2px;
+            margin-top: 1px;
         }
 
         .empty-day {
-            height: 40px;
-            width: 40px;
-            margin: 1px;
-            display: inline-block;
-        }
-
-        .calendar-row {
-            text-align: center;
-            margin-bottom: 3px;
+            border: none;
+            background: none;
+            cursor: default;
         }
 
         /* Modal */
@@ -146,21 +191,25 @@
             bottom: 0;
             background: rgba(0,0,0,0.8);
             display: none;
+            justify-content: center;
+            align-items: center;
             padding: 20px;
             z-index: 1000;
         }
 
         .modal.show {
-            display: block;
+            display: flex;
         }
 
         .modal-content {
             background: #1f2937;
             border-radius: 16px;
             padding: 20px;
+            width: 100%;
             max-width: 280px;
-            margin: 50px auto;
             border: 1px solid #374151;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -181,7 +230,17 @@
             padding: 6px 12px;
             border-radius: 6px;
             font-size: 12px;
-            font-weight: bold;
+            font-weight: 600;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .current-total:hover {
+            background: #047857;
+            border-color: #10b981;
+            transform: translateY(-1px);
         }
 
         .input-section {
@@ -197,22 +256,33 @@
             color: #f9fafb;
             font-size: 16px;
             text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
             margin-bottom: 8px;
-            box-sizing: border-box;
+        }
+
+        .amount-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .amount-input::placeholder {
+            color: #6b7280;
         }
 
         .modal-buttons {
-            text-align: center;
+            display: flex;
+            gap: 8px;
         }
 
         .modal-btn {
-            padding: 12px 24px;
+            flex: 1;
+            padding: 12px;
             border: none;
             border-radius: 8px;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
+            transition: all 0.2s;
             font-size: 14px;
-            margin: 0 4px;
         }
 
         .btn-add {
@@ -224,180 +294,321 @@
             background: #6b7280;
             color: white;
         }
+
+        .transaction-summary {
+            background: #374151;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 12px 0;
+            font-size: 11px;
+            color: #d1d5db;
+            border: 1px solid #4b5563;
+            text-align: center;
+        }
+
+        .transaction-summary.has-transactions {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .transaction-summary.has-transactions:hover {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+
+        .transaction-indicator {
+            color: #34d399;
+            font-weight: 600;
+        }
+
+        .view-details-hint {
+            color: #9ca3af;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        /* Transaction Page */
+        .transaction-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #111827;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .transaction-page.show {
+            display: flex;
+        }
+
+        .transaction-page-header {
+            background: #1f2937;
+            padding: 16px;
+            border-bottom: 1px solid #374151;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-to-modal {
+            background: #374151;
+            border: none;
+            color: #d1d5db;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-to-modal:hover {
+            background: #4b5563;
+        }
+
+        .transaction-page-title {
+            flex: 1;
+        }
+
+        .transaction-page-title > div:first-child {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f9fafb;
+        }
+
+        .transaction-page-title > div:last-child {
+            background: #059669;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .transaction-page-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .transactions-section {
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #374151;
+        }
+
+        .transactions-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f9fafb;
+            margin-bottom: 12px;
+        }
+
+        .page-transaction-item {
+            background: #374151;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #4b5563;
+        }
+
+        .page-transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .page-transaction-amount {
+            font-weight: 600;
+            color: #34d399;
+            font-size: 16px;
+        }
+
+        .page-transaction-time {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .page-transaction-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .page-transaction-edit, .page-transaction-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .page-transaction-edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .page-transaction-delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        .page-transaction-notes {
+            font-size: 14px;
+            color: #d1d5db;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .page-edit-inputs {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .page-edit-inputs.show {
+            display: block;
+        }
+
+        .page-edit-amount, .page-edit-notes {
+            width: 100%;
+            padding: 8px;
+            background: #4b5563;
+            border: 1px solid #6b7280;
+            border-radius: 4px;
+            color: #f9fafb;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .page-edit-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-edit-save, .page-edit-cancel {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .page-edit-save {
+            background: #059669;
+            color: white;
+        }
+
+        .page-edit-cancel {
+            background: #6b7280;
+            color: white;
+        }
+
+        /* Monthly Overview */
+        .day-group {
+            margin-bottom: 16px;
+        }
+
+        .day-header {
+            background: #4b5563;
+            color: #f9fafb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-total {
+            color: #34d399;
+            font-size: 11px;
+        }
+
+        .monthly-transaction-item {
+            background: #374151;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 6px;
+            border: 1px solid #4b5563;
+            font-size: 12px;
+        }
+
+        .monthly-transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .monthly-transaction-amount {
+            font-weight: 600;
+            color: #34d399;
+        }
+
+        .monthly-transaction-time {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        .monthly-transaction-notes {
+            font-size: 11px;
+            color: #d1d5db;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .no-transactions {
+            text-align: center;
+            color: #9ca3af;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <!-- Header -->
         <div class="header">
-            <div class="title">Daily Spends</div>
+            <div class="title-section">
+                <div class="title">Daily Spends</div>
+                <div class="subtitle">Click any day to track spending</div>
+            </div>
             <div class="total" id="monthTotal">Total: £0.00</div>
         </div>
 
         <!-- Navigation -->
         <div class="nav">
-            <div class="month-title">July 2025</div>
+            <button class="nav-btn" id="prevBtn">‹ Prev</button>
+            <div class="month-title" id="monthTitle">July 2025</div>
+            <button class="nav-btn" id="nextBtn">Next ›</button>
         </div>
 
         <!-- Calendar -->
         <div class="calendar">
-            <!-- Weekday headers -->
-            <div class="calendar-row">
-                <div class="weekday" style="display: inline-block; width: 40px;">Sun</div>
-                <div class="weekday" style="display: inline-block; width: 40px;">Mon</div>
-                <div class="weekday" style="display: inline-block; width: 40px;">Tue</div>
-                <div class="weekday" style="display: inline-block; width: 40px;">Wed</div>
-                <div class="weekday" style="display: inline-block; width: 40px;">Thu</div>
-                <div class="weekday" style="display: inline-block; width: 40px;">Fri</div>
-                <div class="weekday" style="display: inline-block; width: 40px;">Sat</div>
+            <div class="weekdays">
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
             </div>
-
-            <!-- Week 1 -->
-            <div class="calendar-row">
-                <div class="empty-day"></div>
-                <div class="empty-day"></div>
-                <div class="day" onclick="openModal(1)">
-                    <div class="day-number">1</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(2)">
-                    <div class="day-number">2</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(3)">
-                    <div class="day-number">3</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(4)">
-                    <div class="day-number">4</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(5)">
-                    <div class="day-number">5</div>
-                    <div class="plus-icon">+</div>
-                </div>
-            </div>
-
-            <!-- Week 2 -->
-            <div class="calendar-row">
-                <div class="day today" onclick="openModal(6)">
-                    <div class="day-number">6</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(7)">
-                    <div class="day-number">7</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(8)">
-                    <div class="day-number">8</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(9)">
-                    <div class="day-number">9</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(10)">
-                    <div class="day-number">10</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(11)">
-                    <div class="day-number">11</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(12)">
-                    <div class="day-number">12</div>
-                    <div class="plus-icon">+</div>
-                </div>
-            </div>
-
-            <!-- Week 3 -->
-            <div class="calendar-row">
-                <div class="day" onclick="openModal(13)">
-                    <div class="day-number">13</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(14)">
-                    <div class="day-number">14</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(15)">
-                    <div class="day-number">15</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(16)">
-                    <div class="day-number">16</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(17)">
-                    <div class="day-number">17</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(18)">
-                    <div class="day-number">18</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(19)">
-                    <div class="day-number">19</div>
-                    <div class="plus-icon">+</div>
-                </div>
-            </div>
-
-            <!-- Week 4 -->
-            <div class="calendar-row">
-                <div class="day" onclick="openModal(20)">
-                    <div class="day-number">20</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(21)">
-                    <div class="day-number">21</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(22)">
-                    <div class="day-number">22</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(23)">
-                    <div class="day-number">23</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(24)">
-                    <div class="day-number">24</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(25)">
-                    <div class="day-number">25</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(26)">
-                    <div class="day-number">26</div>
-                    <div class="plus-icon">+</div>
-                </div>
-            </div>
-
-            <!-- Week 5 -->
-            <div class="calendar-row">
-                <div class="day" onclick="openModal(27)">
-                    <div class="day-number">27</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(28)">
-                    <div class="day-number">28</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(29)">
-                    <div class="day-number">29</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(30)">
-                    <div class="day-number">30</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="day" onclick="openModal(31)">
-                    <div class="day-number">31</div>
-                    <div class="plus-icon">+</div>
-                </div>
-                <div class="empty-day"></div>
-                <div class="empty-day"></div>
+            <div class="days" id="daysGrid">
+                <!-- Days will be populated by JavaScript -->
             </div>
         </div>
     </div>
@@ -409,24 +620,86 @@
                 <div class="modal-title" id="modalDate">July 6</div>
                 <div class="current-total" id="currentTotal">Total: £0.00</div>
             </div>
+            
             <div class="input-section">
                 <input type="number" 
                        step="0.01" 
                        class="amount-input" 
                        id="amountInput" 
                        placeholder="Amount to add (£)">
+                <input type="text" 
+                       class="amount-input" 
+                       id="notesInput" 
+                       placeholder="Notes (optional)"
+                       style="font-size: 14px; text-align: left;">
             </div>
+            
+            <!-- Transaction Summary -->
+            <div class="transaction-summary" id="transactionSummary">
+                <div id="summaryText">No transactions yet</div>
+                <div class="view-details-hint" id="summaryHint" style="display: none;">Tap to view details</div>
+            </div>
+            
             <div class="modal-buttons">
-                <button class="modal-btn btn-add" onclick="addSpending()">Add</button>
-                <button class="modal-btn btn-cancel" onclick="closeModal()">Close</button>
+                <button class="modal-btn btn-add" id="addBtn">Add</button>
+                <button class="modal-btn btn-cancel" id="cancelBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Management Page -->
+    <div class="transaction-page" id="transactionPage">
+        <div class="transaction-page-header">
+            <button class="back-to-modal" id="backToModal">← Back</button>
+            <div class="transaction-page-title">
+                <div id="transactionPageDate">July 6</div>
+                <div id="transactionPageTotal">Total: £0.00</div>
+            </div>
+        </div>
+        
+        <div class="transaction-page-content">
+            <div class="transactions-section">
+                <div class="transactions-section-title">Transactions</div>
+                <div id="pageTransactionList">
+                    <!-- Transactions will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Overview Modal -->
+    <div class="modal" id="monthlyModal">
+        <div class="modal-content" style="max-width: 320px; max-height: 80vh;">
+            <div class="modal-header">
+                <div class="modal-title" id="monthlyModalTitle">July 2025 Overview</div>
+                <div class="current-total" id="monthlyModalTotal">Total: £0.00</div>
+            </div>
+            
+            <div style="max-height: 60vh; overflow-y: auto; margin-bottom: 16px;">
+                <div id="monthlyTransactionList">
+                    <!-- Monthly transactions will be populated here -->
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" id="closeMonthlyBtn">Close</button>
             </div>
         </div>
     </div>
 
     <script>
+        // Global variables
         var spendingData = {};
+        var currentMonth = 6; // July = 6 (0-based)
+        var currentYear = 2025;
         var selectedDay = null;
 
+        var months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        // Load data from localStorage
         function loadData() {
             try {
                 var saved = localStorage.getItem('spendingData');
@@ -434,110 +707,52 @@
                     spendingData = JSON.parse(saved);
                 }
             } catch (e) {
-                // Use memory storage
+                console.log('Using memory storage');
             }
         }
 
+        // Save data to localStorage
         function saveData() {
             try {
                 localStorage.setItem('spendingData', JSON.stringify(spendingData));
             } catch (e) {
-                // Use memory storage
+                console.log('Using memory storage');
             }
         }
 
+        // Get date key
+        function getDateKey(day) {
+            return currentYear + '-' + currentMonth + '-' + day;
+        }
+
+        // Get total for a day
         function getDayTotal(day) {
-            var key = '2025-6-' + day;
-            return spendingData[key] || 0;
-        }
-
-        function getMonthTotal() {
-            var total = 0;
-            for (var day = 1; day <= 31; day++) {
-                total += getDayTotal(day);
-            }
-            return total;
-        }
-
-        function updateDisplay() {
-            var monthTotal = document.getElementById('monthTotal');
-            if (monthTotal) {
-                monthTotal.textContent = 'Total: £' + getMonthTotal().toFixed(2);
-            }
-        }
-
-        function openModal(day) {
-            selectedDay = day;
+            var dateKey = getDateKey(day);
+            var data = spendingData[dateKey];
+            if (!data) return 0;
             
-            var modal = document.getElementById('modal');
-            var modalDate = document.getElementById('modalDate');
-            var currentTotal = document.getElementById('currentTotal');
-            var amountInput = document.getElementById('amountInput');
-            
-            if (modalDate) {
-                modalDate.textContent = 'July ' + day;
-            }
-            
-            if (currentTotal) {
-                currentTotal.textContent = 'Total: £' + getDayTotal(day).toFixed(2);
-            }
-            
-            if (amountInput) {
-                amountInput.value = '';
-            }
-            
-            if (modal) {
-                modal.className = 'modal show';
-            }
-        }
-
-        function closeModal() {
-            var modal = document.getElementById('modal');
-            if (modal) {
-                modal.className = 'modal';
-            }
-            selectedDay = null;
-        }
-
-        function addSpending() {
-            var amountInput = document.getElementById('amountInput');
-            
-            if (!amountInput || !selectedDay) return;
-            
-            var amount = parseFloat(amountInput.value);
-            
-            if (isNaN(amount) || amount <= 0) return;
-            
-            var key = '2025-6-' + selectedDay;
-            var existing = getDayTotal(selectedDay);
-            var newTotal = existing + amount;
-            
-            spendingData[key] = newTotal;
-            
-            amountInput.value = '';
-            
-            saveData();
-            updateDisplay();
-            
-            var currentTotal = document.getElementById('currentTotal');
-            if (currentTotal) {
-                currentTotal.textContent = 'Total: £' + getDayTotal(selectedDay).toFixed(2);
-            }
-        }
-
-        // Initialize
-        loadData();
-        updateDisplay();
-
-        // Modal click outside to close
-        var modal = document.getElementById('modal');
-        if (modal) {
-            modal.onclick = function(e) {
-                if (e.target.id === 'modal') {
-                    closeModal();
+            // Handle both old and new format
+            if (typeof data === 'number') return data;
+            if (data.amount) return data.amount;
+            if (data.transactions) {
+                var total = 0;
+                for (var i = 0; i < data.transactions.length; i++) {
+                    total += data.transactions[i].amount || 0;
                 }
-            };
+                return total;
+            }
+            return 0;
         }
-    </script>
-</body>
-</html>
+
+        // Get transactions for a day
+        function getDayTransactions(day) {
+            var dateKey = getDateKey(day);
+            var data = spendingData[dateKey];
+            if (!data) return [];
+            
+            if (typeof data === 'number') {
+                // Convert simple total to transaction
+                return [{
+                    id: 'legacy-' + dateKey,
+                    amount: data,
+                    notes: ''
