@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spending Tracker</title>
-    <meta name="description" content="Simple daily spending tracker">
-    <meta name="theme-color" content="#1f2937">
-    
+    <title>Daily Spends</title>
     <style>
         * {
             margin: 0;
@@ -247,6 +244,7 @@
             text-align: center;
             outline: none;
             transition: border-color 0.2s;
+            margin-bottom: 8px;
         }
 
         .amount-input:focus {
@@ -260,7 +258,6 @@
         .modal-buttons {
             display: flex;
             gap: 8px;
-            flex-wrap: wrap;
         }
 
         .modal-btn {
@@ -272,7 +269,6 @@
             cursor: pointer;
             transition: all 0.2s;
             font-size: 14px;
-            min-width: 70px;
         }
 
         .btn-add {
@@ -333,7 +329,7 @@
                 <div class="weekday">Sat</div>
             </div>
             <div class="days" id="daysGrid">
-                <!-- Days populated by JS -->
+                <!-- Days will be populated by JavaScript -->
             </div>
         </div>
     </div>
@@ -342,7 +338,7 @@
     <div class="modal" id="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="modal-title" id="modalDate">July 5</div>
+                <div class="modal-title" id="modalDate">July 6</div>
                 <div class="current-total" id="currentTotal">Total: £0.00</div>
             </div>
             <div class="input-section">
@@ -350,8 +346,7 @@
                        step="0.01" 
                        class="amount-input" 
                        id="amountInput" 
-                       placeholder="Amount to add (£)"
-                       style="margin-bottom: 8px;">
+                       placeholder="Amount to add (£)">
                 <input type="text" 
                        class="amount-input" 
                        id="notesInput" 
@@ -367,248 +362,209 @@
     </div>
 
     <script>
-        class SpendingTracker {
-            constructor() {
-                this.currentDate = new Date();
-                this.spending = this.loadData();
-                this.selectedDay = null;
-                this.months = [
-                    'January', 'February', 'March', 'April', 'May', 'June',
-                    'July', 'August', 'September', 'October', 'November', 'December'
-                ];
-                this.init();
-            }
+        // Simple spending data storage
+        let spendingData = {};
+        let currentDate = new Date();
+        let selectedDay = null;
 
-            init() {
-                this.bindEvents();
-                this.render();
-            }
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
 
-            bindEvents() {
-                try {
-                    const prevBtn = document.getElementById('prevBtn');
-                    const nextBtn = document.getElementById('nextBtn');
-                    const addBtn = document.getElementById('addBtn');
-                    const deleteBtn = document.getElementById('deleteBtn');
-                    const cancelBtn = document.getElementById('cancelBtn');
-                    const modal = document.getElementById('modal');
-                    const amountInput = document.getElementById('amountInput');
-                    const notesInput = document.getElementById('notesInput');
-                    
-                    if (prevBtn) prevBtn.onclick = () => this.navigateMonth(-1);
-                    if (nextBtn) nextBtn.onclick = () => this.navigateMonth(1);
-                    if (addBtn) addBtn.onclick = () => this.addSpending();
-                    if (deleteBtn) deleteBtn.onclick = () => this.deleteSpending();
-                    if (cancelBtn) cancelBtn.onclick = () => this.closeModal();
-                    
-                    if (modal) {
-                        modal.onclick = (e) => {
-                            if (e.target.id === 'modal') this.closeModal();
-                        };
-                    }
-
-                    if (amountInput) {
-                        amountInput.onkeypress = (e) => {
-                            if (e.key === 'Enter') {
-                                const notesInput = document.getElementById('notesInput');
-                                if (notesInput) notesInput.focus();
-                            }
-                        };
-                    }
-
-                    if (notesInput) {
-                        notesInput.onkeypress = (e) => {
-                            if (e.key === 'Enter') this.addSpending();
-                        };
-                    }
-                    
-                } catch (error) {
-                    console.error('Error in bindEvents:', error);
+        // Load data from localStorage if available
+        function loadData() {
+            try {
+                if (localStorage) {
+                    const saved = localStorage.getItem('spendingData');
+                    if (saved) spendingData = JSON.parse(saved);
                 }
+            } catch (e) {
+                console.log('Using memory storage');
             }
+        }
 
-            loadData() {
-                try {
-                    if (typeof(Storage) !== "undefined" && localStorage) {
-                        const saved = localStorage.getItem('spendingData');
-                        return saved ? JSON.parse(saved) : {};
-                    } else {
-                        console.warn('localStorage not available, using memory storage');
-                        return this.memoryStorage || {};
-                    }
-                } catch (e) {
-                    console.error('Error loading spending data:', e);
-                    return {};
+        // Save data to localStorage if available
+        function saveData() {
+            try {
+                if (localStorage) {
+                    localStorage.setItem('spendingData', JSON.stringify(spendingData));
                 }
+            } catch (e) {
+                console.log('Using memory storage');
+            }
+        }
+
+        // Get date key for storage
+        function getDateKey(day) {
+            return `${currentDate.getFullYear()}-${currentDate.getMonth()}-${day}`;
+        }
+
+        // Navigate months
+        function navigateMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            render();
+        }
+
+        // Open modal for day
+        function openModal(day) {
+            selectedDay = day;
+            const dateKey = getDateKey(day);
+            const dayData = spendingData[dateKey] || {};
+            const amount = dayData.amount || 0;
+            const notes = dayData.notes || '';
+
+            document.getElementById('modalDate').textContent = 
+                `${months[currentDate.getMonth()]} ${day}`;
+            document.getElementById('currentTotal').textContent = 
+                `Total: £${amount.toFixed(2)}`;
+            document.getElementById('amountInput').value = '';
+            document.getElementById('notesInput').value = '';
+            document.getElementById('deleteBtn').style.display = amount ? 'block' : 'none';
+            document.getElementById('modal').classList.add('show');
+            
+            setTimeout(() => document.getElementById('amountInput').focus(), 100);
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            selectedDay = null;
+        }
+
+        // Add spending
+        function addSpending() {
+            const newAmount = parseFloat(document.getElementById('amountInput').value);
+            const notes = document.getElementById('notesInput').value.trim();
+            
+            if (isNaN(newAmount) || newAmount < 0 || !selectedDay) return;
+
+            const dateKey = getDateKey(selectedDay);
+            const existing = spendingData[dateKey] || {};
+            const currentAmount = existing.amount || 0;
+            const currentNotes = existing.notes || '';
+
+            const totalAmount = currentAmount + newAmount;
+            let finalNotes = notes;
+            if (currentNotes && notes) {
+                finalNotes = currentNotes + ', ' + notes;
+            } else if (currentNotes) {
+                finalNotes = currentNotes;
             }
 
-            saveData() {
-                try {
-                    if (typeof(Storage) !== "undefined" && localStorage) {
-                        localStorage.setItem('spendingData', JSON.stringify(this.spending));
-                    } else {
-                        // Fallback to memory storage
-                        this.memoryStorage = this.spending;
-                        console.warn('localStorage not available, using memory storage');
-                    }
-                } catch (e) {
-                    console.error('Error saving spending data:', e);
-                    // Fallback to memory storage
-                    this.memoryStorage = this.spending;
+            spendingData[dateKey] = {
+                amount: totalAmount,
+                notes: finalNotes
+            };
+
+            saveData();
+            render();
+            closeModal();
+        }
+
+        // Delete spending
+        function deleteSpending() {
+            if (!selectedDay) return;
+            const dateKey = getDateKey(selectedDay);
+            delete spendingData[dateKey];
+            saveData();
+            render();
+            closeModal();
+        }
+
+        // Get month total
+        function getMonthTotal() {
+            let total = 0;
+            Object.entries(spendingData).forEach(([key, data]) => {
+                const [year, month] = key.split('-');
+                if (parseInt(year) === currentDate.getFullYear() && 
+                    parseInt(month) === currentDate.getMonth()) {
+                    total += data.amount || 0;
                 }
+            });
+            return total;
+        }
+
+        // Render everything
+        function render() {
+            // Update month title
+            document.getElementById('monthTitle').textContent = 
+                `${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`;
+            
+            // Update month total
+            document.getElementById('monthTotal').textContent = 
+                `Total: £${getMonthTotal().toFixed(2)}`;
+
+            // Render calendar
+            renderCalendar();
+        }
+
+        // Render calendar days
+        function renderCalendar() {
+            const grid = document.getElementById('daysGrid');
+            const daysInMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0).getDate();
+            const firstDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1).getDay();
+            const today = new Date();
+            
+            grid.innerHTML = '';
+
+            // Empty cells for days before month starts
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day empty-day';
+                grid.appendChild(emptyDay);
             }
 
-            getDateKey(day) {
-                return `${this.currentDate.getFullYear()}-${this.currentDate.getMonth()}-${day}`;
-            }
+            // Days of the month
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                const dateKey = getDateKey(day);
+                const dayData = spendingData[dateKey];
+                const amount = dayData ? dayData.amount || 0 : 0;
+                const hasNotes = dayData && dayData.notes;
+                
+                const isToday = today.toDateString() === 
+                    new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString();
 
-            navigateMonth(direction) {
-                this.currentDate.setMonth(this.currentDate.getMonth() + direction);
-                this.render();
-            }
+                dayEl.className = 'day';
+                if (isToday) dayEl.classList.add('today');
+                if (amount > 0) dayEl.classList.add('has-spending');
 
-            openModal(day) {
-                try {
-                    this.selectedDay = day;
-                    const dateKey = this.getDateKey(day);
-                    const dayData = this.spending[dateKey];
-                    
-                    // Handle both old format (just number) and new format (object)
-                    let amount = 0;
-                    let notes = '';
-                    
-                    if (dayData) {
-                        if (typeof dayData === 'object') {
-                            // New format: {amount: 123, notes: "text"}
-                            amount = dayData.amount || 0;
-                            notes = dayData.notes || '';
-                        } else {
-                            // Old format: just a number
-                            amount = parseFloat(dayData) || 0;
-                            notes = '';
-                        }
+                dayEl.innerHTML = `
+                    <div class="day-number">${day}</div>
+                    ${amount > 0 ? 
+                        `<div class="day-amount">£${amount.toFixed(2)}${hasNotes ? ' 📝' : ''}</div>` : 
+                        '<div class="plus-icon">+</div>'
                     }
-                    
-                    const modalDate = document.getElementById('modalDate');
-                    const currentTotal = document.getElementById('currentTotal');
-                    const amountInput = document.getElementById('amountInput');
-                    const notesInput = document.getElementById('notesInput');
-                    const deleteBtn = document.getElementById('deleteBtn');
-                    const modal = document.getElementById('modal');
-                    
-                    if (modalDate) modalDate.textContent = `${this.months[this.currentDate.getMonth()]} ${day}`;
-                    if (currentTotal) currentTotal.textContent = `Total: £${amount.toFixed(2)}`;
-                    if (amountInput) amountInput.value = ''; // Clear for new amount
-                    if (notesInput) notesInput.value = '';  // Clear for new notes
-                    if (deleteBtn) deleteBtn.style.display = amount ? 'block' : 'none';
-                    if (modal) modal.classList.add('show');
-                    
-                    setTimeout(() => {
-                        if (amountInput) amountInput.focus();
-                    }, 100);
-                    
-                } catch (error) {
-                    console.error('Error in openModal:', error);
-                }
+                `;
+
+                dayEl.onclick = () => openModal(day);
+                grid.appendChild(dayEl);
             }
+        }
 
-            closeModal() {
-                document.getElementById('modal').classList.remove('show');
-                this.selectedDay = null;
-            }
+        // Event listeners
+        document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
+        document.getElementById('nextBtn').onclick = () => navigateMonth(1);
+        document.getElementById('addBtn').onclick = addSpending;
+        document.getElementById('deleteBtn').onclick = deleteSpending;
+        document.getElementById('cancelBtn').onclick = closeModal;
 
-            addSpending() {
-                try {
-                    const amountInput = document.getElementById('amountInput');
-                    const notesInput = document.getElementById('notesInput');
-                    
-                    if (!amountInput || !notesInput || !this.selectedDay) {
-                        console.error('Missing required elements or selectedDay');
-                        return;
-                    }
-                    
-                    const newAmount = parseFloat(amountInput.value);
-                    const notes = notesInput.value.trim();
-                    
-                    if (isNaN(newAmount) || newAmount < 0) {
-                        console.error('Invalid amount:', newAmount);
-                        return;
-                    }
+        document.getElementById('modal').onclick = (e) => {
+            if (e.target.id === 'modal') closeModal();
+        };
 
-                    const dateKey = this.getDateKey(this.selectedDay);
-                    
-                    // Get existing data
-                    const existingData = this.spending[dateKey];
-                    let currentAmount = 0;
-                    let currentNotes = '';
-                    
-                    // Handle existing data (both old and new formats)
-                    if (existingData) {
-                        if (typeof existingData === 'object') {
-                            currentAmount = existingData.amount || 0;
-                            currentNotes = existingData.notes || '';
-                        } else {
-                            currentAmount = parseFloat(existingData) || 0;
-                        }
-                    }
-                    
-                    // Calculate new total
-                    const totalAmount = currentAmount + newAmount;
-                    
-                    // Handle notes
-                    let finalNotes = '';
-                    if (currentNotes && notes) {
-                        finalNotes = currentNotes + ', ' + notes;
-                    } else if (currentNotes) {
-                        finalNotes = currentNotes;
-                    } else {
-                        finalNotes = notes;
-                    }
-                    
-                    // Save new data
-                    if (totalAmount === 0) {
-                        delete this.spending[dateKey];
-                    } else {
-                        this.spending[dateKey] = {
-                            amount: totalAmount,
-                            notes: finalNotes
-                        };
-                    }
-                    
-                    this.saveData();
-                    this.render();
-                    this.closeModal();
-                    
-                } catch (error) {
-                    console.error('Error in addSpending:', error);
-                }
-            }
+        document.getElementById('amountInput').onkeypress = (e) => {
+            if (e.key === 'Enter') document.getElementById('notesInput').focus();
+        };
 
-            deleteSpending() {
-                const dateKey = this.getDateKey(this.selectedDay);
-                delete this.spending[dateKey];
-                this.saveData();
-                this.render();
-                this.closeModal();
-            }
+        document.getElementById('notesInput').onkeypress = (e) => {
+            if (e.key === 'Enter') addSpending();
+        };
 
-            getMonthTotal() {
-                return Object.entries(this.spending)
-                    .filter(([key]) => {
-                        const [year, month] = key.split('-');
-                        return parseInt(year) === this.currentDate.getFullYear() && 
-                               parseInt(month) === this.currentDate.getMonth();
-                    })
-                    .reduce((sum, [, dayData]) => {
-                        // Handle both old format (just number) and new format (object)
-                        let amount = 0;
-                        if (dayData) {
-                            if (typeof dayData === 'object') {
-                                amount = dayData.amount || 0;
-                            } else {
-                                amount = dayData;
-                            }
-                        }
-                        return sum + amount;
-                    }, 0);
-         
+        // Initialize app
+        loadData();
+        render();
+    </script>
+</body>
+</html>
