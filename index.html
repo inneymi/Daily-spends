@@ -239,25 +239,12 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
-            position: relative;
         }
 
         .current-total:hover {
             background: #047857;
             border-color: #10b981;
             transform: translateY(-1px);
-        }
-
-        .current-total::after {
-            content: "👆 Click for details";
-            position: absolute;
-            bottom: -18px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 9px;
-            color: #9ca3af;
-            white-space: nowrap;
-            opacity: 0.8;
         }
 
         .current-total.breakdown-mode {
@@ -831,4 +818,12 @@
                 <div class="current-total" id="monthlyModalTotal">Total: £0.00</div>
             </div>
             
-            <div style="max-height: 60vh; overf
+            <div style="max-height: 60vh; overflow-y: auto; margin-bottom: 16px;">
+                <div id="monthlyTransactionList">
+                    <!-- Monthly transactions will be populated here -->
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" id="closeMonthlyBtn">Close</button>
+            </d
