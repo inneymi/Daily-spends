@@ -466,19 +466,43 @@
             }
 
             addSpending() {
-                const amount = parseFloat(document.getElementById('amountInput').value);
+                const newAmount = parseFloat(document.getElementById('amountInput').value);
                 const notes = document.getElementById('notesInput').value.trim();
-                if (isNaN(amount) || amount < 0) return;
+                if (isNaN(newAmount) || newAmount <= 0) return;
 
                 const dateKey = this.getDateKey(this.selectedDay);
-                if (amount === 0) {
-                    delete this.spending[dateKey];
-                } else {
-                    this.spending[dateKey] = {
-                        amount: amount,
-                        notes: notes
-                    };
+                const currentData = this.spending[dateKey];
+                
+                // Get current amount (handle both old and new format)
+                let currentAmount = 0;
+                let currentNotes = '';
+                
+                if (currentData) {
+                    if (typeof currentData === 'object') {
+                        currentAmount = currentData.amount || 0;
+                        currentNotes = currentData.notes || '';
+                    } else {
+                        currentAmount = currentData;
+                    }
                 }
+                
+                // Add new amount to existing amount
+                const totalAmount = currentAmount + newAmount;
+                
+                // Combine notes if both exist
+                let combinedNotes = '';
+                if (currentNotes && notes) {
+                    combinedNotes = currentNotes + ', ' + notes;
+                } else if (currentNotes) {
+                    combinedNotes = currentNotes;
+                } else if (notes) {
+                    combinedNotes = notes;
+                }
+                
+                this.spending[dateKey] = {
+                    amount: totalAmount,
+                    notes: combinedNotes
+                };
                 
                 this.saveData();
                 this.render();
