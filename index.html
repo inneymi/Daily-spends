@@ -350,7 +350,7 @@
                        step="0.01" 
                        class="amount-input" 
                        id="amountInput" 
-                       placeholder="Enter amount (£)"
+                       placeholder="Amount to add (£)"
                        style="margin-bottom: 8px;">
                 <input type="text" 
                        class="amount-input" 
@@ -385,37 +385,77 @@
             }
 
             bindEvents() {
-                document.getElementById('prevBtn').onclick = () => this.navigateMonth(-1);
-                document.getElementById('nextBtn').onclick = () => this.navigateMonth(1);
-                document.getElementById('addBtn').onclick = () => this.addSpending();
-                document.getElementById('deleteBtn').onclick = () => this.deleteSpending();
-                document.getElementById('cancelBtn').onclick = () => this.closeModal();
-                
-                document.getElementById('modal').onclick = (e) => {
-                    if (e.target.id === 'modal') this.closeModal();
-                };
-
-                document.getElementById('amountInput').onkeypress = (e) => {
-                    if (e.key === 'Enter') {
-                        document.getElementById('notesInput').focus();
+                try {
+                    const prevBtn = document.getElementById('prevBtn');
+                    const nextBtn = document.getElementById('nextBtn');
+                    const addBtn = document.getElementById('addBtn');
+                    const deleteBtn = document.getElementById('deleteBtn');
+                    const cancelBtn = document.getElementById('cancelBtn');
+                    const modal = document.getElementById('modal');
+                    const amountInput = document.getElementById('amountInput');
+                    const notesInput = document.getElementById('notesInput');
+                    
+                    if (prevBtn) prevBtn.onclick = () => this.navigateMonth(-1);
+                    if (nextBtn) nextBtn.onclick = () => this.navigateMonth(1);
+                    if (addBtn) addBtn.onclick = () => this.addSpending();
+                    if (deleteBtn) deleteBtn.onclick = () => this.deleteSpending();
+                    if (cancelBtn) cancelBtn.onclick = () => this.closeModal();
+                    
+                    if (modal) {
+                        modal.onclick = (e) => {
+                            if (e.target.id === 'modal') this.closeModal();
+                        };
                     }
-                };
 
-                document.getElementById('notesInput').onkeypress = (e) => {
-                    if (e.key === 'Enter') this.addSpending();
-                };
+                    if (amountInput) {
+                        amountInput.onkeypress = (e) => {
+                            if (e.key === 'Enter') {
+                                const notesInput = document.getElementById('notesInput');
+                                if (notesInput) notesInput.focus();
+                            }
+                        };
+                    }
+
+                    if (notesInput) {
+                        notesInput.onkeypress = (e) => {
+                            if (e.key === 'Enter') this.addSpending();
+                        };
+                    }
+                    
+                } catch (error) {
+                    console.error('Error in bindEvents:', error);
+                }
             }
 
             loadData() {
                 try {
-                    return JSON.parse(localStorage.getItem('spendingData') || '{}');
-                } catch {
+                    if (typeof(Storage) !== "undefined" && localStorage) {
+                        const saved = localStorage.getItem('spendingData');
+                        return saved ? JSON.parse(saved) : {};
+                    } else {
+                        console.warn('localStorage not available, using memory storage');
+                        return this.memoryStorage || {};
+                    }
+                } catch (e) {
+                    console.error('Error loading spending data:', e);
                     return {};
                 }
             }
 
             saveData() {
-                localStorage.setItem('spendingData', JSON.stringify(this.spending));
+                try {
+                    if (typeof(Storage) !== "undefined" && localStorage) {
+                        localStorage.setItem('spendingData', JSON.stringify(this.spending));
+                    } else {
+                        // Fallback to memory storage
+                        this.memoryStorage = this.spending;
+                        console.warn('localStorage not available, using memory storage');
+                    }
+                } catch (e) {
+                    console.error('Error saving spending data:', e);
+                    // Fallback to memory storage
+                    this.memoryStorage = this.spending;
+                }
             }
 
             getDateKey(day) {
@@ -428,36 +468,48 @@
             }
 
             openModal(day) {
-                this.selectedDay = day;
-                const dateKey = this.getDateKey(day);
-                const dayData = this.spending[dateKey];
-                
-                // Handle both old format (just number) and new format (object)
-                let amount = 0;
-                let notes = '';
-                
-                if (dayData) {
-                    if (typeof dayData === 'object') {
-                        // New format: {amount: 123, notes: "text"}
-                        amount = dayData.amount || 0;
-                        notes = dayData.notes || '';
-                    } else {
-                        // Old format: just a number
-                        amount = dayData;
-                        notes = '';
+                try {
+                    this.selectedDay = day;
+                    const dateKey = this.getDateKey(day);
+                    const dayData = this.spending[dateKey];
+                    
+                    // Handle both old format (just number) and new format (object)
+                    let amount = 0;
+                    let notes = '';
+                    
+                    if (dayData) {
+                        if (typeof dayData === 'object') {
+                            // New format: {amount: 123, notes: "text"}
+                            amount = dayData.amount || 0;
+                            notes = dayData.notes || '';
+                        } else {
+                            // Old format: just a number
+                            amount = parseFloat(dayData) || 0;
+                            notes = '';
+                        }
                     }
+                    
+                    const modalDate = document.getElementById('modalDate');
+                    const currentTotal = document.getElementById('currentTotal');
+                    const amountInput = document.getElementById('amountInput');
+                    const notesInput = document.getElementById('notesInput');
+                    const deleteBtn = document.getElementById('deleteBtn');
+                    const modal = document.getElementById('modal');
+                    
+                    if (modalDate) modalDate.textContent = `${this.months[this.currentDate.getMonth()]} ${day}`;
+                    if (currentTotal) currentTotal.textContent = `Total: £${amount.toFixed(2)}`;
+                    if (amountInput) amountInput.value = ''; // Clear for new amount
+                    if (notesInput) notesInput.value = '';  // Clear for new notes
+                    if (deleteBtn) deleteBtn.style.display = amount ? 'block' : 'none';
+                    if (modal) modal.classList.add('show');
+                    
+                    setTimeout(() => {
+                        if (amountInput) amountInput.focus();
+                    }, 100);
+                    
+                } catch (error) {
+                    console.error('Error in openModal:', error);
                 }
-                
-                document.getElementById('modalDate').textContent = 
-                    `${this.months[this.currentDate.getMonth()]} ${day}`;
-                document.getElementById('currentTotal').textContent = 
-                    `Total: £${amount.toFixed(2)}`;
-                document.getElementById('amountInput').value = amount || '';
-                document.getElementById('notesInput').value = notes;
-                document.getElementById('deleteBtn').style.display = amount ? 'block' : 'none';
-                document.getElementById('modal').classList.add('show');
-                
-                setTimeout(() => document.getElementById('amountInput').focus(), 100);
             }
 
             closeModal() {
@@ -466,47 +518,70 @@
             }
 
             addSpending() {
-                const newAmount = parseFloat(document.getElementById('amountInput').value);
-                const notes = document.getElementById('notesInput').value.trim();
-                if (isNaN(newAmount) || newAmount <= 0) return;
-
-                const dateKey = this.getDateKey(this.selectedDay);
-                const currentData = this.spending[dateKey];
-                
-                // Get current amount (handle both old and new format)
-                let currentAmount = 0;
-                let currentNotes = '';
-                
-                if (currentData) {
-                    if (typeof currentData === 'object') {
-                        currentAmount = currentData.amount || 0;
-                        currentNotes = currentData.notes || '';
-                    } else {
-                        currentAmount = currentData;
+                try {
+                    const amountInput = document.getElementById('amountInput');
+                    const notesInput = document.getElementById('notesInput');
+                    
+                    if (!amountInput || !notesInput || !this.selectedDay) {
+                        console.error('Missing required elements or selectedDay');
+                        return;
                     }
+                    
+                    const newAmount = parseFloat(amountInput.value);
+                    const notes = notesInput.value.trim();
+                    
+                    if (isNaN(newAmount) || newAmount < 0) {
+                        console.error('Invalid amount:', newAmount);
+                        return;
+                    }
+
+                    const dateKey = this.getDateKey(this.selectedDay);
+                    
+                    // Get existing data
+                    const existingData = this.spending[dateKey];
+                    let currentAmount = 0;
+                    let currentNotes = '';
+                    
+                    // Handle existing data (both old and new formats)
+                    if (existingData) {
+                        if (typeof existingData === 'object') {
+                            currentAmount = existingData.amount || 0;
+                            currentNotes = existingData.notes || '';
+                        } else {
+                            currentAmount = parseFloat(existingData) || 0;
+                        }
+                    }
+                    
+                    // Calculate new total
+                    const totalAmount = currentAmount + newAmount;
+                    
+                    // Handle notes
+                    let finalNotes = '';
+                    if (currentNotes && notes) {
+                        finalNotes = currentNotes + ', ' + notes;
+                    } else if (currentNotes) {
+                        finalNotes = currentNotes;
+                    } else {
+                        finalNotes = notes;
+                    }
+                    
+                    // Save new data
+                    if (totalAmount === 0) {
+                        delete this.spending[dateKey];
+                    } else {
+                        this.spending[dateKey] = {
+                            amount: totalAmount,
+                            notes: finalNotes
+                        };
+                    }
+                    
+                    this.saveData();
+                    this.render();
+                    this.closeModal();
+                    
+                } catch (error) {
+                    console.error('Error in addSpending:', error);
                 }
-                
-                // Add new amount to existing amount
-                const totalAmount = currentAmount + newAmount;
-                
-                // Combine notes if both exist
-                let combinedNotes = '';
-                if (currentNotes && notes) {
-                    combinedNotes = currentNotes + ', ' + notes;
-                } else if (currentNotes) {
-                    combinedNotes = currentNotes;
-                } else if (notes) {
-                    combinedNotes = notes;
-                }
-                
-                this.spending[dateKey] = {
-                    amount: totalAmount,
-                    notes: combinedNotes
-                };
-                
-                this.saveData();
-                this.render();
-                this.closeModal();
             }
 
             deleteSpending() {
@@ -536,80 +611,4 @@
                         }
                         return sum + amount;
                     }, 0);
-            }
-
-            render() {
-                // Update month title
-                document.getElementById('monthTitle').textContent = 
-                    `${this.months[this.currentDate.getMonth()]} ${this.currentDate.getFullYear()}`;
-                
-                // Update month total
-                document.getElementById('monthTotal').textContent = 
-                    `Total: £${this.getMonthTotal().toFixed(2)}`;
-
-                // Render calendar
-                this.renderCalendar();
-            }
-
-            renderCalendar() {
-                const grid = document.getElementById('daysGrid');
-                const daysInMonth = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 0).getDate();
-                const firstDay = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), 1).getDay();
-                const today = new Date();
-                
-                grid.innerHTML = '';
-
-                // Empty cells for days before month starts
-                for (let i = 0; i < firstDay; i++) {
-                    const emptyDay = document.createElement('div');
-                    emptyDay.className = 'day empty-day';
-                    grid.appendChild(emptyDay);
-                }
-
-                // Days of the month
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayEl = document.createElement('div');
-                    const dateKey = this.getDateKey(day);
-                    const dayData = this.spending[dateKey];
-                    
-                    // Handle both old format (just number) and new format (object)
-                    let amount = null;
-                    let hasNotes = false;
-                    
-                    if (dayData) {
-                        if (typeof dayData === 'object') {
-                            // New format: {amount: 123, notes: "text"}
-                            amount = dayData.amount;
-                            hasNotes = dayData.notes && dayData.notes.trim() !== '';
-                        } else {
-                            // Old format: just a number
-                            amount = dayData;
-                            hasNotes = false;
-                        }
-                    }
-                    
-                    const isToday = today.toDateString() === 
-                        new Date(this.currentDate.getFullYear(), this.currentDate.getMonth(), day).toDateString();
-
-                    dayEl.className = 'day';
-                    if (isToday) dayEl.classList.add('today');
-                    if (amount) dayEl.classList.add('has-spending');
-
-                    dayEl.innerHTML = `
-                        <div class="day-number">${day}</div>
-                        ${amount ? 
-                            `<div class="day-amount">£${amount.toFixed(2)}${hasNotes ? ' 📝' : ''}</div>` : 
-                            '<div class="plus-icon">+</div>'
-                        }
-                    `;
-
-                    dayEl.onclick = () => this.openModal(day);
-                    grid.appendChild(dayEl);
-                }
-            }
-        }
-
-        new SpendingTracker();
-    </script>
-</body>
-</html>
+         
