@@ -1,495 +1,834 @@
-import React, { useState } from 'react';
-
-import { ChevronLeft, ChevronRight, DollarSign, Plus } from 'lucide-react';
-
-
-
-const SpendingCalendar = () => {
-
-  const [currentDate, setCurrentDate] = useState(new Date());
-
-  const [spending, setSpending] = useState({});
-
-  const [selectedDay, setSelectedDay] = useState(null);
-
-  const [inputAmount, setInputAmount] = useState('');
-
-
-
-  const months = [
-
-    'January', 'February', 'March', 'April', 'May', 'June',
-
-    'July', 'August', 'September', 'October', 'November', 'December'
-
-  ];
-
-
-
-  const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-
-
-  const getDaysInMonth = (date) => {
-
-    return new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
-
-  };
-
-
-
-  const getFirstDayOfMonth = (date) => {
-
-    return new Date(date.getFullYear(), date.getMonth(), 1).getDay();
-
-  };
-
-
-
-  const generateCalendarDays = () => {
-
-    const daysInMonth = getDaysInMonth(currentDate);
-
-    const firstDay = getFirstDayOfMonth(currentDate);
-
-    const days = [];
-
-
-
-    // Empty cells for days before the month starts
-
-    for (let i = 0; i < firstDay; i++) {
-
-      days.push(null);
-
-    }
-
-
-
-    // Days of the month
-
-    for (let day = 1; day <= daysInMonth; day++) {
-
-      days.push(day);
-
-    }
-
-
-
-    return days;
-
-  };
-
-
-
-  const getDateKey = (day) => {
-
-    return `${currentDate.getFullYear()}-${currentDate.getMonth()}-${day}`;
-
-  };
-
-
-
-  const handleDayClick = (day) => {
-
-    if (!day) return;
-
-    setSelectedDay(day);
-
-    const dateKey = getDateKey(day);
-
-    setInputAmount(spending[dateKey] || '');
-
-  };
-
-
-
-  const handleSaveSpending = () => {
-
-    if (selectedDay && inputAmount !== '') {
-
-      const dateKey = getDateKey(selectedDay);
-
-      const amount = parseFloat(inputAmount);
-
-      if (!isNaN(amount)) {
-
-        setSpending(prev => ({
-
-          ...prev,
-
-          [dateKey]: amount
-
-        }));
-
-      }
-
-    }
-
-    setSelectedDay(null);
-
-    setInputAmount('');
-
-  };
-
-
-
-  const handleDeleteSpending = () => {
-
-    if (selectedDay) {
-
-      const dateKey = getDateKey(selectedDay);
-
-      setSpending(prev => {
-
-        const newSpending = { ...prev };
-
-        delete newSpending[dateKey];
-
-        return newSpending;
-
-      });
-
-    }
-
-    setSelectedDay(null);
-
-    setInputAmount('');
-
-  };
-
-
-
-  const navigateMonth = (direction) => {
-
-    setCurrentDate(prev => {
-
-      const newDate = new Date(prev);
-
-      newDate.setMonth(prev.getMonth() + direction);
-
-      return newDate;
-
-    });
-
-    setSelectedDay(null);
-
-  };
-
-
-
-  const getMonthTotal = () => {
-
-    return Object.entries(spending)
-
-      .filter(([key]) => {
-
-        const [year, month] = key.split('-');
-
-        return parseInt(year) === currentDate.getFullYear() && 
-
-               parseInt(month) === currentDate.getMonth();
-
-      })
-
-      .reduce((sum, [, amount]) => sum + amount, 0);
-
-  };
-
-
-
-  const days = generateCalendarDays();
-
-
-
-  return (
-
-    <div className="max-w-4xl mx-auto p-6 bg-gray-900 min-h-screen">
-
-      <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-8 shadow-xl border border-gray-700">
-
-        {/* Header */}
-
-        <div className="flex items-center justify-between mb-8">
-
-          <div className="flex items-center gap-3">
-
-            <DollarSign className="text-green-400" size={32} />
-
-            <h1 className="text-3xl font-bold text-gray-100">Spending Calendar</h1>
-
-          </div>
-
-          <div className="bg-green-900 px-4 py-2 rounded-lg border border-green-700">
-
-            <span className="text-green-200 font-semibold">
-
-              Month Total: £{getMonthTotal().toFixed(2)}
-
-            </span>
-
-          </div>
-
-        </div>
-
-
-
-        {/* Month Navigation */}
-
-        <div className="flex items-center justify-between mb-6">
-
-          <button
-
-            onClick={() => navigateMonth(-1)}
-
-            className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-200 rounded-lg shadow hover:bg-gray-600 transition-all border border-gray-600"
-
-          >
-
-            <ChevronLeft size={20} />
-
-            Previous
-
-          </button>
-
-          
-
-          <h2 className="text-2xl font-bold text-gray-100">
-
-            {months[currentDate.getMonth()]} {currentDate.getFullYear()}
-
-          </h2>
-
-          
-
-          <button
-
-            onClick={() => navigateMonth(1)}
-
-            className="flex items-center gap-2 px-4 py-2 bg-gray-700 text-gray-200 rounded-lg shadow hover:bg-gray-600 transition-all border border-gray-600"
-
-          >
-
-            Next
-
-            <ChevronRight size={20} />
-
-          </button>
-
-        </div>
-
-
-
-        {/* Calendar Grid */}
-
-        <div className="bg-gray-800 rounded-xl shadow-xl p-6 border border-gray-700">
-
-          {/* Day Headers */}
-
-          <div className="grid grid-cols-7 gap-2 mb-4">
-
-            {daysOfWeek.map(day => (
-
-              <div key={day} className="text-center font-semibold text-gray-300 py-2">
-
-                {day}
-
-              </div>
-
-            ))}
-
-          </div>
-
-
-
-          {/* Calendar Days */}
-
-          <div className="grid grid-cols-7 gap-2">
-
-            {days.map((day, index) => {
-
-              if (!day) {
-
-                return <div key={index} className="aspect-square"></div>;
-
-              }
-
-
-
-              const dateKey = getDateKey(day);
-
-              const daySpending = spending[dateKey];
-
-              const isToday = new Date().toDateString() === new Date(currentDate.getFullYear(), currentDate.getMonth(), day).toDateString();
-
-
-
-              return (
-
-                <button
-
-                  key={day}
-
-                  onClick={() => handleDayClick(day)}
-
-                  className={`aspect-square p-2 rounded-lg border-2 transition-all hover:shadow-lg ${
-
-                    isToday
-
-                      ? 'border-blue-400 bg-blue-900/50 text-blue-200'
-
-                      : daySpending
-
-                      ? 'border-green-400 bg-green-900/50 text-green-200 hover:bg-green-800/50'
-
-                      : 'border-gray-600 bg-gray-700 text-gray-300 hover:bg-gray-600 hover:border-gray-500'
-
-                  }`}
-
-                >
-
-                  <div className="h-full flex flex-col justify-between">
-
-                    <span className={`text-sm font-medium ${isToday ? 'text-blue-200' : daySpending ? 'text-green-200' : 'text-gray-300'}`}>
-
-                      {day}
-
-                    </span>
-
-                    {daySpending ? (
-
-                      <span className="text-xs text-green-300 font-semibold">
-
-                        £{daySpending.toFixed(2)}
-
-                      </span>
-
-                    ) : (
-
-                      <Plus size={12} className="text-gray-500 mx-auto" />
-
-                    )}
-
-                  </div>
-
-                </button>
-
-              );
-
-            })}
-
-          </div>
-
-        </div>
-
-
-
-        {/* Input Modal */}
-
-        {selectedDay && (
-
-          <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-
-            <div className="bg-gray-800 rounded-xl p-6 w-96 shadow-2xl border border-gray-700">
-
-              <h3 className="text-xl font-bold text-gray-100 mb-4">
-
-                Add Spending for {months[currentDate.getMonth()]} {selectedDay}
-
-              </h3>
-
-              
-
-              <div className="mb-4">
-
-                <label className="block text-gray-300 font-medium mb-2">
-
-                  Amount Spent (£)
-
-                </label>
-
-                <input
-
-                  type="number"
-
-                  step="0.01"
-
-                  value={inputAmount}
-
-                  onChange={(e) => setInputAmount(e.target.value)}
-
-                  placeholder="0.00"
-
-                  className="w-full px-3 py-2 bg-gray-700 border border-gray-600 text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-gray-400"
-
-                  autoFocus
-
-                />
-
-              </div>
-
-
-
-              <div className="flex gap-3">
-
-                <button
-
-                  onClick={handleSaveSpending}
-
-                  className="flex-1 bg-blue-600 text-white py-2 px-4 rounded-lg hover:bg-blue-700 transition-colors"
-
-                >
-
-                  Save
-
-                </button>
-
-                {spending[getDateKey(selectedDay)] && (
-
-                  <button
-
-                    onClick={handleDeleteSpending}
-
-                    className="bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors"
-
-                  >
-
-                    Delete
-
-                  </button>
-
-                )}
-
-                <button
-
-                  onClick={() => setSelectedDay(null)}
-
-                  className="bg-gray-600 text-white py-2 px-4 rounded-lg hover:bg-gray-700 transition-colors"
-
-                >
-
-                  Cancel
-
-                </button>
-
-              </div>
-
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Spends</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #111827;
+            color: #f9fafb;
+            min-height: 100vh;
+            padding: 16px;
+        }
+
+        .container {
+            max-width: 320px;
+            margin: 0 auto;
+            background: #1f2937;
+            border-radius: 16px;
+            padding: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .title-section {
+            flex: 1;
+        }
+
+        .title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f9fafb;
+            margin-bottom: 2px;
+        }
+
+        .subtitle {
+            font-size: 11px;
+            color: #9ca3af;
+            line-height: 1.3;
+        }
+
+        .total {
+            background: #059669;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .total:hover {
+            background: #047857;
+            border-color: #10b981;
+            transform: translateY(-1px);
+        }
+
+        .total:active {
+            transform: translateY(0px);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            gap: 8px;
+        }
+
+        .nav-btn {
+            background: #374151;
+            border: none;
+            color: #d1d5db;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .month-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #f9fafb;
+            text-align: center;
+            flex: 1;
+        }
+
+        .calendar {
+            background: #374151;
+            border-radius: 12px;
+            padding: 12px;
+        }
+
+        .weekdays {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+            margin-bottom: 8px;
+        }
+
+        .weekday {
+            text-align: center;
+            font-weight: 600;
+            color: #9ca3af;
+            font-size: 10px;
+            padding: 4px 0;
+        }
+
+        .days {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 3px;
+        }
+
+        .day {
+            aspect-ratio: 1;
+            border: 2px solid #4b5563;
+            background: #4b5563;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            min-height: 36px;
+            padding: 2px;
+        }
+
+        .day:hover {
+            border-color: #6b7280;
+            background: #6b7280;
+        }
+
+        .day.today {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
+        }
+
+        .day.has-spending {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .day-number {
+            font-weight: 600;
+            font-size: 11px;
+            line-height: 1;
+            color: #f9fafb;
+        }
+
+        .day-amount {
+            font-size: 7px;
+            font-weight: 600;
+            margin-top: 1px;
+            color: #34d399;
+            line-height: 1;
+            text-align: center;
+        }
+
+        .plus-icon {
+            font-size: 8px;
+            color: #6b7280;
+            margin-top: 1px;
+        }
+
+        .empty-day {
+            border: none;
+            background: none;
+            cursor: default;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 1000;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #1f2937;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 280px;
+            border: 1px solid #374151;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            text-align: center;
+            margin-bottom: 16px;
+        }
+
+        .modal-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #f9fafb;
+            margin-bottom: 8px;
+        }
+
+        .current-total {
+            background: #059669;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .current-total:hover {
+            background: #047857;
+            border-color: #10b981;
+            transform: translateY(-1px);
+        }
+
+        .current-total.breakdown-mode {
+            background: #374151;
+            border-color: #6b7280;
+        }
+
+        .transaction-summary {
+            background: #374151;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin: 12px 0;
+            font-size: 11px;
+            color: #d1d5db;
+            border: 1px solid #4b5563;
+            text-align: center;
+        }
+
+        .transaction-summary.has-transactions {
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .transaction-summary.has-transactions:hover {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+
+        .transaction-indicator {
+            color: #34d399;
+            font-weight: 600;
+        }
+
+        .view-details-hint {
+            color: #9ca3af;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .input-section {
+            margin-bottom: 16px;
+        }
+
+        .amount-input {
+            width: 100%;
+            padding: 14px;
+            background: #374151;
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            color: #f9fafb;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .amount-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .amount-input::placeholder {
+            color: #6b7280;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-add {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .btn-cancel {
+            background: #6b7280;
+            color: white;
+        }
+
+        .btn-back {
+            background: #6b7280;
+            color: white;
+        }
+
+        /* Breakdown view */
+        .breakdown-view {
+            display: none;
+        }
+
+        .breakdown-view.show {
+            display: block;
+        }
+
+        .transactions-header {
+            background: #374151;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid #4b5563;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .transactions-header:hover {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+
+        .transactions-header.collapsed {
+            background: #4b5563;
+        }
+
+        .transactions-count {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: normal;
+        }
+
+        .transactions-title {
+            color: #f9fafb;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .transactions-toggle {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .transaction-list {
+            margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-list.collapsed {
+            display: none;
+        }
+
+        .transaction-item {
+            background: #374151;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid #4b5563;
+        }
+
+        .transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            color: #34d399;
+            font-size: 14px;
+        }
+
+        .transaction-time {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        .transaction-actions {
+            display: flex;
+            gap: 4px;
+        }
+
+        .transaction-edit {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .transaction-delete {
+            background: #dc2626;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .transaction-save {
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .transaction-cancel {
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .transaction-notes {
+            font-size: 12px;
+            color: #d1d5db;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .edit-inputs {
+            margin-top: 8px;
+            display: none;
+        }
+
+        .edit-inputs.show {
+            display: block;
+        }
+
+        .edit-amount-input {
+            width: 100%;
+            padding: 8px;
+            background: #4b5563;
+            border: 1px solid #6b7280;
+            border-radius: 4px;
+            color: #f9fafb;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .edit-notes-input {
+            width: 100%;
+            padding: 8px;
+            background: #4b5563;
+            border: 1px solid #6b7280;
+            border-radius: 4px;
+            color: #f9fafb;
+            font-size: 12px;
+            margin-bottom: 8px;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .add-transaction {
+            background: #374151;
+            border: 2px dashed #6b7280;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .simple-view {
+            display: block;
+        }
+
+        .simple-view.hide {
+            display: none;
+        }
+
+        /* Monthly Overview */
+        .day-group {
+            margin-bottom: 16px;
+        }
+
+        .day-header {
+            background: #4b5563;
+            color: #f9fafb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .day-total {
+            color: #34d399;
+            font-size: 11px;
+        }
+
+        .monthly-transaction-item {
+            background: #374151;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 6px;
+            border: 1px solid #4b5563;
+            font-size: 12px;
+        }
+
+        .monthly-transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .monthly-transaction-amount {
+            font-weight: 600;
+            color: #34d399;
+        }
+
+        .monthly-transaction-time {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        .monthly-transaction-notes {
+            font-size: 11px;
+            color: #d1d5db;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .no-transactions {
+            text-align: center;
+            color: #9ca3af;
+            padding: 40px 20px;
+            font-size: 14px;
+        }
+
+        /* Transaction Page */
+        .transaction-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #111827;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
+        }
+
+        .transaction-page.show {
+            display: flex;
+        }
+
+        .transaction-page-header {
+            background: #1f2937;
+            padding: 16px;
+            border-bottom: 1px solid #374151;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-to-modal {
+            background: #374151;
+            border: none;
+            color: #d1d5db;
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .back-to-modal:hover {
+            background: #4b5563;
+        }
+
+        .transaction-page-title {
+            flex: 1;
+        }
+
+        .transaction-page-title > div:first-child {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f9fafb;
+        }
+
+        .transaction-page-title > div:last-child {
+            background: #059669;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .transaction-page-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .transactions-section {
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #374151;
+        }
+
+        .transactions-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f9fafb;
+            margin-bottom: 12px;
+        }
+
+        .page-transaction-item {
+            background: #374151;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #4b5563;
+        }
+
+        .page-transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .page-transaction-amount {
+            font-weight: 600;
+            color: #34d399;
+            font-size: 16px;
+        }
+
+        .page-transaction-time {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .page-transaction-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .page-transaction-edit, .page-transaction-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .page-transaction-edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .page-transaction-delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        .page-transaction-notes {
+            font-size: 14px;
+            color: #d1d5db;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .page-edit-inputs {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .page-edit-inputs.show {
+            display: block;
+        }
+
+        .page-edit-amount, .page-edit-notes {
+            width: 100%;
+            padding: 8px;
+            background: #4b5563;
+            border: 1px solid #6b7280;
+            border-radius: 4px;
+            color: #f9fafb;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .page-edit-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-edit-save, .page-edit-cancel {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .page-edit-save {
+            background: #059669;
+            color: white;
+        }
+
+        .page-edit-cancel {
+            background: #6b7280;
+            color: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="title-section">
+                <div class="title">Daily Spends</div>
+                <div class="subtitle">Click any day to track spending</div>
             </div>
+            <div class="total" id="monthTotal">Total: £0.00</div>
+        </div>
 
-          </div>
+        <!-- Navigation -->
+        <div class="nav">
+            <button class="nav-btn" id="prevBtn">‹ Prev</button>
+            <div class="month-title" id="monthTitle">July 2025</div>
+            <button class="nav-btn" id="nextBtn">Next ›</button>
+        </div>
 
-        )}
-
-      </div>
-
+        <!-- Calendar -->
+        <div class="calendar">
+            <div class="weekdays">
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
+            </div>
+            <div class="days" id="daysGrid">
+                <!-- Days will be populated by JavaScript -->
+            </div>
+        </div>
     </div>
 
-  );
-
-};
-
-
-
-export default SpendingCalendar;
-
-        
+    <!-- Modal -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title" id="modalDate">July 6</div>
+                <div class="current-total" id="currentTotal">Total: £0.00</div>
+            </div>
+            
+            <!-- Simple Add View -->
+            <div class="simple-view" id="simpleView">
+                <div class="input-section">
+                    <input type="number" 
+                           step="0.01" 
+                           class="amount-input" 
+                           id="am
