@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spends</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="mobile-web-app-capable" content="yes">
     <style>
         * {
             margin: 0;
@@ -160,12 +158,6 @@
             color: #34d399;
         }
 
-        .day.has-refunds {
-            border-color: #f59e0b;
-            background: rgba(245, 158, 11, 0.2);
-            color: #fbbf24;
-        }
-
         .day-number {
             font-weight: 600;
             font-size: 11px;
@@ -180,10 +172,6 @@
             color: #34d399;
             line-height: 1;
             text-align: center;
-        }
-
-        .day-amount.negative {
-            color: #fbbf24;
         }
 
         .plus-icon {
@@ -300,36 +288,6 @@
             margin-bottom: 16px;
         }
 
-        /* Add/Subtract Toggle */
-        .mode-toggle {
-            display: flex;
-            background: #374151;
-            border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
-
-        .mode-btn {
-            flex: 1;
-            padding: 8px 12px;
-            border: none;
-            background: transparent;
-            color: #9ca3af;
-            font-size: 12px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-
-        .mode-btn.active {
-            background: #3b82f6;
-            color: white;
-        }
-
-        .mode-btn.subtract.active {
-            background: #dc2626;
-        }
-
         .amount-input {
             width: 100%;
             padding: 14px;
@@ -346,10 +304,6 @@
 
         .amount-input:focus {
             border-color: #3b82f6;
-        }
-
-        .amount-input.subtract-mode:focus {
-            border-color: #dc2626;
         }
 
         .amount-input::placeholder {
@@ -377,11 +331,6 @@
             color: white;
         }
 
-        .btn-subtract {
-            background: #dc2626;
-            color: white;
-        }
-
         .btn-cancel {
             background: #6b7280;
             color: white;
@@ -392,20 +341,7 @@
             color: white;
         }
 
-        /* Transaction styling for refunds */
-        .transaction-item.refund {
-            border-left: 4px solid #f59e0b;
-        }
-
-        .transaction-amount.refund {
-            color: #f59e0b;
-        }
-
-        .transaction-amount.refund::before {
-            content: "-";
-        }
-
-        /* Rest of existing styles... */
+        /* Breakdown view */
         .breakdown-view {
             display: none;
         }
@@ -852,9 +788,42 @@
                 <div class="title">Daily Spends</div>
                 <div class="subtitle">Click any day to track spending</div>
             </div>
-            <div class="total" id="monthTotal">Total: £0.00</div>
-        </div>
 
-        <!-- Navigation -->
-        <div class="nav">
-           
+    <!-- Transaction Management Page -->
+    <div class="transaction-page" id="transactionPage">
+        <div class="transaction-page-header">
+            <button class="back-to-modal" id="backToModal">← Back</button>
+            <div class="transaction-page-title">
+                <div id="transactionPageDate">July 6</div>
+                <div id="transactionPageTotal">Total: £0.00</div>
+            </div>
+        </div>
+        
+        <div class="transaction-page-content">
+            <!-- Transactions list only - no add section -->
+            <div class="transactions-section">
+                <div class="transactions-section-title">Transactions</div>
+                <div id="pageTransactionList">
+                    <!-- Transactions will be populated here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Overview Modal -->
+    <div class="modal" id="monthlyModal">
+        <div class="modal-content" style="max-width: 320px; max-height: 80vh;">
+            <div class="modal-header">
+                <div class="modal-title" id="monthlyModalTitle">July 2025 Overview</div>
+                <div class="current-total" id="monthlyModalTotal">Total: £0.00</div>
+            </div>
+            
+            <div style="max-height: 60vh; overflow-y: auto; margin-bottom: 16px;">
+                <div id="monthlyTransactionList">
+                    <!-- Monthly transactions will be populated here -->
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" id="closeMonthlyBtn">Close</button>
+            </d
