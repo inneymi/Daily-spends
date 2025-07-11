@@ -160,6 +160,12 @@
             color: #34d399;
         }
 
+        .day.has-refunds {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
         .day-number {
             font-weight: 600;
             font-size: 11px;
@@ -174,6 +180,10 @@
             color: #34d399;
             line-height: 1;
             text-align: center;
+        }
+
+        .day-amount.negative {
+            color: #fbbf24;
         }
 
         .plus-icon {
@@ -290,6 +300,36 @@
             margin-bottom: 16px;
         }
 
+        /* Add/Subtract Toggle */
+        .mode-toggle {
+            display: flex;
+            background: #374151;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .mode-btn.subtract.active {
+            background: #dc2626;
+        }
+
         .amount-input {
             width: 100%;
             padding: 14px;
@@ -306,6 +346,10 @@
 
         .amount-input:focus {
             border-color: #3b82f6;
+        }
+
+        .amount-input.subtract-mode:focus {
+            border-color: #dc2626;
         }
 
         .amount-input::placeholder {
@@ -333,6 +377,11 @@
             color: white;
         }
 
+        .btn-subtract {
+            background: #dc2626;
+            color: white;
+        }
+
         .btn-cancel {
             background: #6b7280;
             color: white;
@@ -343,7 +392,20 @@
             color: white;
         }
 
-        /* Breakdown view */
+        /* Transaction styling for refunds */
+        .transaction-item.refund {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .transaction-amount.refund {
+            color: #f59e0b;
+        }
+
+        .transaction-amount.refund::before {
+            content: "-";
+        }
+
+        /* Rest of existing styles... */
         .breakdown-view {
             display: none;
         }
@@ -795,40 +857,4 @@
 
         <!-- Navigation -->
         <div class="nav">
-            <button class="nav-btn" id="prevBtn">‹ Prev</button>
-            <div class="month-title" id="monthTitle">July 2025</div>
-            <button class="nav-btn" id="nextBtn">Next ›</button>
-        </div>
-
-        <!-- Calendar -->
-        <div class="calendar">
-            <div class="weekdays">
-                <div class="weekday">Sun</div>
-                <div class="weekday">Mon</div>
-                <div class="weekday">Tue</div>
-                <div class="weekday">Wed</div>
-                <div class="weekday">Thu</div>
-                <div class="weekday">Fri</div>
-                <div class="weekday">Sat</div>
-            </div>
-            <div class="days" id="daysGrid">
-                <!-- Days will be populated by JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title" id="modalDate">July 6</div>
-                <div class="current-total" id="currentTotal">Total: £0.00</div>
-            </div>
-            
-            <!-- Simple Add View -->
-            <div class="simple-view" id="simpleView">
-                <div class="input-section">
-                    <input type="number" 
-                           step="0.01" 
-                           class="amount-input" 
-                           id="am
+           
