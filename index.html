@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spends</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="mobile-web-app-capable" content="yes">
     <style>
         * {
             margin: 0;
@@ -158,6 +160,12 @@
             color: #34d399;
         }
 
+        .day.has-refunds {
+            border-color: #f59e0b;
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
         .day-number {
             font-weight: 600;
             font-size: 11px;
@@ -172,6 +180,10 @@
             color: #34d399;
             line-height: 1;
             text-align: center;
+        }
+
+        .day-amount.negative {
+            color: #fbbf24;
         }
 
         .plus-icon {
@@ -239,7 +251,6 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
-            position: relative;
         }
 
         .current-total:hover {
@@ -247,8 +258,6 @@
             border-color: #10b981;
             transform: translateY(-1px);
         }
-
-
 
         .current-total.breakdown-mode {
             background: #374151;
@@ -291,6 +300,36 @@
             margin-bottom: 16px;
         }
 
+        /* Add/Subtract Toggle */
+        .mode-toggle {
+            display: flex;
+            background: #374151;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 8px 12px;
+            border: none;
+            background: transparent;
+            color: #9ca3af;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .mode-btn.subtract.active {
+            background: #dc2626;
+        }
+
         .amount-input {
             width: 100%;
             padding: 14px;
@@ -307,6 +346,10 @@
 
         .amount-input:focus {
             border-color: #3b82f6;
+        }
+
+        .amount-input.subtract-mode:focus {
+            border-color: #dc2626;
         }
 
         .amount-input::placeholder {
@@ -334,6 +377,11 @@
             color: white;
         }
 
+        .btn-subtract {
+            background: #dc2626;
+            color: white;
+        }
+
         .btn-cancel {
             background: #6b7280;
             color: white;
@@ -344,7 +392,20 @@
             color: white;
         }
 
-        /* Breakdown view */
+        /* Transaction styling for refunds */
+        .transaction-item.refund {
+            border-left: 4px solid #f59e0b;
+        }
+
+        .transaction-amount.refund {
+            color: #f59e0b;
+        }
+
+        .transaction-amount.refund::before {
+            content: "-";
+        }
+
+        /* Rest of existing styles... */
         .breakdown-view {
             display: none;
         }
@@ -796,1050 +857,4 @@
 
         <!-- Navigation -->
         <div class="nav">
-            <button class="nav-btn" id="prevBtn">‹ Prev</button>
-            <div class="month-title" id="monthTitle">July 2025</div>
-            <button class="nav-btn" id="nextBtn">Next ›</button>
-        </div>
-
-        <!-- Calendar -->
-        <div class="calendar">
-            <div class="weekdays">
-                <div class="weekday">Sun</div>
-                <div class="weekday">Mon</div>
-                <div class="weekday">Tue</div>
-                <div class="weekday">Wed</div>
-                <div class="weekday">Thu</div>
-                <div class="weekday">Fri</div>
-                <div class="weekday">Sat</div>
-            </div>
-            <div class="days" id="daysGrid">
-                <!-- Days will be populated by JavaScript -->
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal -->
-    <div class="modal" id="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <div class="modal-title" id="modalDate">July 6</div>
-                <div class="current-total" id="currentTotal">Total: £0.00</div>
-            </div>
-            
-            <!-- Simple Add View -->
-            <div class="simple-view" id="simpleView">
-                <div class="input-section">
-                    <input type="number" 
-                           step="0.01" 
-                           class="amount-input" 
-                           id="amountInput" 
-                           placeholder="Amount to add (£)">
-                    <input type="text" 
-                           class="amount-input" 
-                           id="notesInput" 
-                           placeholder="Notes (optional)"
-                           style="font-size: 14px; text-align: left;">
-                </div>
-                
-                <!-- Transaction Summary - Always Visible -->
-                <div class="transaction-summary" id="transactionSummary" style="display: block;">
-                    <div id="summaryText">No transactions yet</div>
-                    <div class="view-details-hint" id="summaryHint" style="display: none;">Tap to view details</div>
-                </div>
-                
-                <div class="modal-buttons">
-                    <button class="modal-btn btn-add" id="addBtn">Add</button>
-                    <button class="modal-btn btn-cancel" id="cancelBtn">Close</button>
-                </div>
-            </div>
-
-            <!-- Breakdown View -->
-            <div class="breakdown-view" id="breakdownView">
-                <div class="add-transaction">
-                    <input type="number" 
-                           step="0.01" 
-                           class="amount-input" 
-                           id="newAmountInput" 
-                           placeholder="Amount (£)"
-                           style="margin-bottom: 8px;">
-                    <input type="text" 
-                           class="amount-input" 
-                           id="newNotesInput" 
-                           placeholder="Notes (optional)"
-                           style="font-size: 14px; text-align: left; margin-bottom: 8px;">
-                    <button class="modal-btn btn-add" id="addTransactionBtn" style="width: 100%; margin-bottom: 0;">Add Transaction</button>
-                </div>
-
-                <div class="transactions-header" id="transactionsHeader" onclick="toggleTransactionList()">
-                    <div class="transactions-title">Transactions</div>
-                    <div class="transactions-count" id="transactionsCount">0 transactions</div>
-                    <div class="transactions-toggle" id="transactionsToggle">Click to view ↓</div>
-                </div>
-                
-                <div class="transaction-list" id="transactionList">
-                    <!-- Transactions will be populated here -->
-                </div>
-                
-                <div class="modal-buttons">
-                    <button class="modal-btn btn-back" id="backBtn">← Simple View</button>
-                    <button class="modal-btn btn-cancel" id="cancelBreakdownBtn">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Monthly Overview Modal -->
-    <div class="modal" id="monthlyModal">
-        <div class="modal-content" style="max-width: 320px; max-height: 80vh;">
-            <div class="modal-header">
-                <div class="modal-title" id="monthlyModalTitle">July 2025 Overview</div>
-                <div class="current-total" id="monthlyModalTotal">Total: £0.00</div>
-            </div>
-            
-            <div style="max-height: 60vh; overflow-y: auto; margin-bottom: 16px;">
-                <div id="monthlyTransactionList">
-                    <!-- Monthly transactions will be populated here -->
-                </div>
-            </div>
-            
-            <div class="modal-buttons">
-                <button class="modal-btn btn-cancel" id="closeMonthlyBtn">Close</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Transaction Management Page -->
-    <div class="transaction-page" id="transactionPage">
-        <div class="transaction-page-header">
-            <button class="back-to-modal" id="backToModal">← Back</button>
-            <div class="transaction-page-title">
-                <div id="transactionPageDate">July 6</div>
-                <div id="transactionPageTotal">Total: £0.00</div>
-            </div>
-        </div>
-        
-        <div class="transaction-page-content">
-            <!-- Transactions list only - no add section -->
-            <div class="transactions-section">
-                <div class="transactions-section-title">Transactions</div>
-                <div id="pageTransactionList">
-                    <!-- Transactions will be populated here -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Global variables
-        var spendingData = {};
-        var currentMonth = 6; // July = 6 (0-based)
-        var currentYear = 2025;
-        var selectedDay = null;
-        var isBreakdownMode = false;
-        var isTransactionListVisible = true;
-
-        var months = [
-            'January', 'February', 'March', 'April', 'May', 'June',
-            'July', 'August', 'September', 'October', 'November', 'December'
-        ];
-
-        // Load data with localStorage safety
-        function loadData() {
-            try {
-                if (typeof localStorage !== 'undefined' && localStorage !== null) {
-                    var saved = localStorage.getItem('spendingData');
-                    if (saved) {
-                        spendingData = JSON.parse(saved);
-                    }
-                }
-            } catch (e) {
-                console.warn('localStorage not available, using memory storage only');
-            }
-        }
-
-        // Save data with localStorage safety
-        function saveData() {
-            try {
-                if (typeof localStorage !== 'undefined' && localStorage !== null) {
-                    localStorage.setItem('spendingData', JSON.stringify(spendingData));
-                }
-            } catch (e) {
-                console.warn('Could not save to localStorage:', e);
-            }
-        }
-
-        // Get date key
-        function getDateKey(day) {
-            return currentYear + '-' + currentMonth + '-' + day;
-        }
-
-        // Get total for a day
-        function getDayTotal(day) {
-            var dateKey = getDateKey(day);
-            var data = spendingData[dateKey];
-            if (!data) return 0;
-            
-            // Handle both old and new format
-            if (typeof data === 'number') return data;
-            if (data.amount) return data.amount;
-            if (data.transactions) {
-                var total = 0;
-                for (var i = 0; i < data.transactions.length; i++) {
-                    total += data.transactions[i].amount || 0;
-                }
-                return total;
-            }
-            return 0;
-        }
-
-        // Get transactions for a day
-        function getDayTransactions(day) {
-            var dateKey = getDateKey(day);
-            var data = spendingData[dateKey];
-            if (!data) return [];
-            
-            if (typeof data === 'number') {
-                // Convert simple total to transaction
-                return [{
-                    id: 'legacy-' + dateKey,
-                    amount: data,
-                    notes: '',
-                    time: 'Previous'
-                }];
-            }
-            
-            if (data.transactions) {
-                return data.transactions;
-            }
-            
-            return [];
-        }
-
-        // Check if day has notes
-        function dayHasNotes(day) {
-            var dateKey = getDateKey(day);
-            var data = spendingData[dateKey];
-            if (!data) return false;
-            
-            if (data.notes && data.notes.trim()) return true;
-            if (data.transactions) {
-                for (var i = 0; i < data.transactions.length; i++) {
-                    if (data.transactions[i].notes && data.transactions[i].notes.trim()) {
-                        return true;
-                    }
-                }
-            }
-            return false;
-        }
-
-        // Get month total
-        function getMonthTotal() {
-            var total = 0;
-            for (var day = 1; day <= 31; day++) {
-                total += getDayTotal(day);
-            }
-            return total;
-        }
-
-        // Get all transactions for the current month
-        function getAllMonthTransactions() {
-            var allTransactions = [];
-            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            
-            for (var day = 1; day <= daysInMonth; day++) {
-                var transactions = getDayTransactions(day);
-                if (transactions.length > 0) {
-                    allTransactions.push({
-                        day: day,
-                        dayTotal: getDayTotal(day),
-                        transactions: transactions
-                    });
-                }
-            }
-            
-            return allTransactions;
-        }
-
-        // Open monthly overview
-        function openMonthlyOverview() {
-            document.getElementById('monthlyModalTitle').textContent = 
-                months[currentMonth] + ' ' + currentYear + ' Overview';
-            document.getElementById('monthlyModalTotal').textContent = 
-                'Total: £' + getMonthTotal().toFixed(2);
-            
-            renderMonthlyTransactionList();
-            document.getElementById('monthlyModal').classList.add('show');
-        }
-
-        // Close monthly overview
-        function closeMonthlyOverview() {
-            document.getElementById('monthlyModal').classList.remove('show');
-        }
-
-        // Render monthly transaction list
-        function renderMonthlyTransactionList() {
-            var list = document.getElementById('monthlyTransactionList');
-            var monthData = getAllMonthTransactions();
-            
-            if (monthData.length === 0) {
-                list.innerHTML = '<div class="no-transactions">No transactions this month<br><span style="font-size: 12px; color: #6b7280;">Add some spending to see your monthly overview</span></div>';
-                return;
-            }
-            
-            list.innerHTML = '';
-            
-            for (var i = 0; i < monthData.length; i++) {
-                var dayData = monthData[i];
-                var dayGroup = document.createElement('div');
-                dayGroup.className = 'day-group';
-                
-                // Day header
-                var dayHeader = document.createElement('div');
-                dayHeader.className = 'day-header';
-                
-                var dayName = new Date(currentYear, currentMonth, dayData.day).toLocaleDateString('en-GB', { 
-                    weekday: 'short', 
-                    day: 'numeric' 
-                });
-                
-                dayHeader.innerHTML = '<span>' + dayName + '</span><span class="day-total">£' + dayData.dayTotal.toFixed(2) + '</span>';
-                dayGroup.appendChild(dayHeader);
-                
-                // Transactions for this day
-                for (var j = 0; j < dayData.transactions.length; j++) {
-                    var transaction = dayData.transactions[j];
-                    var item = document.createElement('div');
-                    item.className = 'monthly-transaction-item';
-                    
-                    var content = '<div class="monthly-transaction-row">';
-                    content += '<span class="monthly-transaction-amount">£' + transaction.amount.toFixed(2) + '</span>';
-                    content += '<span class="monthly-transaction-time">' + transaction.time + '</span>';
-                    content += '</div>';
-                    
-                    if (transaction.notes && transaction.notes.trim()) {
-                        content += '<div class="monthly-transaction-notes">' + transaction.notes + '</div>';
-                    }
-                    
-                    item.innerHTML = content;
-                    dayGroup.appendChild(item);
-                }
-                
-                list.appendChild(dayGroup);
-            }
-        }
-
-        // Update display
-        function updateDisplay() {
-            document.getElementById('monthTitle').textContent = 
-                months[currentMonth] + ' ' + currentYear;
-            document.getElementById('monthTotal').textContent = 
-                'Total: £' + getMonthTotal().toFixed(2);
-        }
-
-        // Build calendar
-        function buildCalendar() {
-            console.log('Building calendar for', months[currentMonth], currentYear);
-            
-            var grid = document.getElementById('daysGrid');
-            grid.innerHTML = '';
-
-            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-            var firstDay = new Date(currentYear, currentMonth, 1).getDay();
-            var today = new Date();
-
-            // Empty days
-            for (var i = 0; i < firstDay; i++) {
-                var emptyDay = document.createElement('div');
-                emptyDay.className = 'day empty-day';
-                grid.appendChild(emptyDay);
-            }
-
-            // Days
-            for (var day = 1; day <= daysInMonth; day++) {
-                var dayEl = document.createElement('div');
-                dayEl.className = 'day';
-                
-                var amount = getDayTotal(day);
-                var isToday = (today.getDate() === day && 
-                              today.getMonth() === currentMonth && 
-                              today.getFullYear() === currentYear);
-
-                if (isToday) dayEl.className += ' today';
-                if (amount > 0) dayEl.className += ' has-spending';
-
-                var content = '<div class="day-number">' + day + '</div>';
-                if (amount > 0) {
-                    content += '<div class="day-amount">£' + amount.toFixed(2) + '</div>';
-                } else {
-                    content += '<div class="plus-icon">+</div>';
-                }
-                
-                dayEl.innerHTML = content;
-                dayEl.onclick = (function(d) {
-                    return function() { openModal(d); };
-                })(day);
-                
-                grid.appendChild(dayEl);
-            }
-            
-            console.log('Calendar built successfully');
-        }
-
-        // Toggle transaction list visibility
-        function toggleTransactionList() {
-            var list = document.getElementById('transactionList');
-            var header = document.getElementById('transactionsHeader');
-            var toggle = document.getElementById('transactionsToggle');
-            
-            isTransactionListVisible = !isTransactionListVisible;
-            
-            if (isTransactionListVisible) {
-                list.classList.remove('collapsed');
-                header.classList.remove('collapsed');
-                toggle.textContent = 'Click to hide ↑';
-            } else {
-                list.classList.add('collapsed');
-                header.classList.add('collapsed');
-                toggle.textContent = 'Click to view ↓';
-            }
-        }
-
-        // Update transaction header
-        function updateTransactionHeader() {
-            var transactions = getDayTransactions(selectedDay);
-            var count = transactions.length;
-            var countEl = document.getElementById('transactionsCount');
-            
-            if (count === 0) {
-                countEl.textContent = 'No transactions yet';
-            } else if (count === 1) {
-                countEl.textContent = '1 transaction';
-            } else {
-                countEl.textContent = count + ' transactions';
-            }
-        }
-
-        // Show breakdown view
-        function showBreakdownView() {
-            isBreakdownMode = true;
-            isTransactionListVisible = true; // Always show list when entering breakdown
-            document.getElementById('simpleView').classList.add('hide');
-            document.getElementById('breakdownView').classList.add('show');
-            document.getElementById('currentTotal').classList.add('breakdown-mode');
-            updateTransactionHeader();
-            renderTransactionList();
-        }
-
-        // Show simple view
-        function showSimpleView() {
-            isBreakdownMode = false;
-            document.getElementById('simpleView').classList.remove('hide');
-            document.getElementById('breakdownView').classList.remove('show');
-            document.getElementById('currentTotal').classList.remove('breakdown-mode');
-            updateTransactionSummary(); // Update summary when returning to simple view
-        }
-
-        // Render transaction list
-        function renderTransactionList() {
-            var list = document.getElementById('transactionList');
-            var header = document.getElementById('transactionsHeader');
-            var toggle = document.getElementById('transactionsToggle');
-            var transactions = getDayTransactions(selectedDay);
-            
-            // Update header
-            updateTransactionHeader();
-            
-            // Update toggle state display
-            if (isTransactionListVisible) {
-                list.classList.remove('collapsed');
-                header.classList.remove('collapsed');
-                toggle.textContent = 'Click to hide ↑';
-            } else {
-                list.classList.add('collapsed');
-                header.classList.add('collapsed');
-                toggle.textContent = 'Click to view ↓';
-            }
-            
-            if (transactions.length === 0) {
-                list.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 20px; font-size: 14px;">No transactions yet<br><span style="font-size: 12px;">Add your first transaction above</span></div>';
-                return;
-            }
-            
-            list.innerHTML = '';
-            for (var i = 0; i < transactions.length; i++) {
-                var transaction = transactions[i];
-                var item = document.createElement('div');
-                item.className = 'transaction-item';
-                item.id = 'transaction-' + transaction.id;
-                
-                var content = '<div class="transaction-row">';
-                content += '<span class="transaction-amount">£' + transaction.amount.toFixed(2) + '</span>';
-                content += '<div class="transaction-actions">';
-                content += '<span class="transaction-time">' + transaction.time + '</span>';
-                
-                // All transactions can be edited/deleted except true legacy ones
-                if (transaction.id && String(transaction.id).indexOf('legacy-') !== 0) {
-                    content += '<button class="transaction-edit" onclick="editTransaction(\'' + transaction.id + '\')">Edit</button>';
-                    content += '<button class="transaction-delete" onclick="deleteTransaction(\'' + transaction.id + '\')">×</button>';
-                } else {
-                    // Legacy transactions get a note about being old data
-                    content += '<span style="font-size: 9px; color: #6b7280;">(old data)</span>';
-                }
-                content += '</div>';
-                content += '</div>';
-                
-                if (transaction.notes && transaction.notes.trim()) {
-                    content += '<div class="transaction-notes">' + transaction.notes + '</div>';
-                }
-                
-                // Edit form (hidden by default) - only for editable transactions
-                if (transaction.id && String(transaction.id).indexOf('legacy-') !== 0) {
-                    content += '<div class="edit-inputs" id="edit-' + transaction.id + '">';
-                    content += '<input type="number" step="0.01" class="edit-amount-input" id="edit-amount-' + transaction.id + '" value="' + transaction.amount + '" placeholder="Amount" onkeypress="handleEditKeypress(event, \'' + transaction.id + '\', \'amount\')">';
-                    content += '<input type="text" class="edit-notes-input" id="edit-notes-' + transaction.id + '" value="' + (transaction.notes || '') + '" placeholder="Notes" onkeypress="handleEditKeypress(event, \'' + transaction.id + '\', \'notes\')">';
-                    content += '<div class="edit-buttons">';
-                    content += '<button class="transaction-save" onclick="saveTransactionEdit(\'' + transaction.id + '\')">Save</button>';
-                    content += '<button class="transaction-cancel" onclick="cancelTransactionEdit(\'' + transaction.id + '\')">Cancel</button>';
-                    content += '</div>';
-                    content += '</div>';
-                }
-                
-                item.innerHTML = content;
-                list.appendChild(item);
-            }
-        }
-
-        // Edit transaction
-        function editTransaction(transactionId) {
-            // Hide the display row
-            var item = document.getElementById('transaction-' + transactionId);
-            var displayRow = item.querySelector('.transaction-row');
-            var notesDiv = item.querySelector('.transaction-notes');
-            var editForm = document.getElementById('edit-' + transactionId);
-            
-            displayRow.style.display = 'none';
-            if (notesDiv) notesDiv.style.display = 'none';
-            editForm.classList.add('show');
-            
-            // Focus the amount input
-            document.getElementById('edit-amount-' + transactionId).focus();
-        }
-
-        // Cancel transaction edit
-        function cancelTransactionEdit(transactionId) {
-            var item = document.getElementById('transaction-' + transactionId);
-            var displayRow = item.querySelector('.transaction-row');
-            var notesDiv = item.querySelector('.transaction-notes');
-            var editForm = document.getElementById('edit-' + transactionId);
-            
-            displayRow.style.display = 'flex';
-            if (notesDiv) notesDiv.style.display = 'block';
-            editForm.classList.remove('show');
-        }
-
-        // Save transaction edit
-        function saveTransactionEdit(transactionId) {
-            var newAmount = parseFloat(document.getElementById('edit-amount-' + transactionId).value);
-            var newNotes = document.getElementById('edit-notes-' + transactionId).value.trim();
-            
-            if (isNaN(newAmount)) {
-                alert('Please enter a valid amount');
-                return;
-            }
-            
-            var dateKey = getDateKey(selectedDay);
-            var data = spendingData[dateKey];
-            
-            if (data && data.transactions) {
-                // Find and update the transaction
-                for (var i = 0; i < data.transactions.length; i++) {
-                    if (data.transactions[i].id === transactionId) {
-                        data.transactions[i].amount = newAmount;
-                        data.transactions[i].notes = newNotes;
-                        break;
-                    }
-                }
-                
-                saveData();
-                updateDisplay();
-                buildCalendar();
-                updateModalTotal();
-                renderTransactionList();
-            }
-        }
-
-        // Delete transaction
-        function deleteTransaction(transactionId) {
-            if (!confirm('Delete this transaction?')) return;
-            
-            var dateKey = getDateKey(selectedDay);
-            var data = spendingData[dateKey];
-            
-            if (data && data.transactions) {
-                data.transactions = data.transactions.filter(function(t) {
-                    return t.id !== transactionId;
-                });
-                
-                // If no transactions left, remove the entry
-                if (data.transactions.length === 0) {
-                    delete spendingData[dateKey];
-                }
-                
-                saveData();
-                updateDisplay();
-                buildCalendar();
-                updateModalTotal();
-                updateTransactionHeader();
-                renderTransactionList();
-            }
-        }
-
-        // Update modal total
-        function updateModalTotal() {
-            var total = getDayTotal(selectedDay);
-            document.getElementById('currentTotal').textContent = 
-                'Total: £' + total.toFixed(2);
-        }
-
-        // Update transaction summary in simple view
-        function updateTransactionSummary() {
-            var transactions = getDayTransactions(selectedDay);
-            var summary = document.getElementById('transactionSummary');
-            var summaryText = document.getElementById('summaryText');
-            var summaryHint = document.getElementById('summaryHint');
-            
-            // Always show the summary box
-            summary.style.display = 'block';
-            
-            if (transactions.length === 0) {
-                summaryText.textContent = 'No transactions yet';
-                summaryHint.style.display = 'none';
-                summary.classList.remove('has-transactions');
-                summary.onclick = null;
-                summary.style.cursor = 'default';
-            } else {
-                var withNotes = transactions.filter(function(t) { 
-                    return t.notes && t.notes.trim(); 
-                }).length;
-                
-                if (transactions.length === 1) {
-                    if (withNotes > 0) {
-                        summaryText.innerHTML = '<span class="transaction-indicator">1 transaction</span> with notes';
-                    } else {
-                        summaryText.innerHTML = '<span class="transaction-indicator">1 transaction</span>';
-                    }
-                } else {
-                    if (withNotes > 0) {
-                        summaryText.innerHTML = '<span class="transaction-indicator">' + transactions.length + ' transactions</span> (' + withNotes + ' with notes)';
-                    } else {
-                        summaryText.innerHTML = '<span class="transaction-indicator">' + transactions.length + ' transactions</span>';
-                    }
-                }
-                
-                summaryHint.style.display = 'block';
-                summary.classList.add('has-transactions');
-                summary.style.cursor = 'pointer';
-                
-                // Remove any existing click handler first
-                summary.onclick = null;
-                
-                // Add new click handler
-                summary.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    openTransactionPage();
-                };
-            }
-        }
-
-        // Open transaction page
-        function openTransactionPage() {
-            console.log('Opening transaction page for day:', selectedDay);
-            
-            if (!selectedDay) {
-                console.error('No selected day!');
-                return;
-            }
-            
-            document.getElementById('transactionPageDate').textContent = 
-                months[currentMonth] + ' ' + selectedDay;
-            document.getElementById('transactionPageTotal').textContent = 
-                'Total: £' + getDayTotal(selectedDay).toFixed(2);
-            
-            renderPageTransactionList();
-            document.getElementById('transactionPage').classList.add('show');
-        }
-
-        // Close transaction page
-        function closeTransactionPage() {
-            document.getElementById('transactionPage').classList.remove('show');
-        }
-
-        // Render transaction list on the page
-        function renderPageTransactionList() {
-            var list = document.getElementById('pageTransactionList');
-            var transactions = getDayTransactions(selectedDay);
-            
-            if (transactions.length === 0) {
-                list.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 20px; font-size: 14px;">No transactions yet<br><span style="font-size: 12px;">Add your first transaction above</span></div>';
-                return;
-            }
-            
-            list.innerHTML = '';
-            for (var i = 0; i < transactions.length; i++) {
-                var transaction = transactions[i];
-                var item = document.createElement('div');
-                item.className = 'page-transaction-item';
-                item.id = 'page-transaction-' + transaction.id;
-                
-                var content = '<div class="page-transaction-row">';
-                content += '<span class="page-transaction-amount">£' + transaction.amount.toFixed(2) + '</span>';
-                content += '<span class="page-transaction-time">' + transaction.time + '</span>';
-                content += '</div>';
-                
-                if (transaction.notes && transaction.notes.trim()) {
-                    content += '<div class="page-transaction-notes">' + transaction.notes + '</div>';
-                }
-                
-                // Actions (edit/delete) - only for non-legacy transactions
-                if (transaction.id && String(transaction.id).indexOf('legacy-') !== 0) {
-                    content += '<div class="page-transaction-actions">';
-                    content += '<button class="page-transaction-edit" onclick="editPageTransaction(\'' + transaction.id + '\')">Edit</button>';
-                    content += '<button class="page-transaction-delete" onclick="deletePageTransaction(\'' + transaction.id + '\')">Delete</button>';
-                    content += '</div>';
-                } else {
-                    content += '<div style="font-size: 10px; color: #6b7280; margin-top: 8px;">(Legacy transaction)</div>';
-                }
-                
-                // Edit form (hidden by default)
-                if (transaction.id && String(transaction.id).indexOf('legacy-') !== 0) {
-                    content += '<div class="page-edit-inputs" id="page-edit-' + transaction.id + '">';
-                    content += '<input type="number" step="0.01" class="page-edit-amount" id="page-edit-amount-' + transaction.id + '" value="' + transaction.amount + '" placeholder="Amount">';
-                    content += '<input type="text" class="page-edit-notes" id="page-edit-notes-' + transaction.id + '" value="' + (transaction.notes || '') + '" placeholder="Notes">';
-                    content += '<div class="page-edit-buttons">';
-                    content += '<button class="page-edit-save" onclick="savePageTransactionEdit(\'' + transaction.id + '\')">Save</button>';
-                    content += '<button class="page-edit-cancel" onclick="cancelPageTransactionEdit(\'' + transaction.id + '\')">Cancel</button>';
-                    content += '</div>';
-                    content += '</div>';
-                }
-                
-                item.innerHTML = content;
-                list.appendChild(item);
-            }
-        }
-
-        // Edit transaction on page
-        function editPageTransaction(transactionId) {
-            var item = document.getElementById('page-transaction-' + transactionId);
-            var displayElements = item.querySelectorAll('.page-transaction-row, .page-transaction-notes, .page-transaction-actions');
-            var editForm = document.getElementById('page-edit-' + transactionId);
-            
-            for (var i = 0; i < displayElements.length; i++) {
-                displayElements[i].style.display = 'none';
-            }
-            editForm.classList.add('show');
-            
-            document.getElementById('page-edit-amount-' + transactionId).focus();
-        }
-
-        // Cancel transaction edit on page
-        function cancelPageTransactionEdit(transactionId) {
-            var item = document.getElementById('page-transaction-' + transactionId);
-            var displayElements = item.querySelectorAll('.page-transaction-row, .page-transaction-notes, .page-transaction-actions');
-            var editForm = document.getElementById('page-edit-' + transactionId);
-            
-            for (var i = 0; i < displayElements.length; i++) {
-                displayElements[i].style.display = '';
-            }
-            editForm.classList.remove('show');
-        }
-
-        // Save transaction edit on page
-        function savePageTransactionEdit(transactionId) {
-            var newAmount = parseFloat(document.getElementById('page-edit-amount-' + transactionId).value);
-            var newNotes = document.getElementById('page-edit-notes-' + transactionId).value.trim();
-            
-            if (isNaN(newAmount)) {
-                alert('Please enter a valid amount');
-                return;
-            }
-            
-            var dateKey = getDateKey(selectedDay);
-            var data = spendingData[dateKey];
-            
-            if (data && data.transactions) {
-                for (var i = 0; i < data.transactions.length; i++) {
-                    if (data.transactions[i].id === transactionId) {
-                        data.transactions[i].amount = newAmount;
-                        data.transactions[i].notes = newNotes;
-                        break;
-                    }
-                }
-                
-                saveData();
-                updateDisplay();
-                buildCalendar();
-                updatePageTotal();
-                updateTransactionSummary();
-                renderPageTransactionList();
-            }
-        }
-
-        // Delete transaction on page
-        function deletePageTransaction(transactionId) {
-            if (!confirm('Delete this transaction?')) return;
-            
-            var dateKey = getDateKey(selectedDay);
-            var data = spendingData[dateKey];
-            
-            if (data && data.transactions) {
-                data.transactions = data.transactions.filter(function(t) {
-                    return t.id !== transactionId;
-                });
-                
-                if (data.transactions.length === 0) {
-                    delete spendingData[dateKey];
-                }
-                
-                saveData();
-                updateDisplay();
-                buildCalendar();
-                updatePageTotal();
-                updateTransactionSummary();
-                renderPageTransactionList();
-            }
-        }
-
-        // Update page total
-        function updatePageTotal() {
-            document.getElementById('transactionPageTotal').textContent = 
-                'Total: £' + getDayTotal(selectedDay).toFixed(2);
-        }
-
-        // Open modal
-        function openModal(day) {
-            selectedDay = day;
-            var total = getDayTotal(day);
-            
-            document.getElementById('modalDate').textContent = 
-                months[currentMonth] + ' ' + day;
-            updateModalTotal();
-            document.getElementById('amountInput').value = '';
-            document.getElementById('notesInput').value = '';
-            document.getElementById('newAmountInput').value = '';
-            document.getElementById('newNotesInput').value = '';
-            
-            showSimpleView(); // Always start in simple view
-            updateTransactionSummary(); // Update the summary
-            
-            // Make the green total button clickable
-            var totalButton = document.getElementById('currentTotal');
-            totalButton.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                openTransactionPage();
-            };
-            
-            document.getElementById('modal').classList.add('show');
-            
-            setTimeout(function() {
-                document.getElementById('amountInput').focus();
-            }, 100);
-        }
-
-        // Close modal
-        function closeModal() {
-            document.getElementById('modal').classList.remove('show');
-            selectedDay = null;
-            isBreakdownMode = false;
-        }
-
-        // Add spending (simple view)
-        function addSpending() {
-            try {
-                var amount = parseFloat(document.getElementById('amountInput').value);
-                var notes = document.getElementById('notesInput').value.trim();
-                
-                console.log('Adding spending:', amount, 'notes:', notes, 'for day:', selectedDay);
-                
-                if (isNaN(amount) || amount === 0 || !selectedDay) {
-                    console.log('Invalid amount or no selected day');
-                    return;
-                }
-
-                var dateKey = getDateKey(selectedDay);
-                var existingData = spendingData[dateKey];
-                var transactions = [];
-                
-                // Convert existing data to transaction format if needed
-                if (typeof existingData === 'number') {
-                    transactions.push({
-                        id: 'legacy-' + dateKey,
-                        amount: existingData,
-                        notes: '',
-                        time: 'Previous'
-                    });
-                } else if (existingData && existingData.transactions) {
-                    transactions = existingData.transactions.slice(); // Copy array
-                }
-                
-                // Always add as a proper transaction (even without notes)
-                transactions.push({
-                    id: 'tx-' + Date.now(), // Make sure ID is always a string
-                    amount: amount,
-                    notes: notes || '',
-                    time: new Date().toLocaleTimeString('en-GB', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    })
-                });
-                
-                spendingData[dateKey] = { transactions: transactions };
-
-                // Clear inputs
-                document.getElementById('amountInput').value = '';
-                document.getElementById('notesInput').value = '';
-
-                saveData();
-                updateDisplay();
-                buildCalendar();
-                updateModalTotal();
-                updateTransactionSummary(); // This should make the summary clickable
-                
-                console.log('Transaction added successfully, summary should now be clickable');
-                
-            } catch (error) {
-                console.error('Error adding spending:', error);
-                alert('Error adding spending. Please try again.');
-            }
-        }
-
-        // Add transaction (breakdown view)
-        function addTransaction() {
-            try {
-                var amount = parseFloat(document.getElementById('newAmountInput').value);
-                var notes = document.getElementById('newNotesInput').value.trim();
-                
-                if (isNaN(amount) || amount === 0 || !selectedDay) return;
-
-                var dateKey = getDateKey(selectedDay);
-                var existingData = spendingData[dateKey];
-                var transactions = [];
-                
-                // Convert existing data to transaction format
-                if (typeof existingData === 'number') {
-                    transactions.push({
-                        id: 'legacy-' + dateKey,
-                        amount: existingData,
-                        notes: '',
-                        time: 'Previous'
-                    });
-                } else if (existingData && existingData.transactions) {
-                    transactions = existingData.transactions.slice(); // Copy array
-                }
-                
-                // Add new transaction
-                transactions.push({
-                    id: 'tx-' + Date.now(),
-                    amount: amount,
-                    notes: notes || '',
-                    time: new Date().toLocaleTimeString('en-GB', { 
-                        hour: '2-digit', 
-                        minute: '2-digit' 
-                    })
-                });
-                
-                spendingData[dateKey] = { transactions: transactions };
-
-                // Clear inputs
-                document.getElementById('newAmountInput').value = '';
-                document.getElementById('newNotesInput').value = '';
-
-                saveData();
-                updateDisplay();
-                buildCalendar();
-                updateModalTotal();
-                renderTransactionList();
-                
-            } catch (error) {
-                console.error('Error adding transaction:', error);
-                alert('Error adding transaction. Please try again.');
-            }
-        }
-
-        // Handle edit keypress
-        function handleEditKeypress(event, transactionId, inputType) {
-            if (event.key === 'Enter') {
-                if (inputType === 'amount') {
-                    // Move to notes input
-                    document.getElementById('edit-notes-' + transactionId).focus();
-                } else if (inputType === 'notes') {
-                    // Save the edit
-                    saveTransactionEdit(transactionId);
-                }
-            } else if (event.key === 'Escape') {
-                cancelTransactionEdit(transactionId);
-            }
-        }
-
-        // Navigate months
-        function navigateMonth(direction) {
-            currentMonth += direction;
-            if (currentMonth > 11) {
-                currentMonth = 0;
-                currentYear++;
-            } else if (currentMonth < 0) {
-                currentMonth = 11;
-                currentYear--;
-            }
-            updateDisplay();
-            buildCalendar();
-        }
-
-        // Event listeners
-        document.getElementById('prevBtn').onclick = function() { navigateMonth(-1); };
-        document.getElementById('nextBtn').onclick = function() { navigateMonth(1); };
-        document.getElementById('addBtn').onclick = addSpending;
-        document.getElementById('cancelBtn').onclick = closeModal;
-        document.getElementById('cancelBreakdownBtn').onclick = closeModal;
-        document.getElementById('backBtn').onclick = showSimpleView;
-        document.getElementById('addTransactionBtn').onclick = addTransaction;
-        document.getElementById('closeMonthlyBtn').onclick = closeMonthlyOverview;
-        document.getElementById('backToModal').onclick = closeTransactionPage;
-
-        // Make monthly total clickable
-        document.getElementById('monthTotal').onclick = openMonthlyOverview;
-
-        document.getElementById('modal').onclick = function(e) {
-            if (e.target.id === 'modal') closeModal();
-        };
-
-        document.getElementById('monthlyModal').onclick = function(e) {
-            if (e.target.id === 'monthlyModal') closeMonthlyOverview();
-        };
-
-        document.getElementById('amountInput').onkeypress = function(e) {
-            if (e.key === 'Enter') document.getElementById('notesInput').focus();
-        };
-
-        document.getElementById('notesInput').onkeypress = function(e) {
-            if (e.key === 'Enter') addSpending();
-        };
-
-        document.getElementById('newAmountInput').onkeypress = function(e) {
-            if (e.key === 'Enter') document.getElementById('newNotesInput').focus();
-        };
-
-        document.getElementById('newNotesInput').onkeypress = function(e) {
-            if (e.key === 'Enter') addTransaction();
-        };
-
-        // Initialize
-        console.log('Starting app...');
-        loadData();
-        updateDisplay();
-        buildCalendar();
-        console.log('App ready!');
-    </script>
-</body>
-</html>
+           
