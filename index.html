@@ -9,8 +9,6 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#111827">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTkyIiBoZWlnaHQ9IjE5MiIgdmlld0JveD0iMCAwIDE5MiAxOTIiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxOTIiIGhlaWdodD0iMTkyIiByeD0iMjQiIGZpbGw9IiMxMTE4MjciLz4KPHN2ZyB4PSI0OCIgeT0iNDgiIHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwNTk2NjkiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Ik0zIDlsOS03IDkgN3YxMWEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiLz4KPHA+YXRoIGQ9Im05IDIyVjEyaDZWMjIiLz4KPHN2Zz4KPC9zdmc+">
-    <link rel="icon" href="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzIiIGhlaWdodD0iMzIiIHZpZXdCb3g9IjAgMCAzMiAzMiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjMyIiBoZWlnaHQ9IjMyIiByeD0iNCIgZmlsbD0iIzExMTgyNyIvPgo8c3ZnIHg9IjgiIHk9IjgiIHdpZHRoPSIxNiIgaGVpZ2h0PSIxNiIgdmlld0JveD0iMCAwIDI0IDI0IiBmaWxsPSJub25lIiBzdHJva2U9IiMwNTk2NjkiIHN0cm9rZS13aWR0aD0iMiI+CjxwYXRoIGQ9Ik0zIDlsOS03IDkgN3YxMWEyIDIgMCAwIDEtMiAySDVhMiAyIDAgMCAxLTItMnoiLz4KPHBhdGggZD0ibTkgMjJWMTJoNlYyMiIvPgo8L3N2Zz4KPC9zdmc+">
     <style>
         * {
             margin: 0;
@@ -69,12 +67,6 @@
             cursor: pointer;
             transition: all 0.2s;
             border: 2px solid transparent;
-        }
-
-        .total:hover {
-            background: #047857;
-            border-color: #10b981;
-            transform: translateY(-1px);
         }
 
         .nav {
@@ -152,13 +144,11 @@
         .day.today {
             border-color: #3b82f6;
             background: rgba(59, 130, 246, 0.2);
-            color: #60a5fa;
         }
 
         .day.has-spending {
             border-color: #10b981;
             background: rgba(16, 185, 129, 0.2);
-            color: #34d399;
         }
 
         .day-number {
@@ -175,10 +165,6 @@
             color: #34d399;
             line-height: 1;
             text-align: center;
-        }
-
-        .day-amount.negative {
-            color: #fbbf24;
         }
 
         .empty-day {
@@ -323,23 +309,14 @@
             color: white;
         }
 
-        .btn-add:hover {
-            background: #2563eb;
-        }
-
         .btn-cancel {
             background: #6b7280;
             color: white;
-        }
-
-        .btn-cancel:hover {
-            background: #5b6670;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <div class="title-section">
                 <div class="title">Daily Spends</div>
@@ -348,14 +325,12 @@
             <div class="total" id="monthTotal">Total: £0.00</div>
         </div>
 
-        <!-- Navigation -->
         <div class="nav">
-            <button class="nav-btn" id="prevMonth">←</button>
+            <button class="nav-btn" onclick="navigateMonth(-1)">←</button>
             <div class="month-title" id="monthTitle">January 2025</div>
-            <button class="nav-btn" id="nextMonth">→</button>
+            <button class="nav-btn" onclick="navigateMonth(1)">→</button>
         </div>
 
-        <!-- Calendar -->
         <div class="calendar">
             <div class="weekdays">
                 <div class="weekday">S</div>
@@ -370,7 +345,6 @@
         </div>
     </div>
 
-    <!-- Modal -->
     <div class="modal" id="transactionModal">
         <div class="modal-content">
             <div class="modal-header">
@@ -378,8 +352,8 @@
             </div>
 
             <div class="mode-toggle">
-                <button class="mode-btn active" id="addBtn">+ Add</button>
-                <button class="mode-btn subtract" id="subtractBtn">- Subtract</button>
+                <button class="mode-btn active" onclick="setMode(false)">+ Add</button>
+                <button class="mode-btn subtract" onclick="setMode(true)">- Subtract</button>
             </div>
 
             <input type="number" class="amount-input" id="amountInput" placeholder="Amount (£)" step="0.01">
@@ -388,209 +362,201 @@
             <div class="transaction-status" id="transactionStatus">No transactions yet</div>
 
             <div class="modal-buttons">
-                <button class="modal-btn btn-add" id="addTransaction">Add</button>
-                <button class="modal-btn btn-cancel" id="closeModal">Close</button>
+                <button class="modal-btn btn-add" onclick="addTransaction()">Add</button>
+                <button class="modal-btn btn-cancel" onclick="closeModal()">Close</button>
             </div>
         </div>
     </div>
 
     <script>
-        class DailySpends {
-            constructor() {
-                this.currentDate = new Date();
-                this.selectedDate = null;
-                this.transactions = this.loadTransactions();
-                this.isSubtractMode = false;
+        let currentDate = new Date();
+        let selectedDate = null;
+        let transactions = {};
+        let isSubtractMode = false;
+
+        // Load data from localStorage
+        function loadTransactions() {
+            try {
+                const data = localStorage.getItem('dailySpends');
+                if (data) {
+                    transactions = JSON.parse(data);
+                }
+            } catch (error) {
+                console.error('Error loading:', error);
+            }
+        }
+
+        // Save data to localStorage  
+        function saveTransactions() {
+            try {
+                localStorage.setItem('dailySpends', JSON.stringify(transactions));
+            } catch (error) {
+                console.error('Error saving:', error);
+            }
+        }
+
+        function navigateMonth(direction) {
+            currentDate.setMonth(currentDate.getMonth() + direction);
+            renderCalendar();
+            updateMonthTotal();
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            const monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"];
+            document.getElementById('monthTitle').textContent = `${monthNames[month]} ${year}`;
+
+            const calendarDays = document.getElementById('calendarDays');
+            calendarDays.innerHTML = '';
+
+            const firstDay = new Date(year, month, 1).getDay();
+            const daysInMonth = new Date(year, month + 1, 0).getDate();
+            const today = new Date();
+
+            // Add empty cells
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDay = document.createElement('div');
+                emptyDay.className = 'day empty-day';
+                calendarDays.appendChild(emptyDay);
+            }
+
+            // Add days
+            for (let day = 1; day <= daysInMonth; day++) {
+                const dayEl = document.createElement('div');
+                dayEl.className = 'day';
                 
-                this.initializeElements();
-                this.bindEvents();
-                this.renderCalendar();
-                this.updateMonthTotal();
-            }
+                const dayNumber = document.createElement('div');
+                dayNumber.className = 'day-number';
+                dayNumber.textContent = day;
+                dayEl.appendChild(dayNumber);
 
-            initializeElements() {
-                this.monthTotalEl = document.getElementById('monthTotal');
-                this.monthTitleEl = document.getElementById('monthTitle');
-                this.calendarDaysEl = document.getElementById('calendarDays');
-                this.modal = document.getElementById('transactionModal');
-                this.modalTotalEl = document.getElementById('modalTotal');
-                this.amountInput = document.getElementById('amountInput');
-                this.notesInput = document.getElementById('notesInput');
-                this.transactionStatus = document.getElementById('transactionStatus');
-                this.addBtn = document.getElementById('addBtn');
-                this.subtractBtn = document.getElementById('subtractBtn');
-                this.addTransactionBtn = document.getElementById('addTransaction');
-            }
-
-            bindEvents() {
-                document.getElementById('prevMonth').addEventListener('click', () => this.navigateMonth(-1));
-                document.getElementById('nextMonth').addEventListener('click', () => this.navigateMonth(1));
-                document.getElementById('closeModal').addEventListener('click', () => this.closeModal());
-                
-                this.addBtn.addEventListener('click', () => this.setMode(false));
-                this.subtractBtn.addEventListener('click', () => this.setMode(true));
-                this.addTransactionBtn.addEventListener('click', () => this.addTransaction());
-
-                // Close modal on outside click
-                this.modal.addEventListener('click', (e) => {
-                    if (e.target === this.modal) this.closeModal();
-                });
-
-                // Enter key to add transaction
-                this.amountInput.addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.addTransaction();
-                });
-            }
-
-            navigateMonth(direction) {
-                this.currentDate.setMonth(this.currentDate.getMonth() + direction);
-                this.renderCalendar();
-                this.updateMonthTotal();
-            }
-
-            renderCalendar() {
-                const year = this.currentDate.getFullYear();
-                const month = this.currentDate.getMonth();
-                
-                // Update month title
-                const monthNames = ["January", "February", "March", "April", "May", "June",
-                    "July", "August", "September", "October", "November", "December"];
-                this.monthTitleEl.textContent = `${monthNames[month]} ${year}`;
-
-                // Clear calendar
-                this.calendarDaysEl.innerHTML = '';
-
-                // Get first day of month and number of days
-                const firstDay = new Date(year, month, 1).getDay();
-                const daysInMonth = new Date(year, month + 1, 0).getDate();
-                const today = new Date();
-
-                // Add empty cells for days before month starts
-                for (let i = 0; i < firstDay; i++) {
-                    const emptyDay = document.createElement('div');
-                    emptyDay.className = 'day empty-day';
-                    this.calendarDaysEl.appendChild(emptyDay);
+                // Check if today
+                if (year === today.getFullYear() && 
+                    month === today.getMonth() && 
+                    day === today.getDate()) {
+                    dayEl.classList.add('today');
                 }
 
-                // Add days of the month
-                for (let day = 1; day <= daysInMonth; day++) {
-                    const dayEl = document.createElement('div');
-                    dayEl.className = 'day';
+                // Check for transactions
+                const dateKey = `${year}-${month + 1}-${day}`;
+                const dayTransactions = transactions[dateKey] || [];
+                
+                if (dayTransactions.length > 0) {
+                    dayEl.classList.add('has-spending');
+                    const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
                     
-                    const dayNumber = document.createElement('div');
-                    dayNumber.className = 'day-number';
-                    dayNumber.textContent = day;
-                    dayEl.appendChild(dayNumber);
-
-                    // Check if this is today
-                    if (year === today.getFullYear() && 
-                        month === today.getMonth() && 
-                        day === today.getDate()) {
-                        dayEl.classList.add('today');
-                    }
-
-                    // Check for transactions on this day
-                    const dateKey = `${year}-${month + 1}-${day}`;
-                    const dayTransactions = this.transactions[dateKey] || [];
-                    
-                    if (dayTransactions.length > 0) {
-                        dayEl.classList.add('has-spending');
-                        const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
-                        
-                        const amountEl = document.createElement('div');
-                        amountEl.className = `day-amount ${total < 0 ? 'negative' : ''}`;
-                        amountEl.textContent = `£${Math.abs(total).toFixed(2)}`;
-                        dayEl.appendChild(amountEl);
-                    }
-
-                    dayEl.addEventListener('click', () => this.openModal(year, month + 1, day));
-                    this.calendarDaysEl.appendChild(dayEl);
-                }
-            }
-
-            openModal(year, month, day) {
-                this.selectedDate = `${year}-${month}-${day}`;
-                this.updateModalContent();
-                this.modal.classList.add('show');
-                this.amountInput.focus();
-            }
-
-            closeModal() {
-                this.modal.classList.remove('show');
-                this.amountInput.value = '';
-                this.notesInput.value = '';
-                this.setMode(false);
-            }
-
-            setMode(isSubtract) {
-                this.isSubtractMode = isSubtract;
-                this.addBtn.classList.toggle('active', !isSubtract);
-                this.subtractBtn.classList.toggle('active', isSubtract);
-                this.addTransactionBtn.textContent = isSubtract ? 'Subtract' : 'Add';
-                this.addTransactionBtn.className = `modal-btn ${isSubtract ? 'btn-cancel' : 'btn-add'}`;
-            }
-
-            updateModalContent() {
-                const dayTransactions = this.transactions[this.selectedDate] || [];
-                const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
-                
-                this.modalTotalEl.textContent = `Total: £${total.toFixed(2)}`;
-                
-                if (dayTransactions.length === 0) {
-                    this.transactionStatus.textContent = 'No transactions yet';
-                } else {
-                    this.transactionStatus.textContent = `${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'}`;
-                }
-            }
-
-            addTransaction() {
-                const amount = parseFloat(this.amountInput.value);
-                const notes = this.notesInput.value.trim();
-
-                if (!amount || amount <= 0) {
-                    alert('Please enter a valid amount');
-                    return;
+                    const amountEl = document.createElement('div');
+                    amountEl.className = 'day-amount';
+                    amountEl.textContent = `£${Math.abs(total).toFixed(2)}`;
+                    dayEl.appendChild(amountEl);
                 }
 
-                const transaction = {
-                    amount: this.isSubtractMode ? -amount : amount,
-                    notes: notes,
-                    timestamp: new Date().toISOString(),
-                    id: Date.now()
-                };
+                dayEl.onclick = () => openModal(year, month + 1, day);
+                calendarDays.appendChild(dayEl);
+            }
+        }
 
-                if (!this.transactions[this.selectedDate]) {
-                    this.transactions[this.selectedDate] = [];
+        function openModal(year, month, day) {
+            selectedDate = `${year}-${month}-${day}`;
+            updateModalContent();
+            document.getElementById('transactionModal').classList.add('show');
+            document.getElementById('amountInput').focus();
+        }
+
+        function closeModal() {
+            document.getElementById('transactionModal').classList.remove('show');
+            document.getElementById('amountInput').value = '';
+            document.getElementById('notesInput').value = '';
+            setMode(false);
+        }
+
+        function setMode(isSubtract) {
+            isSubtractMode = isSubtract;
+            const addBtn = document.querySelector('.mode-btn:first-child');
+            const subtractBtn = document.querySelector('.mode-btn.subtract');
+            const actionBtn = document.querySelector('.btn-add');
+            
+            addBtn.classList.toggle('active', !isSubtract);
+            subtractBtn.classList.toggle('active', isSubtract);
+            actionBtn.textContent = isSubtract ? 'Subtract' : 'Add';
+        }
+
+        function updateModalContent() {
+            const dayTransactions = transactions[selectedDate] || [];
+            const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
+            
+            document.getElementById('modalTotal').textContent = `Total: £${total.toFixed(2)}`;
+            
+            const status = dayTransactions.length === 0 ? 
+                'No transactions yet' : 
+                `${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'}`;
+            document.getElementById('transactionStatus').textContent = status;
+        }
+
+        function addTransaction() {
+            const amount = parseFloat(document.getElementById('amountInput').value);
+            const notes = document.getElementById('notesInput').value.trim();
+
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+
+            const transaction = {
+                amount: isSubtractMode ? -amount : amount,
+                notes: notes,
+                timestamp: new Date().toISOString(),
+                id: Date.now()
+            };
+
+            if (!transactions[selectedDate]) {
+                transactions[selectedDate] = [];
+            }
+
+            transactions[selectedDate].push(transaction);
+            saveTransactions();
+            updateModalContent();
+            renderCalendar();
+            updateMonthTotal();
+
+            document.getElementById('amountInput').value = '';
+            document.getElementById('notesInput').value = '';
+            document.getElementById('amountInput').focus();
+        }
+
+        function updateMonthTotal() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+            
+            let total = 0;
+            Object.keys(transactions).forEach(dateKey => {
+                const [y, m] = dateKey.split('-').map(Number);
+                if (y === year && m === month) {
+                    const dayTotal = transactions[dateKey].reduce((sum, t) => sum + t.amount, 0);
+                    total += dayTotal;
                 }
+            });
 
-                this.transactions[this.selectedDate].push(transaction);
-                this.saveTransactions();
-                this.updateModalContent();
-                this.renderCalendar();
-                this.updateMonthTotal();
+            document.getElementById('monthTotal').textContent = `Total: £${total.toFixed(2)}`;
+        }
 
-                // Clear inputs
-                this.amountInput.value = '';
-                this.notesInput.value = '';
-                this.amountInput.focus();
-            }
+        // Close modal on outside click
+        document.getElementById('transactionModal').onclick = function(e) {
+            if (e.target === this) closeModal();
+        };
 
-            updateMonthTotal() {
-                const year = this.currentDate.getFullYear();
-                const month = this.currentDate.getMonth() + 1;
-                
-                let total = 0;
-                Object.keys(this.transactions).forEach(dateKey => {
-                    const [y, m] = dateKey.split('-').map(Number);
-                    if (y === year && m === month) {
-                        const dayTotal = this.transactions[dateKey].reduce((sum, t) => sum + t.amount, 0);
-                        total += dayTotal;
-                    }
-                });
+        // Enter key to add transaction
+        document.getElementById('amountInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') addTransaction();
+        });
 
-                this.monthTotalEl.textContent = `Total: £${total.toFixed(2)}`;
-            }
-
-            loadTransactions() {
-                try {
-           
+        // Initialize app
+        loadTransactions();
+        renderCalendar();
+        updateMonthTotal();
+    </script>
+</body>
+</html>
