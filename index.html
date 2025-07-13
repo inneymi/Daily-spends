@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spends</title>
-    <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#111827">
     <style>
         * {
@@ -66,7 +64,6 @@
             font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
-            border: 2px solid transparent;
         }
 
         .nav {
@@ -199,6 +196,8 @@
             width: 100%;
             max-width: 280px;
             border: 1px solid #4b5563;
+            max-height: 80vh;
+            overflow-y: auto;
         }
 
         .modal-header {
@@ -215,6 +214,28 @@
             font-weight: 600;
             display: inline-block;
             margin-bottom: 16px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .current-total:hover {
+            background: #047857;
+        }
+
+        .view-mode {
+            display: block;
+        }
+
+        .add-mode {
+            display: none;
+        }
+
+        .view-mode.hide {
+            display: none;
+        }
+
+        .add-mode.show {
+            display: block;
         }
 
         .mode-toggle {
@@ -246,23 +267,7 @@
             background: #6b7280;
         }
 
-        .amount-input {
-            width: 100%;
-            padding: 14px;
-            background: #4b5563;
-            border: 2px solid #3b82f6;
-            border-radius: 8px;
-            color: #f9fafb;
-            font-size: 16px;
-            outline: none;
-            margin-bottom: 8px;
-        }
-
-        .amount-input::placeholder {
-            color: #9ca3af;
-        }
-
-        .notes-input {
+        .amount-input, .notes-input {
             width: 100%;
             padding: 12px;
             background: #4b5563;
@@ -271,21 +276,133 @@
             color: #f9fafb;
             font-size: 14px;
             outline: none;
+            margin-bottom: 8px;
+        }
+
+        .amount-input:focus, .notes-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .amount-input::placeholder, .notes-input::placeholder {
+            color: #9ca3af;
+        }
+
+        .transaction-list {
             margin-bottom: 16px;
         }
 
-        .notes-input::placeholder {
+        .transaction-item {
+            background: #4b5563;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 8px;
+            border: 1px solid #6b7280;
+        }
+
+        .transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .transaction-amount {
+            font-weight: 600;
+            color: #34d399;
+            font-size: 14px;
+        }
+
+        .transaction-amount.negative {
+            color: #f59e0b;
+        }
+
+        .transaction-time {
+            font-size: 10px;
             color: #9ca3af;
         }
 
-        .transaction-status {
+        .transaction-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 8px;
+        }
+
+        .transaction-edit, .transaction-delete {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .transaction-edit {
+            background: #3b82f6;
+            color: white;
+        }
+
+        .transaction-delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        .transaction-notes {
+            font-size: 12px;
+            color: #d1d5db;
+            margin-top: 4px;
+            font-style: italic;
+        }
+
+        .edit-inputs {
+            margin-top: 8px;
+            display: none;
+        }
+
+        .edit-inputs.show {
+            display: block;
+        }
+
+        .edit-amount-input, .edit-notes-input {
+            width: 100%;
+            padding: 8px;
+            background: #6b7280;
+            border: 1px solid #9ca3af;
+            border-radius: 4px;
+            color: #f9fafb;
+            font-size: 12px;
+            margin-bottom: 6px;
+        }
+
+        .edit-buttons {
+            display: flex;
+            gap: 4px;
+        }
+
+        .edit-save, .edit-cancel {
+            flex: 1;
+            padding: 6px;
+            border: none;
+            border-radius: 4px;
+            font-size: 10px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .edit-save {
+            background: #059669;
+            color: white;
+        }
+
+        .edit-cancel {
+            background: #6b7280;
+            color: white;
+        }
+
+        .no-transactions {
             text-align: center;
             color: #9ca3af;
+            padding: 20px;
             font-size: 14px;
-            margin: 16px 0;
-            padding: 12px;
-            background: #4b5563;
-            border-radius: 8px;
         }
 
         .modal-buttons {
@@ -300,7 +417,6 @@
             border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
             font-size: 14px;
         }
 
@@ -309,9 +425,25 @@
             color: white;
         }
 
+        .btn-add-transaction {
+            background: #059669;
+            color: white;
+        }
+
         .btn-cancel {
             background: #6b7280;
             color: white;
+        }
+
+        .back-btn {
+            background: #6b7280;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            margin-bottom: 12px;
+            cursor: pointer;
         }
     </style>
 </head>
@@ -348,22 +480,36 @@
     <div class="modal" id="transactionModal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="current-total" id="modalTotal">Total: £0.00</div>
+                <div class="current-total" id="modalTotal" onclick="toggleView()">Total: £0.00</div>
             </div>
 
-            <div class="mode-toggle">
-                <button class="mode-btn active" onclick="setMode(false)">+ Add</button>
-                <button class="mode-btn subtract" onclick="setMode(true)">- Subtract</button>
+            <!-- View Mode - Shows transactions -->
+            <div class="view-mode" id="viewMode">
+                <div class="transaction-list" id="transactionList">
+                    <div class="no-transactions">No transactions yet</div>
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-add" onclick="showAddMode()">+ Add Transaction</button>
+                    <button class="modal-btn btn-cancel" onclick="closeModal()">Close</button>
+                </div>
             </div>
 
-            <input type="number" class="amount-input" id="amountInput" placeholder="Amount (£)" step="0.01">
-            <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)">
+            <!-- Add Mode - Add new transactions -->
+            <div class="add-mode" id="addMode">
+                <button class="back-btn" onclick="showViewMode()">← Back to Transactions</button>
+                
+                <div class="mode-toggle">
+                    <button class="mode-btn active" onclick="setMode(false)">+ Add</button>
+                    <button class="mode-btn subtract" onclick="setMode(true)">- Subtract</button>
+                </div>
 
-            <div class="transaction-status" id="transactionStatus">No transactions yet</div>
+                <input type="number" class="amount-input" id="amountInput" placeholder="Amount (£)" step="0.01">
+                <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)">
 
-            <div class="modal-buttons">
-                <button class="modal-btn btn-add" onclick="addTransaction()">Add</button>
-                <button class="modal-btn btn-cancel" onclick="closeModal()">Close</button>
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-add-transaction" onclick="addTransaction()">Add</button>
+                    <button class="modal-btn btn-cancel" onclick="showViewMode()">Cancel</button>
+                </div>
             </div>
         </div>
     </div>
@@ -374,7 +520,6 @@
         let transactions = {};
         let isSubtractMode = false;
 
-        // Load data from localStorage
         function loadTransactions() {
             try {
                 const data = localStorage.getItem('dailySpends');
@@ -386,7 +531,6 @@
             }
         }
 
-        // Save data to localStorage  
         function saveTransactions() {
             try {
                 localStorage.setItem('dailySpends', JSON.stringify(transactions));
@@ -462,26 +606,43 @@
         function openModal(year, month, day) {
             selectedDate = `${year}-${month}-${day}`;
             updateModalContent();
+            showViewMode();
             document.getElementById('transactionModal').classList.add('show');
-            document.getElementById('amountInput').focus();
         }
 
         function closeModal() {
             document.getElementById('transactionModal').classList.remove('show');
-            document.getElementById('amountInput').value = '';
-            document.getElementById('notesInput').value = '';
-            setMode(false);
+            clearInputs();
+        }
+
+        function showViewMode() {
+            document.getElementById('viewMode').classList.remove('hide');
+            document.getElementById('addMode').classList.remove('show');
+            updateTransactionList();
+        }
+
+        function showAddMode() {
+            document.getElementById('viewMode').classList.add('hide');
+            document.getElementById('addMode').classList.add('show');
+            document.getElementById('amountInput').focus();
+        }
+
+        function toggleView() {
+            const viewMode = document.getElementById('viewMode');
+            if (viewMode.classList.contains('hide')) {
+                showViewMode();
+            } else {
+                showAddMode();
+            }
         }
 
         function setMode(isSubtract) {
             isSubtractMode = isSubtract;
             const addBtn = document.querySelector('.mode-btn:first-child');
             const subtractBtn = document.querySelector('.mode-btn.subtract');
-            const actionBtn = document.querySelector('.btn-add');
             
             addBtn.classList.toggle('active', !isSubtract);
             subtractBtn.classList.toggle('active', isSubtract);
-            actionBtn.textContent = isSubtract ? 'Subtract' : 'Add';
         }
 
         function updateModalContent() {
@@ -489,74 +650,33 @@
             const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
             
             document.getElementById('modalTotal').textContent = `Total: £${total.toFixed(2)}`;
-            
-            const status = dayTransactions.length === 0 ? 
-                'No transactions yet' : 
-                `${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'}`;
-            document.getElementById('transactionStatus').textContent = status;
         }
 
-        function addTransaction() {
-            const amount = parseFloat(document.getElementById('amountInput').value);
-            const notes = document.getElementById('notesInput').value.trim();
-
-            if (!amount || amount <= 0) {
-                alert('Please enter a valid amount');
+        function updateTransactionList() {
+            const dayTransactions = transactions[selectedDate] || [];
+            const listEl = document.getElementById('transactionList');
+            
+            if (dayTransactions.length === 0) {
+                listEl.innerHTML = '<div class="no-transactions">No transactions yet</div>';
                 return;
             }
 
-            const transaction = {
-                amount: isSubtractMode ? -amount : amount,
-                notes: notes,
-                timestamp: new Date().toISOString(),
-                id: Date.now()
-            };
-
-            if (!transactions[selectedDate]) {
-                transactions[selectedDate] = [];
-            }
-
-            transactions[selectedDate].push(transaction);
-            saveTransactions();
-            updateModalContent();
-            renderCalendar();
-            updateMonthTotal();
-
-            document.getElementById('amountInput').value = '';
-            document.getElementById('notesInput').value = '';
-            document.getElementById('amountInput').focus();
-        }
-
-        function updateMonthTotal() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth() + 1;
-            
-            let total = 0;
-            Object.keys(transactions).forEach(dateKey => {
-                const [y, m] = dateKey.split('-').map(Number);
-                if (y === year && m === month) {
-                    const dayTotal = transactions[dateKey].reduce((sum, t) => sum + t.amount, 0);
-                    total += dayTotal;
-                }
-            });
-
-            document.getElementById('monthTotal').textContent = `Total: £${total.toFixed(2)}`;
-        }
-
-        // Close modal on outside click
-        document.getElementById('transactionModal').onclick = function(e) {
-            if (e.target === this) closeModal();
-        };
-
-        // Enter key to add transaction
-        document.getElementById('amountInput').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') addTransaction();
-        });
-
-        // Initialize app
-        loadTransactions();
-        renderCalendar();
-        updateMonthTotal();
-    </script>
-</body>
-</html>
+            listEl.innerHTML = '';
+            dayTransactions.forEach((transaction, index) => {
+                const item = document.createElement('div');
+                item.className = 'transaction-item';
+                item.innerHTML = `
+                    <div class="transaction-row">
+                        <div class="transaction-amount ${transaction.amount < 0 ? 'negative' : ''}">
+                            ${transaction.amount < 0 ? '-' : ''}£${Math.abs(transaction.amount).toFixed(2)}
+                        </div>
+                        <div class="transaction-time">${formatTime(transaction.timestamp)}</div>
+                    </div>
+                    ${transaction.notes ? `<div class="transaction-notes">${transaction.notes}</div>` : ''}
+                    <div class="transaction-actions">
+                        <button class="transaction-edit" onclick="editTransaction(${index})">Edit</button>
+                        <button class="transaction-delete" onclick="deleteTransaction(${index})">Delete</button>
+                    </div>
+                    <div class="edit-inputs" id="edit-${index}">
+                        <input type="number" class="edit-amount-input" id="editAmount-${index}" value="${Math.abs(transaction.amount)}" step="0.01">
+                        <input type="text" class="edit-n
