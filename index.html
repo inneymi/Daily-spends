@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spends</title>
+    <link rel="manifest" href="manifest.json">
     <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="theme-color" content="#111827">
     <style>
         * {
             margin: 0;
@@ -64,6 +63,17 @@
             font-size: 12px;
             cursor: pointer;
             transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .total:hover {
+            background: #047857;
+            border-color: #10b981;
+            transform: translateY(-1px);
+        }
+
+        .total:active {
+            transform: translateY(0px);
         }
 
         .nav {
@@ -141,11 +151,13 @@
         .day.today {
             border-color: #3b82f6;
             background: rgba(59, 130, 246, 0.2);
+            color: #60a5fa;
         }
 
         .day.has-spending {
             border-color: #10b981;
             background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
         }
 
         .day-number {
@@ -162,6 +174,12 @@
             color: #34d399;
             line-height: 1;
             text-align: center;
+        }
+
+        .plus-icon {
+            font-size: 8px;
+            color: #6b7280;
+            margin-top: 1px;
         }
 
         .empty-day {
@@ -190,12 +208,12 @@
         }
 
         .modal-content {
-            background: #374151;
+            background: #1f2937;
             border-radius: 16px;
             padding: 20px;
             width: 100%;
             max-width: 280px;
-            border: 1px solid #4b5563;
+            border: 1px solid #374151;
             max-height: 80vh;
             overflow-y: auto;
         }
@@ -205,98 +223,190 @@
             margin-bottom: 16px;
         }
 
+        .modal-title {
+            font-size: 16px;
+            font-weight: bold;
+            color: #f9fafb;
+            margin-bottom: 8px;
+        }
+
         .current-total {
             background: #059669;
             color: white;
             padding: 6px 12px;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 600;
             display: inline-block;
-            margin-bottom: 16px;
             cursor: pointer;
             transition: all 0.2s;
+            border: 2px solid transparent;
         }
 
         .current-total:hover {
             background: #047857;
+            border-color: #10b981;
+            transform: translateY(-1px);
         }
 
-        .view-mode {
-            display: block;
+        .current-total.breakdown-mode {
+            background: #374151;
+            border-color: #6b7280;
         }
 
-        .add-mode {
-            display: none;
-        }
-
-        .view-mode.hide {
-            display: none;
-        }
-
-        .add-mode.show {
-            display: block;
-        }
-
-        .mode-toggle {
-            display: flex;
-            background: #4b5563;
+        .transaction-summary {
+            background: #374151;
             border-radius: 8px;
-            margin-bottom: 12px;
-            overflow: hidden;
+            padding: 8px 12px;
+            margin: 12px 0;
+            font-size: 11px;
+            color: #d1d5db;
+            border: 1px solid #4b5563;
+            text-align: center;
         }
 
-        .mode-btn {
-            flex: 1;
-            padding: 10px 12px;
-            border: none;
-            background: transparent;
-            color: #9ca3af;
-            font-size: 14px;
-            font-weight: 600;
+        .transaction-summary.has-transactions {
             cursor: pointer;
             transition: all 0.2s;
         }
 
-        .mode-btn.active {
+        .transaction-summary.has-transactions:hover {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+
+        .transaction-indicator {
+            color: #34d399;
+            font-weight: 600;
+        }
+
+        .view-details-hint {
+            color: #9ca3af;
+            font-size: 10px;
+            margin-top: 2px;
+        }
+
+        .input-section {
+            margin-bottom: 16px;
+        }
+
+        .amount-input {
+            width: 100%;
+            padding: 14px;
+            background: #374151;
+            border: 2px solid #4b5563;
+            border-radius: 8px;
+            color: #f9fafb;
+            font-size: 16px;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.2s;
+            margin-bottom: 8px;
+        }
+
+        .amount-input:focus {
+            border-color: #3b82f6;
+        }
+
+        .amount-input::placeholder {
+            color: #6b7280;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .modal-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .btn-add {
             background: #3b82f6;
             color: white;
         }
 
-        .mode-btn.subtract.active {
+        .btn-cancel {
             background: #6b7280;
+            color: white;
         }
 
-        .amount-input, .notes-input {
-            width: 100%;
-            padding: 12px;
-            background: #4b5563;
-            border: 2px solid #6b7280;
+        .btn-back {
+            background: #6b7280;
+            color: white;
+        }
+
+        /* Breakdown view */
+        .breakdown-view {
+            display: none;
+        }
+
+        .breakdown-view.show {
+            display: block;
+        }
+
+        .transactions-header {
+            background: #374151;
             border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+            text-align: center;
+            cursor: pointer;
+            border: 1px solid #4b5563;
+            transition: all 0.2s;
+            user-select: none;
+        }
+
+        .transactions-header:hover {
+            background: #4b5563;
+            border-color: #6b7280;
+        }
+
+        .transactions-header.collapsed {
+            background: #4b5563;
+        }
+
+        .transactions-count {
+            font-size: 12px;
+            color: #9ca3af;
+            font-weight: normal;
+        }
+
+        .transactions-title {
             color: #f9fafb;
             font-size: 14px;
-            outline: none;
-            margin-bottom: 8px;
+            font-weight: 600;
+            margin-bottom: 2px;
         }
 
-        .amount-input:focus, .notes-input:focus {
-            border-color: #3b82f6;
-        }
-
-        .amount-input::placeholder, .notes-input::placeholder {
-            color: #9ca3af;
+        .transactions-toggle {
+            font-size: 10px;
+            color: #6b7280;
+            margin-top: 4px;
         }
 
         .transaction-list {
             margin-bottom: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .transaction-list.collapsed {
+            display: none;
         }
 
         .transaction-item {
-            background: #4b5563;
+            background: #374151;
             border-radius: 8px;
             padding: 12px;
             margin-bottom: 8px;
-            border: 1px solid #6b7280;
+            border: 1px solid #4b5563;
         }
 
         .transaction-row {
@@ -312,10 +422,6 @@
             font-size: 14px;
         }
 
-        .transaction-amount.negative {
-            color: #f59e0b;
-        }
-
         .transaction-time {
             font-size: 10px;
             color: #9ca3af;
@@ -324,26 +430,46 @@
         .transaction-actions {
             display: flex;
             gap: 4px;
-            margin-top: 8px;
-        }
-
-        .transaction-edit, .transaction-delete {
-            padding: 4px 8px;
-            border: none;
-            border-radius: 4px;
-            font-size: 10px;
-            cursor: pointer;
-            font-weight: 600;
         }
 
         .transaction-edit {
             background: #3b82f6;
             color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
         }
 
         .transaction-delete {
             background: #dc2626;
             color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .transaction-save {
+            background: #059669;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
+        }
+
+        .transaction-cancel {
+            background: #6b7280;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            padding: 4px 8px;
+            font-size: 10px;
+            cursor: pointer;
         }
 
         .transaction-notes {
@@ -362,15 +488,26 @@
             display: block;
         }
 
-        .edit-amount-input, .edit-notes-input {
+        .edit-amount-input {
             width: 100%;
             padding: 8px;
-            background: #6b7280;
-            border: 1px solid #9ca3af;
+            background: #4b5563;
+            border: 1px solid #6b7280;
             border-radius: 4px;
             color: #f9fafb;
             font-size: 12px;
             margin-bottom: 6px;
+        }
+
+        .edit-notes-input {
+            width: 100%;
+            padding: 8px;
+            background: #4b5563;
+            border: 1px solid #6b7280;
+            border-radius: 4px;
+            color: #f9fafb;
+            font-size: 12px;
+            margin-bottom: 8px;
         }
 
         .edit-buttons {
@@ -378,77 +515,283 @@
             gap: 4px;
         }
 
-        .edit-save, .edit-cancel {
-            flex: 1;
-            padding: 6px;
-            border: none;
-            border-radius: 4px;
-            font-size: 10px;
-            cursor: pointer;
+        .add-transaction {
+            background: #374151;
+            border: 2px dashed #6b7280;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+        }
+
+        .simple-view {
+            display: block;
+        }
+
+        .simple-view.hide {
+            display: none;
+        }
+
+        /* Monthly Overview */
+        .day-group {
+            margin-bottom: 16px;
+        }
+
+        .day-header {
+            background: #4b5563;
+            color: #f9fafb;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
             font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .edit-save {
-            background: #059669;
-            color: white;
+        .day-total {
+            color: #34d399;
+            font-size: 11px;
         }
 
-        .edit-cancel {
-            background: #6b7280;
-            color: white;
+        .monthly-transaction-item {
+            background: #374151;
+            border-radius: 6px;
+            padding: 10px;
+            margin-bottom: 6px;
+            border: 1px solid #4b5563;
+            font-size: 12px;
+        }
+
+        .monthly-transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .monthly-transaction-amount {
+            font-weight: 600;
+            color: #34d399;
+        }
+
+        .monthly-transaction-time {
+            font-size: 10px;
+            color: #9ca3af;
+        }
+
+        .monthly-transaction-notes {
+            font-size: 11px;
+            color: #d1d5db;
+            margin-top: 4px;
+            font-style: italic;
         }
 
         .no-transactions {
             text-align: center;
             color: #9ca3af;
-            padding: 20px;
+            padding: 40px 20px;
             font-size: 14px;
         }
 
-        .modal-buttons {
-            display: flex;
-            gap: 8px;
+        /* Transaction Page */
+        .transaction-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #111827;
+            z-index: 2000;
+            display: none;
+            flex-direction: column;
         }
 
-        .modal-btn {
-            flex: 1;
-            padding: 12px;
+        .transaction-page.show {
+            display: flex;
+        }
+
+        .transaction-page-header {
+            background: #1f2937;
+            padding: 16px;
+            border-bottom: 1px solid #374151;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .back-to-modal {
+            background: #374151;
             border: none;
-            border-radius: 8px;
-            font-weight: 600;
+            color: #d1d5db;
+            padding: 8px 12px;
+            border-radius: 6px;
             cursor: pointer;
             font-size: 14px;
+            font-weight: 600;
         }
 
-        .btn-add {
+        .back-to-modal:hover {
+            background: #4b5563;
+        }
+
+        .transaction-page-title {
+            flex: 1;
+        }
+
+        .transaction-page-title > div:first-child {
+            font-size: 18px;
+            font-weight: bold;
+            color: #f9fafb;
+        }
+
+        .transaction-page-title > div:last-child {
+            background: #059669;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 4px;
+        }
+
+        .transaction-page-content {
+            flex: 1;
+            padding: 16px;
+            overflow-y: auto;
+            max-width: 400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .transactions-section {
+            background: #1f2937;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #374151;
+        }
+
+        .transactions-section-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #f9fafb;
+            margin-bottom: 12px;
+        }
+
+        .page-transaction-item {
+            background: #374151;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+            border: 1px solid #4b5563;
+        }
+
+        .page-transaction-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 4px;
+        }
+
+        .page-transaction-amount {
+            font-weight: 600;
+            color: #34d399;
+            font-size: 16px;
+        }
+
+        .page-transaction-time {
+            font-size: 11px;
+            color: #9ca3af;
+        }
+
+        .page-transaction-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .page-transaction-edit, .page-transaction-delete {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .page-transaction-edit {
             background: #3b82f6;
             color: white;
         }
 
-        .btn-add-transaction {
+        .page-transaction-delete {
+            background: #dc2626;
+            color: white;
+        }
+
+        .page-transaction-notes {
+            font-size: 14px;
+            color: #d1d5db;
+            margin-top: 8px;
+            font-style: italic;
+        }
+
+        .page-edit-inputs {
+            margin-top: 12px;
+            display: none;
+        }
+
+        .page-edit-inputs.show {
+            display: block;
+        }
+
+        .page-edit-amount, .page-edit-notes {
+            width: 100%;
+            padding: 8px;
+            background: #4b5563;
+            border: 1px solid #6b7280;
+            border-radius: 4px;
+            color: #f9fafb;
+            font-size: 14px;
+            margin-bottom: 8px;
+        }
+
+        .page-edit-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .page-edit-save, .page-edit-cancel {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .page-edit-save {
             background: #059669;
             color: white;
         }
 
-        .btn-cancel {
+        .page-edit-cancel {
             background: #6b7280;
             color: white;
         }
 
-        .back-btn {
-            background: #6b7280;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 6px;
-            font-size: 12px;
-            margin-bottom: 12px;
-            cursor: pointer;
+        /* Loading state */
+        .loading {
+            text-align: center;
+            color: #9ca3af;
+            padding: 20px;
         }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Header -->
         <div class="header">
             <div class="title-section">
                 <div class="title">Daily Spends</div>
@@ -457,226 +800,1161 @@
             <div class="total" id="monthTotal">Total: £0.00</div>
         </div>
 
+        <!-- Navigation -->
         <div class="nav">
-            <button class="nav-btn" onclick="navigateMonth(-1)">←</button>
-            <div class="month-title" id="monthTitle">January 2025</div>
-            <button class="nav-btn" onclick="navigateMonth(1)">→</button>
+            <button class="nav-btn" id="prevBtn">‹ Prev</button>
+            <div class="month-title" id="monthTitle">July 2025</div>
+            <button class="nav-btn" id="nextBtn">Next ›</button>
         </div>
 
+        <!-- Calendar -->
         <div class="calendar">
             <div class="weekdays">
-                <div class="weekday">S</div>
-                <div class="weekday">M</div>
-                <div class="weekday">T</div>
-                <div class="weekday">W</div>
-                <div class="weekday">T</div>
-                <div class="weekday">F</div>
-                <div class="weekday">S</div>
+                <div class="weekday">Sun</div>
+                <div class="weekday">Mon</div>
+                <div class="weekday">Tue</div>
+                <div class="weekday">Wed</div>
+                <div class="weekday">Thu</div>
+                <div class="weekday">Fri</div>
+                <div class="weekday">Sat</div>
             </div>
-            <div class="days" id="calendarDays"></div>
+            <div class="days" id="daysGrid">
+                <div class="loading">Loading calendar...</div>
+            </div>
         </div>
     </div>
 
-    <div class="modal" id="transactionModal">
+    <!-- Modal -->
+    <div class="modal" id="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <div class="current-total" id="modalTotal" onclick="toggleView()">Total: £0.00</div>
+                <div class="modal-title" id="modalDate">July 6</div>
+                <div class="current-total" id="currentTotal">Total: £0.00</div>
             </div>
-
-            <!-- View Mode - Shows transactions -->
-            <div class="view-mode" id="viewMode">
-                <div class="transaction-list" id="transactionList">
-                    <div class="no-transactions">No transactions yet</div>
+            
+            <!-- Simple Add View -->
+            <div class="simple-view" id="simpleView">
+                <div class="input-section">
+                    <input type="number" 
+                           step="0.01" 
+                           class="amount-input" 
+                           id="amountInput" 
+                           placeholder="Amount to add (£)">
+                    <input type="text" 
+                           class="amount-input" 
+                           id="notesInput" 
+                           placeholder="Notes (optional)"
+                           style="font-size: 14px; text-align: left;">
                 </div>
-                <div class="modal-buttons">
-                    <button class="modal-btn btn-add" onclick="showAddMode()">+ Add Transaction</button>
-                    <button class="modal-btn btn-cancel" onclick="closeModal()">Close</button>
-                </div>
-            </div>
-
-            <!-- Add Mode - Add new transactions -->
-            <div class="add-mode" id="addMode">
-                <button class="back-btn" onclick="showViewMode()">← Back to Transactions</button>
                 
-                <div class="mode-toggle">
-                    <button class="mode-btn active" onclick="setMode(false)">+ Add</button>
-                    <button class="mode-btn subtract" onclick="setMode(true)">- Subtract</button>
+                <!-- Transaction Summary - Always Visible -->
+                <div class="transaction-summary" id="transactionSummary" style="display: block;">
+                    <div id="summaryText">No transactions yet</div>
+                    <div class="view-details-hint" id="summaryHint" style="display: none;">Tap to view details</div>
+                </div>
+                
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-add" id="addBtn">Add</button>
+                    <button class="modal-btn btn-cancel" id="cancelBtn">Close</button>
+                </div>
+            </div>
+
+            <!-- Breakdown View -->
+            <div class="breakdown-view" id="breakdownView">
+                <div class="add-transaction">
+                    <input type="number" 
+                           step="0.01" 
+                           class="amount-input" 
+                           id="newAmountInput" 
+                           placeholder="Amount (£)"
+                           style="margin-bottom: 8px;">
+                    <input type="text" 
+                           class="amount-input" 
+                           id="newNotesInput" 
+                           placeholder="Notes (optional)"
+                           style="font-size: 14px; text-align: left; margin-bottom: 8px;">
+                    <button class="modal-btn btn-add" id="addTransactionBtn" style="width: 100%; margin-bottom: 0;">Add Transaction</button>
                 </div>
 
-                <input type="number" class="amount-input" id="amountInput" placeholder="Amount (£)" step="0.01">
-                <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)">
-
+                <div class="transactions-header" id="transactionsHeader">
+                    <div class="transactions-title">Transactions</div>
+                    <div class="transactions-count" id="transactionsCount">0 transactions</div>
+                    <div class="transactions-toggle" id="transactionsToggle">Click to view ↓</div>
+                </div>
+                
+                <div class="transaction-list" id="transactionList">
+                    <!-- Transactions will be populated here -->
+                </div>
+                
                 <div class="modal-buttons">
-                    <button class="modal-btn btn-add-transaction" onclick="addTransaction()">Add</button>
-                    <button class="modal-btn btn-cancel" onclick="showViewMode()">Cancel</button>
+                    <button class="modal-btn btn-back" id="backBtn">← Simple View</button>
+                    <button class="modal-btn btn-cancel" id="cancelBreakdownBtn">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monthly Overview Modal -->
+    <div class="modal" id="monthlyModal">
+        <div class="modal-content" style="max-width: 320px; max-height: 80vh;">
+            <div class="modal-header">
+                <div class="modal-title" id="monthlyModalTitle">July 2025 Overview</div>
+                <div class="current-total" id="monthlyModalTotal">Total: £0.00</div>
+            </div>
+            
+            <div style="max-height: 60vh; overflow-y: auto; margin-bottom: 16px;">
+                <div id="monthlyTransactionList">
+                    <!-- Monthly transactions will be populated here -->
+                </div>
+            </div>
+            
+            <div class="modal-buttons">
+                <button class="modal-btn btn-cancel" id="closeMonthlyBtn">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Management Page -->
+    <div class="transaction-page" id="transactionPage">
+        <div class="transaction-page-header">
+            <button class="back-to-modal" id="backToModal">← Back</button>
+            <div class="transaction-page-title">
+                <div id="transactionPageDate">July 6</div>
+                <div id="transactionPageTotal">Total: £0.00</div>
+            </div>
+        </div>
+        
+        <div class="transaction-page-content">
+            <!-- Transactions list only - no add section -->
+            <div class="transactions-section">
+                <div class="transactions-section-title">Transactions</div>
+                <div id="pageTransactionList">
+                    <!-- Transactions will be populated here -->
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        let currentDate = new Date();
-        let selectedDate = null;
-        let transactions = {};
-        let isSubtractMode = false;
+        // Global variables
+        var spendingData = {};
+        var currentMonth = 6; // July = 6 (0-based)
+        var currentYear = 2025;
+        var selectedDay = null;
+        var isBreakdownMode = false;
+        var isTransactionListVisible = true;
 
-        function loadTransactions() {
+        var months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        // Enhanced localStorage safety with better error handling
+        function loadData() {
             try {
-                const data = localStorage.getItem('dailySpends');
-                if (data) {
-                    transactions = JSON.parse(data);
+                if (typeof Storage !== 'undefined' && window.localStorage) {
+                    var saved = localStorage.getItem('spendingData');
+                    if (saved) {
+                        spendingData = JSON.parse(saved);
+                        console.log('Data loaded successfully from localStorage');
+                    } else {
+                        console.log('No existing data found in localStorage');
+                    }
+                } else {
+                    console.warn('localStorage not available, using memory storage only');
                 }
-            } catch (error) {
-                console.error('Error loading:', error);
+            } catch (e) {
+                console.warn('Error loading data from localStorage:', e);
+                spendingData = {}; // Reset to empty object if corrupted
             }
         }
 
-        function saveTransactions() {
+        // Enhanced save with better error handling
+        function saveData() {
             try {
-                localStorage.setItem('dailySpends', JSON.stringify(transactions));
-            } catch (error) {
-                console.error('Error saving:', error);
-            }
-        }
-
-        function navigateMonth(direction) {
-            currentDate.setMonth(currentDate.getMonth() + direction);
-            renderCalendar();
-            updateMonthTotal();
-        }
-
-        function renderCalendar() {
-            const year = currentDate.getFullYear();
-            const month = currentDate.getMonth();
-            
-            const monthNames = ["January", "February", "March", "April", "May", "June",
-                "July", "August", "September", "October", "November", "December"];
-            document.getElementById('monthTitle').textContent = `${monthNames[month]} ${year}`;
-
-            const calendarDays = document.getElementById('calendarDays');
-            calendarDays.innerHTML = '';
-
-            const firstDay = new Date(year, month, 1).getDay();
-            const daysInMonth = new Date(year, month + 1, 0).getDate();
-            const today = new Date();
-
-            // Add empty cells
-            for (let i = 0; i < firstDay; i++) {
-                const emptyDay = document.createElement('div');
-                emptyDay.className = 'day empty-day';
-                calendarDays.appendChild(emptyDay);
-            }
-
-            // Add days
-            for (let day = 1; day <= daysInMonth; day++) {
-                const dayEl = document.createElement('div');
-                dayEl.className = 'day';
-                
-                const dayNumber = document.createElement('div');
-                dayNumber.className = 'day-number';
-                dayNumber.textContent = day;
-                dayEl.appendChild(dayNumber);
-
-                // Check if today
-                if (year === today.getFullYear() && 
-                    month === today.getMonth() && 
-                    day === today.getDate()) {
-                    dayEl.classList.add('today');
+                if (typeof Storage !== 'undefined' && window.localStorage) {
+                    localStorage.setItem('spendingData', JSON.stringify(spendingData));
+                    console.log('Data saved successfully to localStorage');
+                } else {
+                    console.warn('localStorage not available, data will be lost on refresh');
                 }
+            } catch (e) {
+                console.warn('Could not save to localStorage:', e);
+                // Could implement fallback storage here if needed
+            }
+        }
 
-                // Check for transactions
-                const dateKey = `${year}-${month + 1}-${day}`;
-                const dayTransactions = transactions[dateKey] || [];
-                
-                if (dayTransactions.length > 0) {
-                    dayEl.classList.add('has-spending');
-                    const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
-                    
-                    const amountEl = document.createElement('div');
-                    amountEl.className = 'day-amount';
-                    amountEl.textContent = `£${Math.abs(total).toFixed(2)}`;
-                    dayEl.appendChild(amountEl);
+        // Get date key
+        function getDateKey(day) {
+            return currentYear + '-' + currentMonth + '-' + day;
+        }
+
+        // Get total for a day
+        function getDayTotal(day) {
+            var dateKey = getDateKey(day);
+            var data = spendingData[dateKey];
+            if (!data) return 0;
+            
+            // Handle both old and new format
+            if (typeof data === 'number') return data;
+            if (data.amount) return data.amount;
+            if (data.transactions) {
+                var total = 0;
+                for (var i = 0; i < data.transactions.length; i++) {
+                    total += data.transactions[i].amount || 0;
                 }
-
-                dayEl.onclick = () => openModal(year, month + 1, day);
-                calendarDays.appendChild(dayEl);
+                return total;
             }
+            return 0;
         }
 
-        function openModal(year, month, day) {
-            selectedDate = `${year}-${month}-${day}`;
-            updateModalContent();
-            showViewMode();
-            document.getElementById('transactionModal').classList.add('show');
-        }
-
-        function closeModal() {
-            document.getElementById('transactionModal').classList.remove('show');
-            clearInputs();
-        }
-
-        function showViewMode() {
-            document.getElementById('viewMode').classList.remove('hide');
-            document.getElementById('addMode').classList.remove('show');
-            updateTransactionList();
-        }
-
-        function showAddMode() {
-            document.getElementById('viewMode').classList.add('hide');
-            document.getElementById('addMode').classList.add('show');
-            document.getElementById('amountInput').focus();
-        }
-
-        function toggleView() {
-            const viewMode = document.getElementById('viewMode');
-            if (viewMode.classList.contains('hide')) {
-                showViewMode();
-            } else {
-                showAddMode();
+        // Get transactions for a day
+        function getDayTransactions(day) {
+            var dateKey = getDateKey(day);
+            var data = spendingData[dateKey];
+            if (!data) return [];
+            
+            if (typeof data === 'number') {
+                // Convert simple total to transaction
+                return [{
+                    id: 'legacy-' + dateKey,
+                    amount: data,
+                    notes: '',
+                    time: 'Previous'
+                }];
             }
+            
+            if (data.transactions) {
+                return data.transactions;
+            }
+            
+            return [];
         }
 
-        function setMode(isSubtract) {
-            isSubtractMode = isSubtract;
-            const addBtn = document.querySelector('.mode-btn:first-child');
-            const subtractBtn = document.querySelector('.mode-btn.subtract');
+        // Check if day has notes
+        function dayHasNotes(day) {
+            var dateKey = getDateKey(day);
+            var data = spendingData[dateKey];
+            if (!data) return false;
             
-            addBtn.classList.toggle('active', !isSubtract);
-            subtractBtn.classList.toggle('active', isSubtract);
+            if (data.notes && data.notes.trim()) return true;
+            if (data.transactions) {
+                for (var i = 0; i < data.transactions.length; i++) {
+                    if (data.transactions[i].notes && data.transactions[i].notes.trim()) {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
 
-        function updateModalContent() {
-            const dayTransactions = transactions[selectedDate] || [];
-            const total = dayTransactions.reduce((sum, t) => sum + t.amount, 0);
-            
-            document.getElementById('modalTotal').textContent = `Total: £${total.toFixed(2)}`;
+        // Get month total
+        function getMonthTotal() {
+            var total = 0;
+            for (var day = 1; day <= 31; day++) {
+                total += getDayTotal(day);
+            }
+            return total;
         }
 
-        function updateTransactionList() {
-            const dayTransactions = transactions[selectedDate] || [];
-            const listEl = document.getElementById('transactionList');
+        // Get all transactions for the current month
+        function getAllMonthTransactions() {
+            var allTransactions = [];
+            var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
             
-            if (dayTransactions.length === 0) {
-                listEl.innerHTML = '<div class="no-transactions">No transactions yet</div>';
+            for (var day = 1; day <= daysInMonth; day++) {
+                var transactions = getDayTransactions(day);
+                if (transactions.length > 0) {
+                    allTransactions.push({
+                        day: day,
+                        dayTotal: getDayTotal(day),
+                        transactions: transactions
+                    });
+                }
+            }
+            
+            return allTransactions;
+        }
+
+        // Open monthly overview
+        function openMonthlyOverview() {
+            document.getElementById('monthlyModalTitle').textContent = 
+                months[currentMonth] + ' ' + currentYear + ' Overview';
+            document.getElementById('monthlyModalTotal').textContent = 
+                'Total: £' + getMonthTotal().toFixed(2);
+            
+            renderMonthlyTransactionList();
+            document.getElementById('monthlyModal').classList.add('show');
+        }
+
+        // Close monthly overview
+        function closeMonthlyOverview() {
+            document.getElementById('monthlyModal').classList.remove('show');
+        }
+
+        // Render monthly transaction list
+        function renderMonthlyTransactionList() {
+            var list = document.getElementById('monthlyTransactionList');
+            var monthData = getAllMonthTransactions();
+            
+            if (monthData.length === 0) {
+                list.innerHTML = '<div class="no-transactions">No transactions this month<br><span style="font-size: 12px; color: #6b7280;">Add some spending to see your monthly overview</span></div>';
                 return;
             }
+            
+            list.innerHTML = '';
+            
+            for (var i = 0; i < monthData.length; i++) {
+                var dayData = monthData[i];
+                var dayGroup = document.createElement('div');
+                dayGroup.className = 'day-group';
+                
+                // Day header
+                var dayHeader = document.createElement('div');
+                dayHeader.className = 'day-header';
+                
+                var dayName = new Date(currentYear, currentMonth, dayData.day).toLocaleDateString('en-GB', { 
+                    weekday: 'short', 
+                    day: 'numeric' 
+                });
+                
+                dayHeader.innerHTML = '<span>' + dayName + '</span><span class="day-total">£' + dayData.dayTotal.toFixed(2) + '</span>';
+                dayGroup.appendChild(dayHeader);
+                
+                // Transactions for this day
+                for (var j = 0; j < dayData.transactions.length; j++) {
+                    var transaction = dayData.transactions[j];
+                    var item = document.createElement('div');
+                    item.className = 'monthly-transaction-item';
+                    
+                    var content = '<div class="monthly-transaction-row">';
+                    content += '<span class="monthly-transaction-amount">£' + transaction.amount.toFixed(2) + '</span>';
+                    content += '<span class="monthly-transaction-time">' + transaction.time + '</span>';
+                    content += '</div>';
+                    
+                    if (transaction.notes && transaction.notes.trim()) {
+                        content += '<div class="monthly-transaction-notes">' + transaction.notes + '</div>';
+                    }
+                    
+                    item.innerHTML = content;
+                    dayGroup.appendChild(item);
+                }
+                
+                list.appendChild(dayGroup);
+            }
+        }
 
-            listEl.innerHTML = '';
-            dayTransactions.forEach((transaction, index) => {
-                const item = document.createElement('div');
+        // Update display
+        function updateDisplay() {
+            document.getElementById('monthTitle').textContent = 
+                months[currentMonth] + ' ' + currentYear;
+            document.getElementById('monthTotal').textContent = 
+                'Total: £' + getMonthTotal().toFixed(2);
+        }
+
+        // Build calendar with enhanced error handling
+        function buildCalendar() {
+            console.log('Building calendar for', months[currentMonth], currentYear);
+            
+            try {
+                var grid = document.getElementById('daysGrid');
+                if (!grid) {
+                    console.error('Days grid element not found!');
+                    return;
+                }
+                
+                grid.innerHTML = '';
+
+                var daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+                var firstDay = new Date(currentYear, currentMonth, 1).getDay();
+                var today = new Date();
+
+                // Empty days
+                for (var i = 0; i < firstDay; i++) {
+                    var emptyDay = document.createElement('div');
+                    emptyDay.className = 'day empty-day';
+                    grid.appendChild(emptyDay);
+                }
+
+                // Days
+                for (var day = 1; day <= daysInMonth; day++) {
+                    var dayEl = document.createElement('div');
+                    dayEl.className = 'day';
+                    
+                    var amount = getDayTotal(day);
+                    var isToday = (today.getDate() === day && 
+                                  today.getMonth() === currentMonth && 
+                                  today.getFullYear() === currentYear);
+
+                    if (isToday) dayEl.className += ' today';
+                    if (amount > 0) dayEl.className += ' has-spending';
+
+                    var content = '<div class="day-number">' + day + '</div>';
+                    if (amount > 0) {
+                        content += '<div class="day-amount">£' + amount.toFixed(2) + '</div>';
+                    } else {
+                        content += '<div class="plus-icon">+</div>';
+                    }
+                    
+                    dayEl.innerHTML = content;
+                    
+                    // Create closure to capture day value
+                    (function(d) {
+                        dayEl.onclick = function() { 
+                            openModal(d); 
+                        };
+                    })(day);
+                    
+                    grid.appendChild(dayEl);
+                }
+                
+                console.log('Calendar built successfully');
+            } catch (error) {
+                console.error('Error building calendar:', error);
+                var grid = document.getElementById('daysGrid');
+                if (grid) {
+                    grid.innerHTML = '<div class="loading" style="color: #dc2626;">Error loading calendar. Please refresh the page.</div>';
+                }
+            }
+        }
+
+        // Toggle transaction list visibility
+        function toggleTransactionList() {
+            var list = document.getElementById('transactionList');
+            var header = document.getElementById('transactionsHeader');
+            var toggle = document.getElementById('transactionsToggle');
+            
+            isTransactionListVisible = !isTransactionListVisible;
+            
+            if (isTransactionListVisible) {
+                list.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                toggle.textContent = 'Click to hide ↑';
+            } else {
+                list.classList.add('collapsed');
+                header.classList.add('collapsed');
+                toggle.textContent = 'Click to view ↓';
+            }
+        }
+
+        // Update transaction header
+        function updateTransactionHeader() {
+            var transactions = getDayTransactions(selectedDay);
+            var count = transactions.length;
+            var countEl = document.getElementById('transactionsCount');
+            
+            if (count === 0) {
+                countEl.textContent = 'No transactions yet';
+            } else if (count === 1) {
+                countEl.textContent = '1 transaction';
+            } else {
+                countEl.textContent = count + ' transactions';
+            }
+        }
+
+        // Show breakdown view
+        function showBreakdownView() {
+            isBreakdownMode = true;
+            isTransactionListVisible = true; // Always show list when entering breakdown
+            document.getElementById('simpleView').classList.add('hide');
+            document.getElementById('breakdownView').classList.add('show');
+            document.getElementById('currentTotal').classList.add('breakdown-mode');
+            updateTransactionHeader();
+            renderTransactionList();
+        }
+
+        // Show simple view
+        function showSimpleView() {
+            isBreakdownMode = false;
+            document.getElementById('simpleView').classList.remove('hide');
+            document.getElementById('breakdownView').classList.remove('show');
+            document.getElementById('currentTotal').classList.remove('breakdown-mode');
+            updateTransactionSummary(); // Update summary when returning to simple view
+        }
+
+        // Render transaction list
+        function renderTransactionList() {
+            var list = document.getElementById('transactionList');
+            var header = document.getElementById('transactionsHeader');
+            var toggle = document.getElementById('transactionsToggle');
+            var transactions = getDayTransactions(selectedDay);
+            
+            // Update header
+            updateTransactionHeader();
+            
+            // Update toggle state display
+            if (isTransactionListVisible) {
+                list.classList.remove('collapsed');
+                header.classList.remove('collapsed');
+                toggle.textContent = 'Click to hide ↑';
+            } else {
+                list.classList.add('collapsed');
+                header.classList.add('collapsed');
+                toggle.textContent = 'Click to view ↓';
+            }
+            
+            if (transactions.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 20px; font-size: 14px;">No transactions yet<br><span style="font-size: 12px;">Add your first transaction above</span></div>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            for (var i = 0; i < transactions.length; i++) {
+                var transaction = transactions[i];
+                var item = document.createElement('div');
                 item.className = 'transaction-item';
-                item.innerHTML = `
-                    <div class="transaction-row">
-                        <div class="transaction-amount ${transaction.amount < 0 ? 'negative' : ''}">
-                            ${transaction.amount < 0 ? '-' : ''}£${Math.abs(transaction.amount).toFixed(2)}
-                        </div>
-                        <div class="transaction-time">${formatTime(transaction.timestamp)}</div>
-                    </div>
-                    ${transaction.notes ? `<div class="transaction-notes">${transaction.notes}</div>` : ''}
-                    <div class="transaction-actions">
-                        <button class="transaction-edit" onclick="editTransaction(${index})">Edit</button>
-                        <button class="transaction-delete" onclick="deleteTransaction(${index})">Delete</button>
-                    </div>
-                    <div class="edit-inputs" id="edit-${index}">
-                        <input type="number" class="edit-amount-input" id="editAmount-${index}" value="${Math.abs(transaction.amount)}" step="0.01">
-                        <input type="text" class="edit-n
+                item.id = 'transaction-' + transaction.id;
+                
+                var content = '<div class="transaction-row">';
+                content += '<span class="transaction-amount">£' + transaction.amount.toFixed(2) + '</span>';
+                content += '<div class="transaction-actions">';
+                content += '<span class="transaction-time">' + transaction.time + '</span>';
+                
+                // All transactions can be edited/deleted except true legacy ones
+                if (transaction.id && String(transaction.id).indexOf('legacy-') !== 0) {
+                    content += '<button class="transaction-edit" onclick="editTransaction(\'' + transaction.id + '\')">Edit</button>';
+                    content += '<button class="transaction-delete" onclick="deleteTransaction(\'' + transaction.id + '\')">×</button>';
+                } else {
+                    // Legacy transactions get a note about being old data
+                    content += '<span style="font-size: 9px; color: #6b7280;">(old data)</span>';
+                }
+                content += '</div>';
+                content += '</div>';
+                
+                if (transaction.notes && transaction.notes.trim()) {
+                    content += '<div class="transaction-notes">' + transaction.notes + '</div>';
+                }
+                
+                // Edit form (hidden by default) - only for editable transactions
+                if (transaction.id && String(transaction.id).indexOf('legacy-') !== 0) {
+                    content += '<div class="edit-inputs" id="edit-' + transaction.id + '">';
+                    content += '<input type="number" step="0.01" class="edit-amount-input" id="edit-amount-' + transaction.id + '" value="' + transaction.amount + '" placeholder="Amount" onkeypress="handleEditKeypress(event, \'' + transaction.id + '\', \'amount\')">';
+                    content += '<input type="text" class="edit-notes-input" id="edit-notes-' + transaction.id + '" value="' + (transaction.notes || '') + '" placeholder="Notes" onkeypress="handleEditKeypress(event, \'' + transaction.id + '\', \'notes\')">';
+                    content += '<div class="edit-buttons">';
+                    content += '<button class="transaction-save" onclick="saveTransactionEdit(\'' + transaction.id + '\')">Save</button>';
+                    content += '<button class="transaction-cancel" onclick="cancelTransactionEdit(\'' + transaction.id + '\')">Cancel</button>';
+                    content += '</div>';
+                    content += '</div>';
+                }
+                
+                item.innerHTML = content;
+                list.appendChild(item);
+            }
+        }
+
+        // Edit transaction
+        function editTransaction(transactionId) {
+            // Hide the display row
+            var item = document.getElementById('transaction-' + transactionId);
+            var displayRow = item.querySelector('.transaction-row');
+            var notesDiv = item.querySelector('.transaction-notes');
+            var editForm = document.getElementById('edit-' + transactionId);
+            
+            displayRow.style.display = 'none';
+            if (notesDiv) notesDiv.style.display = 'none';
+            editForm.classList.add('show');
+            
+            // Focus the amount input
+            document.getElementById('edit-amount-' + transactionId).focus();
+        }
+
+        // Cancel transaction edit
+        function cancelTransactionEdit(transactionId) {
+            var item = document.getElementById('transaction-' + transactionId);
+            var displayRow = item.querySelector('.transaction-row');
+            var notesDiv = item.querySelector('.transaction-notes');
+            var editForm = document.getElementById('edit-' + transactionId);
+            
+            displayRow.style.display = 'flex';
+            if (notesDiv) notesDiv.style.display = 'block';
+            editForm.classList.remove('show');
+        }
+
+        // Save transaction edit
+        function saveTransactionEdit(transactionId) {
+            var newAmount = parseFloat(document.getElementById('edit-amount-' + transactionId).value);
+            var newNotes = document.getElementById('edit-notes-' + transactionId).value.trim();
+            
+            if (isNaN(newAmount) || newAmount <= 0) {
+                alert('Please enter a valid amount greater than 0');
+                return;
+            }
+            
+            var dateKey = getDateKey(selectedDay);
+            var data = spendingData[dateKey];
+            
+            if (data && data.transactions) {
+                // Find and update the transaction
+                for (var i = 0; i < data.transactions.length; i++) {
+                    if (data.transactions[i].id === transactionId) {
+                        data.transactions[i].amount = newAmount;
+                        data.transactions[i].notes = newNotes;
+                        break;
+                    }
+                }
+                
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                updateModalTotal();
+                renderTransactionList();
+            }
+        }
+
+        // Delete transaction
+        function deleteTransaction(transactionId) {
+            if (!confirm('Delete this transaction?')) return;
+            
+            var dateKey = getDateKey(selectedDay);
+            var data = spendingData[dateKey];
+            
+            if (data && data.transactions) {
+                data.transactions = data.transactions.filter(function(t) {
+                    return t.id !== transactionId;
+                });
+                
+                // If no transactions left, remove the entry
+                if (data.transactions.length === 0) {
+                    delete spendingData[dateKey];
+                }
+                
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                updateModalTotal();
+                updateTransactionHeader();
+                renderTransactionList();
+            }
+        }
+
+        // Update modal total
+        function updateModalTotal() {
+            var total = getDayTotal(selectedDay);
+            document.getElementById('currentTotal').textContent = 
+                'Total: £' + total.toFixed(2);
+        }
+
+        // Update transaction summary in simple view
+        function updateTransactionSummary() {
+            var transactions = getDayTransactions(selectedDay);
+            var summary = document.getElementById('transactionSummary');
+            var summaryText = document.getElementById('summaryText');
+            var summaryHint = document.getElementById('summaryHint');
+            
+            // Always show the summary box
+            summary.style.display = 'block';
+            
+            if (transactions.length === 0) {
+                summaryText.textContent = 'No transactions yet';
+                summaryHint.style.display = 'none';
+                summary.classList.remove('has-transactions');
+                summary.onclick = null;
+                summary.style.cursor = 'default';
+            } else {
+                var withNotes = transactions.filter(function(t) { 
+                    return t.notes && t.notes.trim(); 
+                }).length;
+                
+                if (transactions.length === 1) {
+                    if (withNotes > 0) {
+                        summaryText.innerHTML = '<span class="transaction-indicator">1 transaction</span> with notes';
+                    } else {
+                        summaryText.innerHTML = '<span class="transaction-indicator">1 transaction</span>';
+                    }
+                } else {
+                    if (withNotes > 0) {
+                        summaryText.innerHTML = '<span class="transaction-indicator">' + transactions.length + ' transactions</span> (' + withNotes + ' with notes)';
+                    } else {
+                        summaryText.innerHTML = '<span class="transaction-indicator">' + transactions.length + ' transactions</span>';
+                    }
+                }
+                
+                summaryHint.style.display = 'block';
+                summary.classList.add('has-transactions');
+                summary.style.cursor = 'pointer';
+                
+                // Remove any existing click handler first
+                summary.onclick = null;
+                
+                // Add new click handler
+                summary.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    openTransactionPage();
+                };
+            }
+        }
+
+        // Open transaction page
+        function openTransactionPage() {
+            console.log('Opening transaction page for day:', selectedDay);
+            
+            if (!selectedDay) {
+                console.error('No selected day!');
+                return;
+            }
+            
+            document.getElementById('transactionPageDate').textContent = 
+                months[currentMonth] + ' ' + selectedDay;
+            document.getElementById('transactionPageTotal').textContent = 
+                'Total: £' + getDayTotal(selectedDay).toFixed(2);
+            
+            renderPageTransactionList();
+            document.getElementById('transactionPage').classList.add('show');
+        }
+
+        // Close transaction page
+        function closeTransactionPage() {
+            document.getElementById('transactionPage').classList.remove('show');
+        }
+
+        // Render transaction list on the page
+        function renderPageTransactionList() {
+            var list = document.getElementById('pageTransactionList');
+            var transactions = getDayTransactions(selectedDay);
+            
+            if (transactions.length === 0) {
+                list.innerHTML = '<div style="text-align: center; color: #9ca3af; padding: 20px; font-size: 14px;">No transactions yet<br><span style="font-size: 12px;">Add your first transaction from the daily view</span></div>';
+                return;
+            }
+            
+            list.innerHTML = '';
+            for (var i = 0; i < transactions.length; i++) {
+                var transaction = transactions[i];
+                var item = document.createElement('div');
+                item.className = 'page-transaction-item';
+                item.id = 'page-transaction-' + transaction.id;
+                
+                var content = '<div class="page-transaction-row">';
+                content += '<span class="page-transaction-amount">£' + transaction.amount.toFixed(2) + '</span>';
+                content += '<span class="page-transaction-time">' + transaction.time + '</span>';
+                content += '</div>';
+                
+                if (transaction.notes && transaction.notes.trim()) {
+                    content += '<div class="page-transaction-notes">' + transaction.notes + '</div>';
+                }
+                
+                // Actions (edit/delete) - only for non-legacy transactions
+                if (transaction.id && String(transaction.id).indexOf('legacy-') !== 0) {
+                    content += '<div class="page-transaction-actions">';
+                    content += '<button class="page-transaction-edit" onclick="editPageTransaction(\'' + transaction.id + '\')">Edit</button>';
+                    content += '<button class="page-transaction-delete" onclick="deletePageTransaction(\'' + transaction.id + '\')">Delete</button>';
+                    content += '</div>';
+                } else {
+                    content += '<div style="font-size: 10px; color: #6b7280; margin-top: 8px;">(Legacy transaction)</div>';
+                }
+                
+                // Edit form (hidden by default)
+                if (transaction.id && String(transaction.id).indexOf('legacy-') !== 0) {
+                    content += '<div class="page-edit-inputs" id="page-edit-' + transaction.id + '">';
+                    content += '<input type="number" step="0.01" class="page-edit-amount" id="page-edit-amount-' + transaction.id + '" value="' + transaction.amount + '" placeholder="Amount">';
+                    content += '<input type="text" class="page-edit-notes" id="page-edit-notes-' + transaction.id + '" value="' + (transaction.notes || '') + '" placeholder="Notes">';
+                    content += '<div class="page-edit-buttons">';
+                    content += '<button class="page-edit-save" onclick="savePageTransactionEdit(\'' + transaction.id + '\')">Save</button>';
+                    content += '<button class="page-edit-cancel" onclick="cancelPageTransactionEdit(\'' + transaction.id + '\')">Cancel</button>';
+                    content += '</div>';
+                    content += '</div>';
+                }
+                
+                item.innerHTML = content;
+                list.appendChild(item);
+            }
+        }
+
+        // Edit transaction on page
+        function editPageTransaction(transactionId) {
+            var item = document.getElementById('page-transaction-' + transactionId);
+            var displayElements = item.querySelectorAll('.page-transaction-row, .page-transaction-notes, .page-transaction-actions');
+            var editForm = document.getElementById('page-edit-' + transactionId);
+            
+            for (var i = 0; i < displayElements.length; i++) {
+                displayElements[i].style.display = 'none';
+            }
+            editForm.classList.add('show');
+            
+            document.getElementById('page-edit-amount-' + transactionId).focus();
+        }
+
+        // Cancel transaction edit on page
+        function cancelPageTransactionEdit(transactionId) {
+            var item = document.getElementById('page-transaction-' + transactionId);
+            var displayElements = item.querySelectorAll('.page-transaction-row, .page-transaction-notes, .page-transaction-actions');
+            var editForm = document.getElementById('page-edit-' + transactionId);
+            
+            for (var i = 0; i < displayElements.length; i++) {
+                displayElements[i].style.display = '';
+            }
+            editForm.classList.remove('show');
+        }
+
+        // Save transaction edit on page
+        function savePageTransactionEdit(transactionId) {
+            var newAmount = parseFloat(document.getElementById('page-edit-amount-' + transactionId).value);
+            var newNotes = document.getElementById('page-edit-notes-' + transactionId).value.trim();
+            
+            if (isNaN(newAmount) || newAmount <= 0) {
+                alert('Please enter a valid amount greater than 0');
+                return;
+            }
+            
+            var dateKey = getDateKey(selectedDay);
+            var data = spendingData[dateKey];
+            
+            if (data && data.transactions) {
+                for (var i = 0; i < data.transactions.length; i++) {
+                    if (data.transactions[i].id === transactionId) {
+                        data.transactions[i].amount = newAmount;
+                        data.transactions[i].notes = newNotes;
+                        break;
+                    }
+                }
+                
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                updatePageTotal();
+                updateTransactionSummary();
+                renderPageTransactionList();
+            }
+        }
+
+        // Delete transaction on page
+        function deletePageTransaction(transactionId) {
+            if (!confirm('Delete this transaction?')) return;
+            
+            var dateKey = getDateKey(selectedDay);
+            var data = spendingData[dateKey];
+            
+            if (data && data.transactions) {
+                data.transactions = data.transactions.filter(function(t) {
+                    return t.id !== transactionId;
+                });
+                
+                if (data.transactions.length === 0) {
+                    delete spendingData[dateKey];
+                }
+                
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                updatePageTotal();
+                updateTransactionSummary();
+                renderPageTransactionList();
+            }
+        }
+
+        // Update page total
+        function updatePageTotal() {
+            document.getElementById('transactionPageTotal').textContent = 
+                'Total: £' + getDayTotal(selectedDay).toFixed(2);
+        }
+
+        // Open modal
+        function openModal(day) {
+            selectedDay = day;
+            
+            document.getElementById('modalDate').textContent = 
+                months[currentMonth] + ' ' + day;
+            updateModalTotal();
+            document.getElementById('amountInput').value = '';
+            document.getElementById('notesInput').value = '';
+            document.getElementById('newAmountInput').value = '';
+            document.getElementById('newNotesInput').value = '';
+            
+            showSimpleView(); // Always start in simple view
+            updateTransactionSummary(); // Update the summary
+            
+            // Make the green total button clickable
+            var totalButton = document.getElementById('currentTotal');
+            totalButton.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                openTransactionPage();
+            };
+            
+            document.getElementById('modal').classList.add('show');
+            
+            setTimeout(function() {
+                var amountInput = document.getElementById('amountInput');
+                if (amountInput) {
+                    amountInput.focus();
+                }
+            }, 100);
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            selectedDay = null;
+            isBreakdownMode = false;
+        }
+
+        // Add spending (simple view) with enhanced validation
+        function addSpending() {
+            try {
+                var amountInput = document.getElementById('amountInput');
+                var notesInput = document.getElementById('notesInput');
+                
+                if (!amountInput || !notesInput) {
+                    console.error('Input elements not found');
+                    return;
+                }
+                
+                var amount = parseFloat(amountInput.value);
+                var notes = notesInput.value.trim();
+                
+                console.log('Adding spending:', amount, 'notes:', notes, 'for day:', selectedDay);
+                
+                if (isNaN(amount) || amount <= 0 || !selectedDay) {
+                    console.log('Invalid amount or no selected day');
+                    if (isNaN(amount) || amount <= 0) {
+                        alert('Please enter a valid amount greater than 0');
+                    }
+                    return;
+                }
+
+                var dateKey = getDateKey(selectedDay);
+                var existingData = spendingData[dateKey];
+                var transactions = [];
+                
+                // Convert existing data to transaction format if needed
+                if (typeof existingData === 'number') {
+                    transactions.push({
+                        id: 'legacy-' + dateKey,
+                        amount: existingData,
+                        notes: '',
+                        time: 'Previous'
+                    });
+                } else if (existingData && existingData.transactions) {
+                    transactions = existingData.transactions.slice(); // Copy array
+                }
+                
+                // Always add as a proper transaction (even without notes)
+                transactions.push({
+                    id: 'tx-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                    amount: amount,
+                    notes: notes || '',
+                    time: new Date().toLocaleTimeString('en-GB', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })
+                });
+                
+                spendingData[dateKey] = { transactions: transactions };
+
+                // Clear inputs
+                amountInput.value = '';
+                notesInput.value = '';
+
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                updateModalTotal();
+                updateTransactionSummary(); // This should make the summary clickable
+                
+                console.log('Transaction added successfully, summary should now be clickable');
+                
+            } catch (error) {
+                console.error('Error adding spending:', error);
+                alert('Error adding spending. Please try again.');
+            }
+        }
+
+        // Add transaction (breakdown view)
+        function addTransaction() {
+            try {
+                var amount = parseFloat(document.getElementById('newAmountInput').value);
+                var notes = document.getElementById('newNotesInput').value.trim();
+                
+                if (isNaN(amount) || amount <= 0 || !selectedDay) {
+                    if (isNaN(amount) || amount <= 0) {
+                        alert('Please enter a valid amount greater than 0');
+                    }
+                    return;
+                }
+
+                var dateKey = getDateKey(selectedDay);
+                var existingData = spendingData[dateKey];
+                var transactions = [];
+                
+                // Convert existing data to transaction format
+                if (typeof existingData === 'number') {
+                    transactions.push({
+                        id: 'legacy-' + dateKey,
+                        amount: existingData,
+                        notes: '',
+                        time: 'Previous'
+                    });
+                } else if (existingData && existingData.transactions) {
+                    transactions = existingData.transactions.slice(); // Copy array
+                }
+                
+                // Add new transaction
+                transactions.push({
+                    id: 'tx-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                    amount: amount,
+                    notes: notes || '',
+                    time: new Date().toLocaleTimeString('en-GB', { 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    })
+                });
+                
+                spendingData[dateKey] = { transactions: transactions };
+
+                // Clear inputs
+                document.getElementById('newAmountInput').value = '';
+                document.getElementById('newNotesInput').value = '';
+
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                updateModalTotal();
+                renderTransactionList();
+                
+            } catch (error) {
+                console.error('Error adding transaction:', error);
+                alert('Error adding transaction. Please try again.');
+            }
+        }
+
+        // Handle edit keypress
+        function handleEditKeypress(event, transactionId, inputType) {
+            if (event.key === 'Enter') {
+                if (inputType === 'amount') {
+                    // Move to notes input
+                    var notesInput = document.getElementById('edit-notes-' + transactionId);
+                    if (notesInput) {
+                        notesInput.focus();
+                    }
+                } else if (inputType === 'notes') {
+                    // Save the edit
+                    saveTransactionEdit(transactionId);
+                }
+            } else if (event.key === 'Escape') {
+                cancelTransactionEdit(transactionId);
+            }
+        }
+
+        // Navigate months
+        function navigateMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateDisplay();
+            buildCalendar();
+        }
+
+        // Initialize the app with enhanced error handling
+        function initializeApp() {
+            try {
+                console.log('Starting Daily Spends app...');
+                
+                // Load data first
+                loadData();
+                
+                // Set up event listeners with null checks
+                var prevBtn = document.getElementById('prevBtn');
+                var nextBtn = document.getElementById('nextBtn');
+                var addBtn = document.getElementById('addBtn');
+                var cancelBtn = document.getElementById('cancelBtn');
+                var cancelBreakdownBtn = document.getElementById('cancelBreakdownBtn');
+                var backBtn = document.getElementById('backBtn');
+                var addTransactionBtn = document.getElementById('addTransactionBtn');
+                var closeMonthlyBtn = document.getElementById('closeMonthlyBtn');
+                var backToModal = document.getElementById('backToModal');
+                var monthTotal = document.getElementById('monthTotal');
+                var modal = document.getElementById('modal');
+                var monthlyModal = document.getElementById('monthlyModal');
+                var transactionsHeader = document.getElementById('transactionsHeader');
+                
+                if (prevBtn) prevBtn.onclick = function() { navigateMonth(-1); };
+                if (nextBtn) nextBtn.onclick = function() { navigateMonth(1); };
+                if (addBtn) addBtn.onclick = addSpending;
+                if (cancelBtn) cancelBtn.onclick = closeModal;
+                if (cancelBreakdownBtn) cancelBreakdownBtn.onclick = closeModal;
+                if (backBtn) backBtn.onclick = showSimpleView;
+                if (addTransactionBtn) addTransactionBtn.onclick = addTransaction;
+                if (closeMonthlyBtn) closeMonthlyBtn.onclick = closeMonthlyOverview;
+                if (backToModal) backToModal.onclick = closeTransactionPage;
+                if (monthTotal) monthTotal.onclick = openMonthlyOverview;
+                if (transactionsHeader) transactionsHeader.onclick = toggleTransactionList;
+
+                if (modal) {
+                    modal.onclick = function(e) {
+                        if (e.target.id === 'modal') closeModal();
+                    };
+                }
+
+                if (monthlyModal) {
+                    monthlyModal.onclick = function(e) {
+                        if (e.target.id === 'monthlyModal') closeMonthlyOverview();
+                    };
+                }
+
+                // Input event listeners
+                var amountInput = document.getElementById('amountInput');
+                var notesInput = document.getElementById('notesInput');
+                var newAmountInput = document.getElementById('newAmountInput');
+                var newNotesInput = document.getElementById('newNotesInput');
+                
+                if (amountInput) {
+                    amountInput.onkeypress = function(e) {
+                        if (e.key === 'Enter') {
+                            var notesInput = document.getElementById('notesInput');
+                            if (notesInput) notesInput.focus();
+                        }
+                    };
+                }
+
+                if (notesInput) {
+                    notesInput.onkeypress = function(e) {
+                        if (e.key === 'Enter') addSpending();
+                    };
+                }
+
+                if (newAmountInput) {
+                    newAmountInput.onkeypress = function(e) {
+                        if (e.key === 'Enter') {
+                            var newNotesInput = document.getElementById('newNotesInput');
+                            if (newNotesInput) newNotesInput.focus();
+                        }
+                    };
+                }
+
+                if (newNotesInput) {
+                    newNotesInput.onkeypress = function(e) {
+                        if (e.key === 'Enter') addTransaction();
+                    };
+                }
+
+                // Update display and build calendar
+                updateDisplay();
+                buildCalendar();
+                
+                console.log('Daily Spends app initialized successfully!');
+                
+            } catch (error) {
+                console.error('Error initializing app:', error);
+                // Show error message to user
+                var container = document.querySelector('.container');
+                if (container) {
+                    container.innerHTML = '<div style="text-align: center; color: #dc2626; padding: 40px;">Error loading app. Please refresh the page.<br><small style="color: #6b7280;">Error: ' + error.message + '</small></div>';
+                }
+            }
+        }
+
+        // Initialize when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeApp);
+        } else {
+            initializeApp();
+        }
+    </script>
+</body>
+</html>
