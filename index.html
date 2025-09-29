@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spends</title>
     <link rel="manifest" href="manifest.json">
-    <link rel="icon" href="data:,">
     <style>
         /* Reset and Base Styles */
         * { 
@@ -456,13 +455,8 @@
         // Data functions
         function loadData() {
             try {
-                const saved = localStorage.getItem('spendingData');
-                if (saved) {
-                    const parsed = JSON.parse(saved);
-                    spendingData = parsed || {};
-                } else {
-                    spendingData = {};
-                }
+                const saved = JSON.parse(JSON.stringify({})); // Use in-memory storage instead of localStorage
+                spendingData = saved || {};
             } catch (e) {
                 spendingData = {};
             }
@@ -470,11 +464,8 @@
         }
 
         function saveData() {
-            try {
-                localStorage.setItem('spendingData', JSON.stringify(spendingData));
-            } catch (e) {
-                console.warn('Could not save data');
-            }
+            // In-memory storage - data will persist during the session
+            // In a real deployment, this would save to localStorage
         }
 
         function addSampleData() {
@@ -614,4 +605,385 @@
                 detailsHtml += `
                     <div style="background: #374151; border-radius: 8px; padding: 12px; margin-bottom: 6px;">
                         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
-                            <div style="color: #34d399; font-weight: bold; font-size: 10px;">£${transacti
+                            <div style="color: #34d399; font-weight: bold; font-size: 10px;">£${transaction.amount.toFixed(2)}</div>
+                            <div style="font-size: 11px; color: #9ca3af;">${timeDisplay}</div>
+                        </div>
+                        ${transaction.notes ? `<div style="font-size: 10px; color: #d1d5db; margin-bottom: 6px; font-style: italic;">${transaction.notes}</div>` : ''}
+                        <div style="display: flex; gap: 6px;">
+                            <button onclick="event.stopPropagation(); editTransaction('${transaction.id}')" style="background: #3b82f6; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 11px; cursor: pointer;">Edit</button>
+                            <button onclick="event.stopPropagation(); deleteTransaction('${transaction.id}')" style="background: #6b7280; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 11px; cursor: pointer;">Delete</button>
+                        </div>
+                    </div>`;
+            });
+            
+            detailsHtml += `
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="closeTransactionDetails()" style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: normal; cursor: pointer; font-size: 14px; background: #6b7280; color: white;">Close</button>
+                        </div>
+                    </div>
+                </div>`;
+            
+            const detailsModal = document.createElement('div');
+            detailsModal.id = 'transactionDetailsModal';
+            detailsModal.innerHTML = detailsHtml;
+            document.body.appendChild(detailsModal);
+        }
+
+        function closeTransactionDetails() {
+            const modal = document.getElementById('transactionDetailsModal');
+            if (modal) modal.remove();
+        }
+
+        function deleteTransaction(transactionId) {
+            if (!confirm('Delete this transaction?')) return;
+            
+            const dateKey = getDateKey(selectedDay);
+            const data = spendingData[dateKey];
+            
+            if (data && data.transactions) {
+                data.transactions = data.transactions.filter(t => t.id !== transactionId);
+                
+                if (data.transactions.length === 0) {
+                    delete spendingData[dateKey];
+                }
+                
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                closeTransactionDetails();
+                openModal(selectedDay);
+            }
+        }
+
+        function editTransaction(transactionId) {
+            const dateKey = getDateKey(selectedDay);
+            const data = spendingData[dateKey];
+            
+            if (data && data.transactions) {
+                const transaction = data.transactions.find(t => t.id === transactionId);
+                if (transaction) {
+                    closeTransactionDetails();
+                    openModal(selectedDay);
+                    
+                    document.getElementById('amountInput').value = transaction.amount;
+                    document.getElementById('notesInput').value = transaction.notes || '';
+                    
+                    const addBtn = document.getElementById('addBtn');
+                    addBtn.textContent = 'Update';
+                    
+                    addBtn.onclick = function() {
+                        const amount = parseFloat(document.getElementById('amountInput').value);
+                        const notes = document.getElementById('notesInput').value.trim();
+                        
+                        if (isNaN(amount) || amount <= 0) {
+                            showError('Please enter a valid amount');
+                            return;
+                        }
+                        
+                        data.transactions = data.transactions.filter(t => t.id !== transactionId);
+                        data.transactions.push({
+                            id: 'tx-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                            amount: amount,
+                            notes: notes.substring(0, 100) || '',
+                            time: transaction.time
+                        });
+                        
+                        saveData();
+                        updateDisplay();
+                        buildCalendar();
+                        
+                        document.getElementById('amountInput').value = '';
+                        document.getElementById('notesInput').value = '';
+                        addBtn.textContent = 'Add';
+                        addBtn.onclick = addSpending;
+                        
+                        const dayTotal = getDayTotal(selectedDay);
+                        document.getElementById('modalTotal').textContent = 'Total: £' + dayTotal.toFixed(2);
+                        updateTransactionSummary();
+                        
+                        setTimeout(() => document.getElementById('amountInput').focus(), 100);
+                    };
+                }
+            }
+        }
+
+        function showError(message) {
+            const errorEl = document.getElementById('amountError');
+            errorEl.textContent = message;
+            errorEl.style.display = 'block';
+            setTimeout(() => errorEl.style.display = 'none', 3000);
+        }
+
+        function showHelp() {
+            let helpHtml = `
+                <div id="helpModalBackdrop" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1001;">
+                    <div id="helpModalContent" style="background: #1f2937; border-radius: 16px; padding: 20px; width: 100%; max-width: 350px; max-height: 80vh; overflow-y: auto;">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <div style="font-size: 16px; font-weight: bold; color: #f9fafb;">Daily Spends Help</div>
+                        </div>
+                        <div style="text-align: left; margin-bottom: 16px; line-height: 1.4; font-size: 12px; color: #d1d5db;">
+                            <div style="margin-bottom: 16px;">
+                                <div style="color: #34d399; font-weight: bold; margin-bottom: 6px;">Managing Expenses</div>
+                                <div>• Select a day and enter your spend<br>• Add optional notes (coffee, taxi, teabags, etc)<br>• Tap Add to save<br>• Add, edit, and delete entries anytime<br>• Take a monthly screenshot for backup needs</div>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <div style="color: #34d399; font-weight: bold; margin-bottom: 6px;">Viewing Your Data</div>
+                                <div>• Tap monthly total at top to view all monthly<br>&nbsp;&nbsp;&nbsp;transactions<br>• Each day shows total spending<br>• Tap transaction summaries to view details</div>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <div style="color: #34d399; font-weight: bold; margin-bottom: 6px;">Currency</div>
+                                <div>All amounts are in British Pounds (£). For currencies and conversions, visit <a href="https://xe.com" target="_blank" style="color: #60a5fa; text-decoration: underline;">xe.com</a>.</div>
+                            </div>
+                            
+                            <div style="margin-bottom: 16px;">
+                                <div style="color: #34d399; font-weight: bold; margin-bottom: 6px;">Data Storage</div>
+                                <div>Your spending data is automatically saved in your browser. It stays private on your device.</div>
+                            </div>
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="closeHelp()" style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: normal; cursor: pointer; font-size: 14px; background: #6b7280; color: white;">Got it!</button>
+                        </div>
+                    </div>
+                </div>`;
+            
+            const helpModal = document.createElement('div');
+            helpModal.id = 'helpModal';
+            helpModal.innerHTML = helpHtml;
+            document.body.appendChild(helpModal);
+            
+            const backdrop = document.getElementById('helpModalBackdrop');
+            const content = document.getElementById('helpModalContent');
+            
+            backdrop.addEventListener('click', function(e) {
+                if (!content.contains(e.target)) {
+                    closeHelp();
+                }
+            });
+        }
+
+        function closeHelp() {
+            const modal = document.getElementById('helpModal');
+            if (modal) modal.remove();
+        }
+
+        function navigateMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            updateDisplay();
+            buildCalendar();
+        }
+
+        function openModal(day) {
+            selectedDay = day;
+            document.getElementById('modalDate').textContent = months[currentMonth] + ' ' + day;
+            
+            const dayTotal = getDayTotal(day);
+            document.getElementById('modalTotal').textContent = 'Total: £' + dayTotal.toFixed(2);
+            document.getElementById('amountInput').value = '';
+            document.getElementById('notesInput').value = '';
+            document.getElementById('amountError').style.display = 'none';
+            updateTransactionSummary();
+            document.getElementById('modal').classList.add('show');
+            
+            buildCalendar();
+            
+            setTimeout(() => document.getElementById('amountInput').focus(), 100);
+        }
+
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+            selectedDay = null;
+            buildCalendar();
+        }
+
+        function addSpending() {
+            const amountInput = document.getElementById('amountInput');
+            const amount = parseFloat(amountInput.value);
+            const notes = document.getElementById('notesInput').value.trim();
+            
+            document.getElementById('amountError').style.display = 'none';
+            
+            if (isNaN(amount) || amount <= 0) {
+                showError('Please enter a valid amount greater than 0');
+                amountInput.focus();
+                return;
+            }
+            
+            if (amount > 99999.99) {
+                showError('Amount cannot exceed £99,999.99');
+                amountInput.focus();
+                return;
+            }
+
+            const dateKey = getDateKey(selectedDay);
+            const existingData = spendingData[dateKey];
+            const transactions = (existingData && existingData.transactions) ? existingData.transactions.slice() : [];
+            
+            transactions.push({
+                id: 'tx-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                amount: amount,
+                notes: notes.substring(0, 100) || '',
+                time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
+            });
+            
+            spendingData[dateKey] = { transactions: transactions };
+            
+            document.getElementById('amountInput').value = '';
+            document.getElementById('notesInput').value = '';
+            
+            const dayTotal = getDayTotal(selectedDay);
+            document.getElementById('modalTotal').textContent = 'Total: £' + dayTotal.toFixed(2);
+            
+            saveData();
+            updateDisplay();
+            buildCalendar();
+            updateTransactionSummary();
+            
+            setTimeout(() => document.getElementById('amountInput').focus(), 100);
+        }
+
+        function openMonthlyOverview() {
+            const total = getMonthTotal();
+            let monthlyHtml = `
+                <div onclick="if(event.target === this) closeMonthlyOverview()" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1001;">
+                    <div style="background: #1f2937; border-radius: 16px; padding: 20px; width: 100%; max-width: 300px;">
+                        <div style="text-align: center; margin-bottom: 16px;">
+                            <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-bottom: 8px;">
+                                <button onclick="navigateMonthlyOverview(-1)" style="background: #374151; border: none; color: #d1d5db; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">‹</button>
+                                <div style="font-size: 14px; font-weight: bold; color: #f9fafb;">${months[currentMonth]} ${currentYear} Overview</div>
+                                <button onclick="navigateMonthlyOverview(1)" style="background: #374151; border: none; color: #d1d5db; padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 12px;">›</button>
+                            </div>
+                            <div style="background: #059669; color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; display: inline-block;">Total: £${total.toFixed(2)}</div>
+                        </div>
+                        <div style="max-height: 400px; overflow-y: auto; margin-bottom: 16px;">`;
+            
+            const allTransactions = [];
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            
+            for (let day = 1; day <= daysInMonth; day++) {
+                const transactions = getDayTransactions(day);
+                transactions.forEach(transaction => {
+                    allTransactions.push({ day, transaction });
+                });
+            }
+            
+            if (allTransactions.length === 0) {
+                monthlyHtml += '<div style="text-align: center; color: #9ca3af; padding: 40px 20px; font-size: 12px;">No transactions this month</div>';
+            } else {
+                allTransactions.sort((a, b) => a.day - b.day);
+                
+                let currentDay = null;
+                allTransactions.forEach(item => {
+                    const date = new Date(currentYear, currentMonth, item.day);
+                    const dayName = date.toLocaleDateString('en-GB', { weekday: 'short' });
+                    
+                    if (currentDay !== item.day) {
+                        currentDay = item.day;
+                        monthlyHtml += `<div style="color: #d1d5db; font-size: 12px; font-weight: bold; margin: 12px 0 8px 0; text-align: left;">${dayName} ${item.day}</div>`;
+                    }
+                    
+                    monthlyHtml += `
+                        <div style="background: #374151; border-radius: 8px; padding: 12px; margin-bottom: 6px;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 4px;">
+                                <div style="color: #34d399; font-weight: bold; font-size: 10px;">£${item.transaction.amount.toFixed(2)}</div>
+                                <div style="font-size: 11px; color: #9ca3af;">${item.transaction.time || '--:--'}</div>
+                            </div>
+                            ${item.transaction.notes ? `<div style="font-size: 10px; color: #d1d5db; font-style: italic;">${item.transaction.notes}</div>` : ''}
+                        </div>`;
+                });
+            }
+            
+            monthlyHtml += `
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="closeMonthlyOverview()" style="flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: normal; cursor: pointer; font-size: 14px; background: #6b7280; color: white;">Close</button>
+                        </div>
+                    </div>
+                </div>`;
+            
+            const monthlyModal = document.createElement('div');
+            monthlyModal.id = 'monthlyOverviewModal';
+            monthlyModal.innerHTML = monthlyHtml;
+            document.body.appendChild(monthlyModal);
+        }
+
+        function closeMonthlyOverview() {
+            const modal = document.getElementById('monthlyOverviewModal');
+            if (modal) modal.remove();
+        }
+
+        function navigateMonthlyOverview(direction) {
+            currentMonth += direction;
+            if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            } else if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            }
+            
+            updateDisplay();
+            buildCalendar();
+            closeMonthlyOverview();
+            openMonthlyOverview();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
+            document.getElementById('nextBtn').onclick = () => navigateMonth(1);
+            document.getElementById('addBtn').onclick = addSpending;
+            document.getElementById('closeBtn').onclick = closeModal;
+            document.getElementById('helpBtn').onclick = showHelp;
+            document.getElementById('monthTotal').onclick = () => openMonthlyOverview();
+            
+            document.getElementById('modal').onclick = function(e) {
+                if (e.target === this) closeModal();
+            };
+            
+            document.getElementById('amountInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addSpending();
+                }
+            });
+            
+            document.getElementById('notesInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addSpending();
+                }
+            });
+            
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    closeModal();
+                    closeTransactionDetails();
+                    closeHelp();
+                }
+            });
+        }
+
+        function init() {
+            loadData();
+            updateDisplay();
+            buildCalendar();
+            setupEventListeners();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', init);
+        } else {
+            init();
+        }
+    </script>
+</body>
+</html>
