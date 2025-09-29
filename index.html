@@ -461,19 +461,26 @@
 
         // Data functions
         function loadData() {
-            try {
-                const saved = JSON.parse(JSON.stringify({})); // Use in-memory storage instead of localStorage
-                spendingData = saved || {};
-            } catch (e) {
-                spendingData = {};
-            }
-            addSampleData();
+    try {
+        const saved = localStorage.getItem('spendingData');
+        if (saved) {
+            spendingData = JSON.parse(saved);
+        } else {
+            spendingData = {};
         }
+    } catch (e) {
+        spendingData = {};
+    }
+    addSampleData();
+}
 
         function saveData() {
-            // In-memory storage - data will persist during the session
-            // In a real deployment, this would save to localStorage
-        }
+    try {
+        localStorage.setItem('spendingData', JSON.stringify(spendingData));
+    } catch (e) {
+        console.warn('Could not save data');
+    }
+}
 
         function addSampleData() {
             if (Object.keys(spendingData).length === 0) {
