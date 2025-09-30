@@ -36,6 +36,12 @@
             border-radius: 16px; 
             padding: 16px; 
         }
+    /* Container - Tablet */
+@media (min-width: 768px) {
+    .container {
+        max-width: 420px;
+    }
+}
 
         /* Header */
         .header { 
@@ -147,7 +153,6 @@ box-sizing: border-box;
             justify-content: center; 
             align-items: center; 
             cursor: pointer; 
-            min-height: 30px;
             transition: all 0.2s; 
             font-size: 10px;
 }
@@ -414,7 +419,7 @@ box-sizing: border-box;
     </style>
 </head>
 <body>
-    <div ="container">
+    <div class="container">
         <div class="header">
             <div class="title">Daily Spends</div>
             <button class="total" id="monthTotal">Total: £0.00</button>
