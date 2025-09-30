@@ -30,12 +30,18 @@
 
         /* Container */
         .container { 
-            max-width: 420px; /* UPDATED: increased from 320px for better tablet display */
+            max-width: 320px; 
             margin: 0 auto; 
             background: #1f2937; 
             border-radius: 16px; 
             padding: 16px; 
         }
+    /* Container - Tablet */
+@media (min-width: 768px) {
+    .container {
+        max-width: 420px;
+    }
+}
 
         /* Header */
         .header { 
@@ -147,10 +153,15 @@ box-sizing: border-box;
             justify-content: center; 
             align-items: center; 
             cursor: pointer; 
-            min-height: 45px; /* UPDATED: reduced from 60px */
             transition: all 0.2s; 
-            max-height: 60px;
-font-size: 14px; /* UPDATED: changed from clamp(10px, 2vw, 12px) */
+            font-size: 10px;
+}
+    /* Day Cells - Tablet */
+@media (min-width: 768px) {
+    .day {
+        max-height: 45px;
+        font-size: 14px;
+    }
 }
         }
         
