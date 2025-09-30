@@ -230,11 +230,12 @@
             left: 0; 
             right: 0; 
             bottom: 0; 
-            background: rgba(0, 0, 0, 0.8); 
+            background: rgba(0, 0, 0, 0.9); 
             display: none; 
             justify-content: center; 
             align-items: center; 
             padding: 20px; 
+            overflow-y: auto;
             z-index: 1000; 
         }
         
@@ -247,7 +248,9 @@
             border-radius: 16px; 
             padding: 20px; 
             width: 100%; 
-            max-width: 280px; 
+            max-width: 280px;
+            margin: auto;
+            position: relative;
         }
         
         .modal-header { 
@@ -285,6 +288,7 @@
             outline: none; 
             margin-bottom: 8px; 
             transition: border-color 0.2s; 
+            box-sizing: border-box;
         }
         
         .amount-input:focus { 
