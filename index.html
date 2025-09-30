@@ -487,21 +487,7 @@
 }
 
         function addSampleData() {
-            if (Object.keys(spendingData).length === 0) {
-                const now = new Date();
-                const yearMonth = now.getFullYear() + '-' + now.getMonth();
-                
-                spendingData[yearMonth + '-15'] = { 
-                    transactions: [{ id: 'sample1', amount: 12.50, notes: 'Coffee & pastry', time: '09:15' }] 
-                };
-                spendingData[yearMonth + '-16'] = { 
-                    transactions: [
-                        { id: 'sample2', amount: 25.00, notes: 'Lunch at café', time: '12:30' },
-                        { id: 'sample3', amount: 7.84, notes: 'Bus fare', time: '14:45' }
-                    ] 
-                };
-                saveData();
-            }
+        // No sample data - users start with blank calendar
         }
 
         function getDateKey(day) {
