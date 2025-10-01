@@ -3,6 +3,7 @@
   "short_name": "Daily Spends",
   "description": "Track your daily expenses",
   "start_url": "/",
+  "scope": "/Daily-spends/",
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#059669",
