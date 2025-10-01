@@ -139,6 +139,7 @@
             gap: 3px; 
             width: 100%;
 box-sizing: border-box;
+            grid-auto-rows: minmax(30px, 1fr);
             min-height: 180px; 
         }
 
@@ -155,6 +156,8 @@ box-sizing: border-box;
             cursor: pointer; 
             transition: all 0.2s; 
             font-size: 10px;
+            overflow: hidden;
+position: relative;
 }
     /* Day Cells - Tablet */
 @media (min-width: 768px) {
@@ -197,6 +200,10 @@ box-sizing: border-box;
             color: #34d399; 
             margin-top: 0.5px; 
             font-weight: normal; 
+             white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 100%;
         }
         
         .plus-icon { 
