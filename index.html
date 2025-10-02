@@ -146,8 +146,6 @@
         /* Day Cells */
         .day { 
             aspect-ratio: 1;
-            height: 60px;
-            width: auto;
             border: 1px solid #4b5563; 
             background: #4b5563; 
             border-radius: 6px; 
@@ -156,8 +154,7 @@
             justify-content: space-between; 
             align-items: center; 
             cursor: pointer; 
-            padding: 4px 2px;
-            min-height: 50px;
+            padding: 3px 2px;
             transition: all 0.2s; 
             font-size: 10px;
             overflow: hidden;
@@ -195,20 +192,21 @@
         
         .day-number { 
             font-weight: 600; 
-            font-size: 11px; 
+            font-size: 12px; 
             color: #f9fafb;
-            line-height: normal;
+            line-height: 1.1;
+            flex_shrink: 0;
         }
         
         .day-amount { 
-            font-size: 9px; 
+            font-size: 10px; 
             color: #34d399; 
             font-weight: normal; 
             white-space: nowrap;
             overflow: hidden;
             text-overflow: clip;
             max-width: 100%;
-            line-height: normal;
+            line-height: 1.1;
         }
         
         .plus-icon { 
