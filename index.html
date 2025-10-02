@@ -145,21 +145,22 @@ box-sizing: border-box;
 
         /* Day Cells */
         .day { 
-            aspect-ratio: 1; 
+            height: 60px;
+            width: 60px;
             border: 1px solid #4b5563; 
             background: #4b5563; 
             border-radius: 6px; 
             display: flex; 
             flex-direction: column; 
-            justify-content: center; 
+            justify-content: space-between; 
             align-items: center; 
             min-height: 50px; 
             cursor: pointer; 
+            padding: 4px 2px;
             transition: all 0.2s; 
             font-size: 10px;
             overflow: hidden;
             position: relative;
-            padding: 2px; 
 }
     /* Day Cells - Tablet */
 @media (min-width: 768px) {
@@ -193,19 +194,20 @@ box-sizing: border-box;
         
         .day-number { 
             font-weight: 600; 
-            font-size: 10px; 
-            color: #f9fafb; 
+            font-size: 11px; 
+            color: #f9fafb;
+            line-height: normal;
         }
         
         .day-amount { 
-            font-size: 8px; 
+            font-size: 9px; 
             color: #34d399; 
-            margin-top: 0.5px; 
             font-weight: normal; 
             white-space: nowrap;
             overflow: hidden;
-            text-overflow: ellipsis;
+            text-overflow: clip;
             max-width: 100%;
+            line-height: normal;
         }
         
         .plus-icon { 
