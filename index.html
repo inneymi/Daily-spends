@@ -34,7 +34,7 @@
             margin: 0 auto; 
             background: #1f2937; 
             border-radius: 16px; 
-            padding: 16px; 
+            padding: 12px; 
         }
     /* Container - Tablet */
 @media (min-width: 768px) {
@@ -114,9 +114,9 @@
         .calendar { 
             background: #374151; 
             border-radius: 12px; 
-            padding: 12px; 
-            width: 100%; /* ADDED: ensures full width of container */
-    box-sizing: border-box; /* ADDED: includes padding in width */
+            padding: 8px; 
+            width: 100%;
+            box-sizing: border-box; 
         }
         
         .weekdays { 
@@ -136,15 +136,16 @@
         .days { 
             display: grid; 
             grid-template-columns: repeat(7, 1fr); 
-            gap: 3px; 
+            gap: 2px; 
+            min-height: 180px;
             width: 100%;
-box-sizing: border-box;
-            grid-auto-rows: minmax(30px, 1fr);
-            min-height: 180px; 
+            box-sizing: border-box;
+            grid-auto-rows: minmax(30px, 1fr); 
         }
 
         /* Day Cells */
         .day { 
+            aspect-ratio: 1;
             height: 60px;
             width: auto;
             border: 1px solid #4b5563; 
@@ -156,6 +157,7 @@ box-sizing: border-box;
             align-items: center; 
             cursor: pointer; 
             padding: 4px 2px;
+            min-height: 50px;
             transition: all 0.2s; 
             font-size: 10px;
             overflow: hidden;
