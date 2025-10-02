@@ -153,11 +153,13 @@ box-sizing: border-box;
             flex-direction: column; 
             justify-content: center; 
             align-items: center; 
+            min-height: 50px; 
             cursor: pointer; 
             transition: all 0.2s; 
             font-size: 10px;
             overflow: hidden;
-position: relative;
+            position: relative;
+            padding: 2px; 
 }
     /* Day Cells - Tablet */
 @media (min-width: 768px) {
@@ -200,10 +202,10 @@ position: relative;
             color: #34d399; 
             margin-top: 0.5px; 
             font-weight: normal; 
-             white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
         
         .plus-icon { 
