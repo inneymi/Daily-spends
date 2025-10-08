@@ -1,10 +1,10 @@
 const CACHE_NAME = 'daily-spends-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icon-192.png',
-  '/icon-512.png'
+  '/Daily-spends/',
+  '/Daily-spends/index.html',
+  '/Daily-spends/manifest.json',
+  '/Daily-spends/icon-192.png',
+  '/Daily-spends/icon-512.png'
 ];
 
 // Install event - cache resources
