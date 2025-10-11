@@ -12,6 +12,7 @@
       "src": "/Daily-spends/logo-192.png",
       "sizes": "192x192",
       "type": "image/png"
+      "purpose": "any maskable"
     },
     {
       "src": "/Daily-spends/logo-512.png",
