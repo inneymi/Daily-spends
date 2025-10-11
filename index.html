@@ -229,29 +229,33 @@
         }
 
         /* Footer */
-        .footer { 
-            margin-top: 16px; 
-            padding: 12px 0; 
-            border-top: 1px solid #374151; 
-            display: flex; 
-            justify-content: center; 
-            gap: 20px; 
-        }
-        
-        .-link { 
-            background: 374151;
-            border: none; 
-            color: #9ca3af; 
-            font-size: 12px; 
-            cursor: pointer; 
-            padding: 8px 12px; 
-            border-radius: 6px; 
-            transition: all 0.2s; 
-        }
-        
-        .-link:hover { 
-            color: #d1d5db; 
-            background: #4b5563 !important; 
+         .footer-link { 
+        background: transparent;
+        background-color: transparent;
+        border: none; 
+        color: #9ca3af; 
+        font-size: 12px; 
+        cursor: pointer; 
+        padding: 8px 12px; 
+        border-radius: 6px; 
+        transition: all 0.2s;
+        outline: none;
+        box-shadow: none;
+        -webkit-tap-highlight-color: transparent;
+    }
+    
+    .footer-link:hover { 
+        color: #d1d5db; 
+        background: rgba(55, 65, 81, 0.5); 
+    }
+    
+    .footer-link:focus {
+        outline: none;
+        background: transparent;
+    }
+    
+    .footer-link:active {
+        background: rgba(55, 65, 81, 0.3);
         }
 
         /* Modal */
@@ -460,7 +464,7 @@
         </div>
         
         <div class="footer">
-            <button class="footer-link" id="helpBtn" style="background: #374151 !important; border: none !important;">Help</button>
+            <button class="footer-link" id="helpBtn">Help</button>
         </div>
     </div>
 
