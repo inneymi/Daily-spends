@@ -238,7 +238,7 @@
             gap: 20px; 
         }
         
-        .footer-link { 
+        .-link { 
             background: none; 
             border: none; 
             color: #9ca3af; 
@@ -249,7 +249,7 @@
             transition: all 0.2s; 
         }
         
-        .footer-link:hover { 
+        .-link:hover { 
             color: #d1d5db; 
             background: #374151; 
         }
@@ -461,6 +461,7 @@
         
         <div class="footer">
             <button class="footer-link" id="helpBtn">Help</button>
+            <button class="footer-link" id="installBtn" style="display: none;">Install App</button>
         </div>
     </div>
 
@@ -1009,7 +1010,46 @@
                 }
             });
         }
+// Install prompt handling
+let deferredPrompt;
+const installBtn = document.getElementById('installBtn');
 
+window.addEventListener('beforeinstallprompt', (e) => {
+    console.log('Install prompt available');
+    e.preventDefault();
+    deferredPrompt = e;
+    
+    if (installBtn) {
+        installBtn.style.display = 'block';
+    }
+});
+
+if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+        if (!deferredPrompt) {
+            alert('App is already installed or install not available');
+            return;
+        }
+        
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        console.log(`User response: ${outcome}`);
+        
+        if (outcome === 'accepted') {
+            installBtn.style.display = 'none';
+        }
+        
+        deferredPrompt = null;
+    });
+}
+
+window.addEventListener('appinstalled', () => {
+    console.log('App installed successfully');
+    if (installBtn) {
+        installBtn.style.display = 'none';
+    }
+    deferredPrompt = null;
+});
         function init() {
             loadData();
             updateDisplay();
