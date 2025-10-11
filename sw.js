@@ -2,25 +2,22 @@ const CACHE_NAME = 'daily-spends-v1';
 const urlsToCache = [
   '/Daily-spends/',
   '/Daily-spends/index.html',
-  '/Daily-spends/manifest.json',
   '/Daily-spends/icon-192.png',
   '/Daily-spends/icon-512.png'
 ];
 
-// Install event - cache resources
+// Install event - cache essential files
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+      .then((cache) => {
+        return cache.addAll(urlsToCache);
+      })
+      .catch((error) => {
+        console.log('Cache installation failed:', error);
+      })
   );
-});
-
-// Fetch event - serve from cache, fallback to network
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => response || fetch(event.request))
-  );
+  self.skipWaiting();
 });
 
 // Activate event - clean up old caches
@@ -35,5 +32,27 @@ self.addEventListener('activate', (event) => {
         })
       );
     })
+  );
+  self.clients.claim();
+});
+
+// Fetch event - serve from cache, fallback to network
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Return cached version or fetch from network
+        return response || fetch(event.request).then((fetchResponse) => {
+          // Cache new requests for offline use
+          return caches.open(CACHE_NAME).then((cache) => {
+            cache.put(event.request, fetchResponse.clone());
+            return fetchResponse;
+          });
+        });
+      })
+      .catch(() => {
+        // Return offline page if available
+        return caches.match('/Daily-spends/');
+      })
   );
 });
