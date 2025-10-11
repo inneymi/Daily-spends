@@ -7,7 +7,7 @@
   "display": "standalone",
   "background_color": "#111827",
   "theme_color": "#059669",
-  "orientation": "portrait",
+  "orientation": "any",
   "icons": [
     {
       "src": "/Daily-spends/icon-192.png",
