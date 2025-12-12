@@ -24,22 +24,20 @@
         font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
         background: #111827; 
         color: #f9fafb; 
-        min-height: 100vh;
-        padding: 12px; 
-        padding-top: max(12px, env(safe-area-inset-top));
-        padding-bottom: max(12px, env(safe-area-inset-bottom));
+        min-height: 100vh; 
+        padding: 16px; 
     }
 
     /* Container */
     .container { 
-        max-width: 400px;
+        max-width: 360px; 
         margin: 0 auto; 
         background: #1f2937; 
         border-radius: 16px; 
-        padding: 14px; 
+        padding: 12px; 
     }
 
-/* Container - Tablet and larger */
+/* Container - Tablet */
 @media (min-width: 768px) {
     .container {
         max-width: 420px;
@@ -51,27 +49,27 @@
         display: flex; 
         justify-content: space-between; 
         align-items: center; 
-        margin-bottom: 2px; 
+        margin-bottom: 0px; 
     }
     
     .title { 
-        font-size: 16px; 
+        font-size: 14px; 
         font-weight: bold; 
     }
     
     .subtitle { 
         color: #9ca3af; 
-        font-size: 10px; 
+        font-size: 9px; 
         text-align: left; 
-        margin-bottom: 12px; 
+        margin-bottom: 10px; 
     }
     
     .total { 
         background: #059669; 
         color: white; 
-        padding: 7px 12px; 
-        border-radius: 7px; 
-        font-size: 12px; 
+        padding: 6px 10px; 
+        border-radius: 6px; 
+        font-size: 11px; 
         font-weight: bold; 
         cursor: pointer; 
         transition: background-color 0.2s; 
@@ -87,18 +85,18 @@
         display: flex; 
         justify-content: center; 
         align-items: center; 
-        margin-bottom: 14px; 
-        gap: 4px; 
+        margin-bottom: 12px; 
+        gap: 2px; 
     }
     
     .nav-btn { 
         background: #374151; 
         border: none; 
         color: #d1d5db; 
-        padding: 7px 11px; 
-        border-radius: 7px; 
+        padding: 6px 10px; 
+        border-radius: 6px; 
         cursor: pointer; 
-        font-size: 12px; 
+        font-size: 11px; 
         transition: background-color 0.2s; 
     }
     
@@ -107,7 +105,7 @@
     }
     
     .month-title { 
-        font-size: 15px; 
+        font-size: 14px; 
         font-weight: bold; 
         flex: 1; 
         text-align: center; 
@@ -117,7 +115,7 @@
     .calendar { 
         background: #374151; 
         border-radius: 12px; 
-        padding: 10px; 
+        padding: 8px; 
         width: 100%;
         box-sizing: border-box; 
     }
@@ -126,24 +124,24 @@
         display: grid; 
         grid-template-columns: repeat(7, 1fr); 
         gap: 3px; 
-        margin-bottom: 7px; 
+        margin-bottom: 6px; 
     }
     
     .weekday { 
         text-align: center; 
-        font-size: 9px; 
+        font-size: 8px; 
         color: #9ca3af; 
-        padding: 5px 0; 
+        padding: 4px 0; 
     }
     
     .days { 
         display: grid; 
         grid-template-columns: repeat(7, 1fr); 
-        gap: 3px; 
-        min-height: 190px;
+        gap: 2px; 
+        min-height: 180px;
         width: 100%;
         box-sizing: border-box;
-        grid-auto-rows: minmax(35px, 1fr); 
+        grid-auto-rows: minmax(30px, 1fr); 
     }
 
     /* Day Cells */
@@ -151,13 +149,13 @@
         aspect-ratio: 1;
         border: 1px solid #4b5563; 
         background: #4b5563; 
-        border-radius: 7px; 
+        border-radius: 6px; 
         display: flex; 
         flex-direction: column; 
         justify-content: space-between; 
         align-items: center; 
         cursor: pointer; 
-        padding: 4px 2px;
+        padding: 3px 2px;
         transition: all 0.2s; 
         font-size: 10px;
         overflow: hidden;
@@ -195,7 +193,7 @@
     
     .day-number { 
         font-weight: 600; 
-        font-size: 13px; 
+        font-size: 12px; 
         color: #f9fafb;
         line-height: 1.1;
         flex-shrink: 0;
@@ -213,7 +211,7 @@
     }
     
     .plus-icon { 
-        font-size: 9px; 
+        font-size: 8px; 
         color: #6b7280; 
         margin-top: 0.5px; 
     }
@@ -242,10 +240,10 @@
     background-color: transparent;
     border: none; 
     color: #9ca3af; 
-    font-size: 13px; 
+    font-size: 12px; 
     cursor: pointer; 
-    padding: 9px 14px; 
-    border-radius: 7px; 
+    padding: 8px 12px; 
+    border-radius: 6px; 
     transition: all 0.2s;
     outline: none;
     box-shadow: none;
