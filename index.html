@@ -209,566 +209,286 @@ input[type="number"] {
     </div>
 
 <script>
-    document.addEventListener('click', function(e) {
-  if (e.target && e.target.classList.contains('pill-btn')) {
-    document.querySelectorAll('.pill-btn').forEach(btn => btn.classList.remove('active'));
-    e.target.classList.add('active');
-    document.getElementById('categoryInput').value = e.target.getAttribute('data-category');
-  }
-});
-    // Spending Categories Setup
-const spendingCategories = {
-  General: { name: 'General', color: 'bg-slate-600', icon: 'tag' },
-  Food: { name: 'Food', color: 'bg-emerald-600', icon: 'utensils' },
-  Transport: { name: 'Transport', color: 'bg-blue-600', icon: 'car' },
-  Bills: { name: 'Bills', color: 'bg-amber-600', icon: 'receipt' },
-  Shopping: { name: 'Shopping', color: 'bg-purple-600', icon: 'shopping-bag' },
-  Fun: { name: 'Fun', color: 'bg-rose-600', icon: 'smile' }
-};
+    let currentYear = new Date().getFullYear();
+    let currentMonth = new Date().getMonth();
+    let selectedDate = null;
+    let transactions = {};
 
-function getCategory(categoryName) {
-  return spendingCategories[categoryName] || spendingCategories.General;
-}
-let spendingData = {};
-let currentMonth = new Date().getMonth();
-let currentYear = new Date().getFullYear();
-let selectedDay = null;
-const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
-
-function loadData() {
-    try {
-        const saved = localStorage.getItem('spendingData');
-        spendingData = saved ? JSON.parse(saved) : {};
-    } catch (e) {
-        spendingData = {};
-    }
-}
-
-function saveData() {
-    try {
-        localStorage.setItem('spendingData', JSON.stringify(spendingData));
-    } catch (e) {
-        console.error('Save failed:', e);
-    }
-}
-
-function closeTransactionDetails() {
-    const modal = document.getElementById('transactionDetailsModal');
-    if (modal) modal.remove();
-    selectedDay = null;
-    buildCalendar();
-}
-
-function deleteTransaction(transactionId) {
-    const dayToDelete = selectedDay;
-    const dateKey = currentYear + '-' + currentMonth + '-' + dayToDelete;
-    const data = spendingData[dateKey];
-    
-    if (!data || !data.transactions) return;
-    
-    const filtered = data.transactions.filter(t => t.id !== transactionId);
-    
-    if (filtered.length === 0) {
-        delete spendingData[dateKey];
-    } else {
-        spendingData[dateKey].transactions = filtered;
-    }
-    
-    saveData();
-    updateDisplay();
-    buildCalendar();
-    
-    const modal = document.getElementById('transactionDetailsModal');
-    if (modal) modal.remove();
-    
-    const remaining = spendingData[dateKey];
-    if (!remaining || !remaining.transactions || remaining.transactions.length === 0) {
-        selectedDay = null;
-    } else if (selectedDay) {
-        openTransactionDetails();
-    }
-}
-
-function editTransaction(transactionId) {
-    const dateKey = currentYear + '-' + currentMonth + '-' + selectedDay;
-    const data = spendingData[dateKey];
-    if (data && data.transactions) {
-        const transaction = data.transactions.find(t => t.id === transactionId);
-        if (transaction) {
-            closeTransactionDetails();
-            openModal(selectedDay);
-            document.getElementById('amountInput').value = transaction.amount.toFixed(2);
-            document.getElementById('notesInput').value = transaction.notes || '';
-            const addBtn = document.getElementById('addBtn');
-            addBtn.textContent = 'Update';
-            const originalAddSpending = addBtn.onclick;
-            addBtn.onclick = function() {
-                const amount = parseFloat(document.getElementById('amountInput').value);
-                const notes = document.getElementById('notesInput').value.trim();
-                if (isNaN(amount) || amount <= 0) {
-                    showError('Please enter a valid amount');
-                    return;
-                }
-                data.transactions = data.transactions.filter(t => t.id !== transactionId);
-                data.transactions.push({
-                    id: 'tx-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-                    amount: amount,
-                    notes: notes.substring(0, 100) || '',
-                    time: transaction.time
-                });
-                saveData();
-                updateDisplay();
-                buildCalendar();
-                document.getElementById('amountInput').value = '';
-                document.getElementById('notesInput').value = '';
-                addBtn.textContent = 'Add';
-                addBtn.onclick = originalAddSpending;
-                closeModal();
-            };
-        }
-    }
-}
-
-function getDateKey(day) { return currentYear + '-' + currentMonth + '-' + day; }
-function getDayTotal(day) {
-    const data = spendingData[getDateKey(day)];
-    return (data && data.transactions) ? data.transactions.reduce((sum, t) => sum + (t.amount || 0), 0) : 0;
-}
-function getDayTransactions(day) {
-    const data = spendingData[getDateKey(day)];
-    return (data && data.transactions) ? data.transactions : [];
-}
-function getMonthTotal() {
-    let total = 0;
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    for (let day = 1; day <= daysInMonth; day++) total += getDayTotal(day);
-    return total;
-}
-
-function buildCalendar() {
-    const grid = document.getElementById('daysGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-    const today = new Date();
-    for (let i = 0; i < firstDay; i++) {
-        const emptyDay = document.createElement('div');
-        emptyDay.className = 'day empty-day';
-        grid.appendChild(emptyDay);
-    }
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dayEl = document.createElement('button');
-   const isToday = day === today.getDate() && 
-                currentMonth === today.getMonth() && 
-                currentYear === today.getFullYear();
-
-dayEl.className = isToday ? 'day today' : 'day';
-        
-        const amount = getDayTotal(day);
-        if (amount > 0) dayEl.className += ' has-spending';
-        dayEl.innerHTML = `<div class="day-number">${day}</div>` + (amount > 0 ? `<div class="day-amount">£${amount.toFixed(2)}</div>` : '<div class="plus-icon">+</div>');
-        dayEl.onclick = () => openModal(day);
-        grid.appendChild(dayEl);
-    }
-}
-
-function updateDisplay() {
-    document.getElementById('monthTitle').textContent = months[currentMonth] + ' ' + currentYear;
-    document.getElementById('monthTotal').textContent = 'Total: £' + getMonthTotal().toFixed(2);
-}
-
-function updateTransactionSummary() {
-    const transactions = getDayTransactions(selectedDay);
-    const summaryText = document.getElementById('summaryText');
-    const summaryHint = document.getElementById('summaryHint');
-    const summary = document.getElementById('transactionSummary');
-    if (transactions.length === 0) {
-        summaryText.textContent = 'No transactions yet';
-        summaryHint.style.display = 'none';
-        summary.onclick = null;
-    } else {
-        const withNotes = transactions.filter(t => t.notes && t.notes.trim()).length;
-        summaryText.innerHTML = transactions.length === 1 ? '<span style="color: #34d399; font-weight: 600;">1 transaction</span>' + (withNotes > 0 ? ' with notes' : '') : '<span style="color: #34d399; font-weight: 600;">' + transactions.length + ' transactions</span>' + (withNotes > 0 ? ' (' + withNotes + ' with notes)' : '');
-        summaryHint.style.display = 'block';
-        summary.onclick = () => openTransactionDetails();
-    }
-}
-
-function openTransactionDetails() {
-    if (!selectedDay || getDayTransactions(selectedDay).length === 0) return;
-    document.getElementById('modal').classList.remove('show');
-    const transactions = getDayTransactions(selectedDay);
-    const modal = document.createElement('div');
-    modal.id = 'transactionDetailsModal';
-    modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); display: flex; justify-content: center; align-items: center; padding: 20px; z-index: 1001;';
-    const content = document.createElement('div');
-    content.style.cssText = 'background: #1f2937; border-radius: 16px; padding: 20px; width: 100%; max-width: 300px;';
-    const header = document.createElement('div');
-    header.style.cssText = 'text-align: center; margin-bottom: 16px;';
-    header.innerHTML = `<div style="font-size: 14px; font-weight: bold; color: #f9fafb; margin-bottom: 4px;">${months[currentMonth]} ${selectedDay}</div><div style="background: #059669; color: white; padding: 4px 8px; border-radius: 4px; font-size: 11px; font-weight: bold; display: inline-block;">Total: £${getDayTotal(selectedDay).toFixed(2)}</div>`;
-    content.appendChild(header);
-    const title = document.createElement('div');
-    title.style.cssText = 'font-size: 14px; font-weight: bold; color: #f9fafb; margin-bottom: 12px;';
-    title.textContent = 'Transactions';
-    content.appendChild(title);
-    const list = document.createElement('div');
-    list.style.cssText = 'max-height: 300px; overflow-y: auto; margin-bottom: 16px;';
-    transactions.forEach(t => {
-        const item = document.createElement('div');
-        item.style.cssText = 'background: #374151; border-radius: 8px; padding: 12px; margin-bottom: 6px;';
-        const itemHeader = document.createElement('div');
-        itemHeader.style.cssText = 'display: flex; justify-content: space-between; margin-bottom: 4px;';
-        itemHeader.innerHTML = `<div style="color: #34d399; font-weight: bold; font-size: 10px;">£${t.amount.toFixed(2)}</div><div style="font-size: 11px; color: #9ca3af;">${t.time || '--:--'}</div>`;
-        item.appendChild(itemHeader);
-        const catKey = t.category || 'General';
-const cat = spendingCategories[catKey] || spendingCategories['General'];
-
-const badge = document.createElement('div');
-badge.innerHTML = `<span class="category-badge"><i data-lucide="${cat.icon}"></i> ${cat.name}</span>`;
-item.appendChild(badge);
-        if (t.notes) {
-            const notes = document.createElement('div');
-            notes.style.cssText = 'font-size: 10px; color: #d1d5db; margin-bottom: 6px; font-style: italic;';
-            notes.textContent = t.notes;
-            item.appendChild(notes);
-        }
-        const buttons = document.createElement('div');
-        buttons.style.cssText = 'display: flex; gap: 6px;';
-        const editBtn = document.createElement('button');
-        editBtn.textContent = 'Edit';
-        editBtn.style.cssText = 'background: #3b82f6; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 11px; cursor: pointer;';
-        editBtn.onclick = () => editTransaction(t.id);
-        buttons.appendChild(editBtn);
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.style.cssText = 'background: #6b7280; color: white; border: none; border-radius: 4px; padding: 6px 12px; font-size: 11px; cursor: pointer;';
-        deleteBtn.onclick = () => deleteTransaction(t.id);
-        buttons.appendChild(deleteBtn);
-        item.appendChild(buttons);
-        list.appendChild(item);
-    });
-    content.appendChild(list);
-    const closeBtn = document.createElement('button');
-    closeBtn.textContent = 'Close';
-    closeBtn.style.cssText = 'width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 14px; background: #6b7280; color: white;';
-    closeBtn.onclick = closeTransactionDetails;
-    content.appendChild(closeBtn);
-    modal.appendChild(content);
-    modal.onclick = (e) => { if (e.target === modal) closeTransactionDetails(); };
-    document.body.appendChild(modal);
-    if (window.lucide) {
-        lucide.createIcons();
-        }
-}
-
-function showError(msg) {
-    const errorEl = document.getElementById('amountError');
-    errorEl.textContent = msg;
-    errorEl.style.display = 'block';
-    setTimeout(() => errorEl.style.display = 'none', 3000);
-}
-
-function showHelp() {
-    const modal = document.createElement('div');
-    modal.id = 'helpModalDynamic';
-    modal.className = 'modal show';
-    modal.innerHTML = '<div class="modal-content"><div class="modal-header"><div class="modal-date" style="font-size: 16px; font-weight: bold;">Daily Spends Help</div></div><div style="text-align: left; margin-bottom: 16px; line-height: 1.4; font-size: 12px; color: #d1d5db;"><div style="margin-bottom: 16px;"><div style="color: #34d399; font-weight: bold; margin-bottom: 6px;">Data Storage</div><div>Your data is saved in your browser.</div></div><div style="margin-bottom: 16px;"><div style="color: #34d399; font-weight: bold; margin-bottom: 6px;">Managing</div><div>• Select a day<br>• Enter amount<br>• Add notes<br>• Edit or delete</div></div></div><div class="modal-buttons"><button onclick="closeHelp()" class="modal-btn btn-close">Got it!</button></div></div>';
-    document.body.appendChild(modal);
-    modal.onclick = (e) => { if (e.target === modal) closeHelp(); };
-}
-
-function closeHelp() {
-    const modal = document.getElementById('helpModalDynamic');
-    if (modal) modal.remove();
-}
-
-function navigateMonth(dir) {
-    currentMonth += dir;
-    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
-    else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
-    updateDisplay();
-    buildCalendar();
-}
-
-function openModal(day) {
-    selectedDay = day;
-    document.getElementById('modalDate').textContent = months[currentMonth] + ' ' + day;
-    document.getElementById('modalTotal').textContent = 'Total: £' + getDayTotal(day).toFixed(2);
-    document.getElementById('amountInput').value = '';
-    document.getElementById('notesInput').value = '';
-    document.getElementById('amountError').style.display = 'none';
-    const addBtn = document.getElementById('addBtn');
-    addBtn.textContent = 'Add';
-    addBtn.onclick = addSpending;
-    updateTransactionSummary();
-    document.getElementById('modal').classList.add('show');
-    buildCalendar();
-    setTimeout(() => document.getElementById('amountInput').focus(), 100);
-}
-
-function closeModal() {
-    document.getElementById('modal').classList.remove('show');
-    selectedDay = null;
-    buildCalendar();
-}
-
-function addSpending() {
-    const amountInput = document.getElementById('amountInput');
-    const amount = parseFloat(amountInput.value);
-    const notes = document.getElementById('notesInput').value.trim();
-    const category = document.getElementById('categoryInput') ? document.getElementById('categoryInput').value : 'General';
-    if (isNaN(amount) || amount <= 0) {
-        showError('Please enter a valid amount');
-        return;
-    }
-    const dateKey = getDateKey(selectedDay);
-    const existingData = spendingData[dateKey];
-    const transactions = (existingData && existingData.transactions) ? existingData.transactions.slice() : [];
-    transactions.push({
-        id: 'tx-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9),
-        amount: amount,
-        notes: notes.substring(0, 100) || '',
-        category: category,
-        time: new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })
-    });
-    spendingData[dateKey] = { transactions: transactions };
-    document.getElementById('amountInput').value = '';
-    document.getElementById('notesInput').value = '';
-    document.getElementById('modalTotal').textContent = 'Total: £' + getDayTotal(selectedDay).toFixed(2);
-    saveData();
-    updateDisplay();
-    buildCalendar();
-    updateTransactionSummary();
-    setTimeout(() => document.getElementById('amountInput').focus(), 100);
-}
-function openMonthlyOverview() {
-    let selectedCategory = 'All';
-
-    function renderContent() {
-        const year = currentYear;
-        const month = currentMonth;
-        const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-        const monthTransactions = transactions[monthKey] || [];
-
-        // Find categories present in this month
-        const presentCategories = ['All', ...new Set(monthTransactions.map(t => t.category).filter(Boolean))];
-
-        // Filter transactions based on selection
-        const filteredTransactions = selectedCategory === 'All' 
-            ? monthTransactions 
-            : monthTransactions.filter(t => t.category === selectedCategory);
-
-        // Calculate filtered total
-        const categoryTotal = filteredTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
-
-        // Build filter tabs HTML
-        const filterHtml = `
-            <div style="display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;">
-                ${presentCategories.map(catKey => {
-                    const isActive = catKey === selectedCategory;
-                    const catInfo = spendingCategories[catKey];
-                    const label = catKey === 'All' ? 'All' : (catInfo ? catInfo.name : catKey);
-                    const iconHtml = catInfo ? `<i data-lucide="${catInfo.icon}"></i> ` : '';
-                    
-                    return `
-                        <button class="cat-filter-btn" data-cat="${catKey}" style="
-                            padding: 6px 12px;
-                            border-radius: 20px;
-                            border: 1px solid ${isActive ? '#3b82f6' : '#374151'};
-                            background: ${isActive ? '#1d4ed8' : '#1f2937'};
-                            color: #ffffff;
-                            cursor: pointer;
-                            font-size: 13px;
-                            display: flex;
-                            align-items: center;
-                            gap: 6px;
-                            white-space: nowrap;
-                        ">${iconHtml}${label}</button>
-                    `;
-                }).join('')}
-            </div>
-        `;
-
-        // Build list HTML
-        let listHtml = '';
-        if (filteredTransactions.length === 0) {
-            listHtml = '<div style="text-align: center; color: #9ca3af; padding: 20px;">No transactions found.</div>';
-        } else {
-            listHtml = filteredTransactions.map(t => {
-                const catInfo = spendingCategories[t.category];
-                const badgeColor = catInfo ? catInfo.color : 'bg-slate-600';
-                const badgeName = catInfo ? catInfo.name : (t.category || 'General');
-                const badgeIcon = catInfo ? `<i data-lucide="${catInfo.icon}"></i>` : '';
-
-                return `
-                    <div style="background: #1f2937; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
-                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 6px;">
-                            <span>£${parseFloat(t.amount).toFixed(2)}</span>
-                            <span style="font-size: 12px; color: #9ca3af;">${t.time || ''}</span>
-                        </div>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <span class="category-badge ${badgeColor}">${badgeIcon} ${badgeName}</span>
-                            <span style="color: #d1d5db; font-size: 14px;">${t.notes || ''}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        modal.innerHTML = `
-            <div style="background: #111827; padding: 20px; border-radius: 12px; max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto; color: white;">
-                <div style="text-align: center; margin-bottom: 12px;">
-                    <h3 style="margin: 0 0 8px 0;">${currentDate.toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
-                    <div style="display: inline-block; background: #10b981; color: white; padding: 4px 12px; border-radius: 6px; font-weight: bold;">
-                        Total: £${categoryTotal.toFixed(2)}
-                    </div>
-                </div>
-                ${filterHtml}
-                <div style="margin-bottom: 16px;">${listHtml}</div>
-                <button id="closeMonthlyBtn" style="width: 100%; padding: 10px; background: #374151; color: white; border: none; border-radius: 8px; cursor: pointer;">Close</button>
-            </div>
-        `;
-
-        // Handle category tab clicks
-        modal.querySelectorAll('.cat-filter-btn').forEach(btn => {
-            btn.onclick = () => {
-                selectedCategory = btn.getAttribute('data-cat');
-                renderContent();
-            };
-        });
-
-        // Handle close button
-        modal.querySelector('#closeMonthlyBtn').onclick = () => modal.remove();
-
-        // Render Lucide icons
-        if (window.lucide) {
-            lucide.createIcons();
-        }
-    }
-function openMonthlyOverview() {
-    let selectedCategory = 'All';
-
-    // Create modal element first so it's always available
-function openMonthlyOverview() {
-    let selectedCategory = 'All';
-
-    const modal = document.createElement('div');
-    modal.id = 'monthlyOverviewModal';
-    modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000;';
-    
-    modal.onclick = (e) => {
-        if (e.target === modal) modal.remove();
+    const spendingCategories = {
+        'Food': { name: 'Food', color: 'bg-emerald-600', icon: 'utensils' },
+        'General': { name: 'General', color: 'bg-slate-600', icon: 'wallet' },
+        'Transport': { name: 'Transport', color: 'bg-amber-600', icon: 'bus' },
+        'Bills': { name: 'Bills', color: 'bg-rose-600', icon: 'file-text' }
     };
 
-    function renderContent() {
-        const year = currentYear;
-        const month = currentMonth;
-        const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
-        const monthTransactions = transactions[monthKey] || [];
-
-        const catMap = typeof spendingCategories !== 'undefined' ? spendingCategories : (typeof categories !== 'undefined' ? categories : {});
-
-        const presentCategories = ['All', ...new Set(monthTransactions.map(t => t.category).filter(Boolean))];
-
-        const filteredTransactions = selectedCategory === 'All' 
-            ? monthTransactions 
-            : monthTransactions.filter(t => t.category === selectedCategory);
-
-        const categoryTotal = filteredTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
-
-        const filterHtml = `
-            <div style="display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;">
-                ${presentCategories.map(catKey => {
-                    const isActive = catKey === selectedCategory;
-                    const catInfo = catMap[catKey];
-                    const label = catKey === 'All' ? 'All' : (catInfo ? (catInfo.name || catKey) : catKey);
-                    const iconHtml = catInfo && catInfo.icon ? `<i data-lucide="${catInfo.icon}"></i> ` : '';
-                    
-                    return `
-                        <button class="cat-filter-btn" data-cat="${catKey}" style="
-                            padding: 6px 12px;
-                            border-radius: 20px;
-                            border: 1px solid ${isActive ? '#3b82f6' : '#374151'};
-                            background: ${isActive ? '#1d4ed8' : '#1f2937'};
-                            color: #ffffff;
-                            cursor: pointer;
-                            font-size: 13px;
-                            display: flex;
-                            align-items: center;
-                            gap: 6px;
-                            white-space: nowrap;
-                        ">${iconHtml}${label}</button>
-                    `;
-                }).join('')}
-            </div>
-        `;
-
-        let listHtml = '';
-        if (filteredTransactions.length === 0) {
-            listHtml = '<div style="text-align: center; color: #9ca3af; padding: 20px;">No transactions found.</div>';
-        } else {
-            listHtml = filteredTransactions.map(t => {
-                const catInfo = catMap[t.category];
-                const badgeColor = catInfo ? (catInfo.color || 'bg-slate-600') : 'bg-slate-600';
-                const badgeName = catInfo ? (catInfo.name || t.category) : (t.category || 'General');
-                const badgeIcon = catInfo && catInfo.icon ? `<i data-lucide="${catInfo.icon}"></i>` : '';
-
-                return `
-                    <div style="background: #1f2937; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
-                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 6px;">
-                            <span>£${parseFloat(t.amount).toFixed(2)}</span>
-                            <span style="font-size: 12px; color: #9ca3af;">${t.time || ''}</span>
-                        </div>
-                        <div style="display: flex; gap: 8px; align-items: center;">
-                            <span class="category-badge ${badgeColor}">${badgeIcon} ${badgeName}</span>
-                            <span style="color: #d1d5db; font-size: 14px;">${t.notes || ''}</span>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        modal.innerHTML = `
-            <div style="background: #111827; padding: 20px; border-radius: 12px; max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto; color: white;">
-                <div style="text-align: center; margin-bottom: 12px;">
-                    <h3 style="margin: 0 0 8px 0;">${new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
-                    <div style="display: inline-block; background: #10b981; color: white; padding: 4px 12px; border-radius: 6px; font-weight: bold;">
-                        Total: £${categoryTotal.toFixed(2)}
-                    </div>
-                </div>
-                ${filterHtml}
-                <div style="margin-bottom: 16px;">${listHtml}</div>
-                <button id="closeMonthlyBtn" style="width: 100%; padding: 10px; background: #374151; color: white; border: none; border-radius: 8px; cursor: pointer;">Close</button>
-            </div>
-        `;
-
-        modal.querySelectorAll('.cat-filter-btn').forEach(btn => {
-            btn.onclick = () => {
-                selectedCategory = btn.getAttribute('data-cat');
-                renderContent();
-            };
-        });
-
-        modal.querySelector('#closeMonthlyBtn').onclick = () => modal.remove();
-
-        if (window.lucide) {
-            lucide.createIcons();
+    function loadData() {
+        const saved = localStorage.getItem('daily_spends_data');
+        if (saved) {
+            try { transactions = JSON.parse(saved); } catch(e) { transactions = {}; }
         }
     }
 
-    document.body.appendChild(modal);
-    renderContent();
-}
-document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
-document.getElementById('amountInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); addSpending(); } });
-document.getElementById('notesInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); addSpending(); } });
+    function saveData() {
+        localStorage.setItem('daily_spends_data', JSON.stringify(transactions));
+    }
 
-loadData();
-updateDisplay();
-buildCalendar();
-lucide.createIcons();
-}    
+    function updateDisplay() {
+        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+        document.getElementById('monthYearDisplay').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        
+        const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+        const monthTransactions = transactions[monthKey] || [];
+        const total = monthTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+        document.getElementById('monthTotal').textContent = `Total: £${total.toFixed(2)}`;
+    }
+
+    function navigateMonth(direction) {
+        currentMonth += direction;
+        if (currentMonth < 0) {
+            currentMonth = 11;
+            currentYear--;
+        } else if (currentMonth > 11) {
+            currentMonth = 0;
+            currentYear++;
+        }
+        updateDisplay();
+        buildCalendar();
+    }
+
+    function buildCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        grid.innerHTML = '';
+
+        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+        const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+
+        for (let i = 0; i < firstDay; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = 'calendar-day empty';
+            grid.appendChild(emptyCell);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const cell = document.createElement('div');
+            cell.className = 'calendar-day';
+            const dateStr = `${monthKey}-${String(day).padStart(2, '0')}`;
+            
+            const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === dateStr);
+            const dayTotal = dayTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+
+            cell.innerHTML = `
+                <span class="day-number">${day}</span>
+                ${dayTotal > 0 ? `<span class="day-total">£${dayTotal.toFixed(2)}</span>` : ''}
+            `;
+
+            cell.onclick = () => openDayModal(dateStr);
+            grid.appendChild(cell);
+        }
+    }
+
+    function openDayModal(dateStr) {
+        selectedDate = dateStr;
+        document.getElementById('modalDateTitle').textContent = dateStr;
+        document.getElementById('amountInput').value = '';
+        document.getElementById('notesInput').value = '';
+        document.getElementById('modal').style.display = 'flex';
+        renderDayTransactions();
+    }
+
+    function closeModal() {
+        document.getElementById('modal').style.display = 'none';
+    }
+
+    function renderDayTransactions() {
+        const monthKey = selectedDate.substring(0, 7);
+        const dayList = document.getElementById('dayTransactionsList');
+        const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+
+        if (dayTransactions.length === 0) {
+            dayList.innerHTML = '<div style="color: #9ca3af; text-align: center; padding: 10px;">No spending recorded.</div>';
+            return;
+        }
+
+        dayList.innerHTML = dayTransactions.map((t, idx) => `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: #1f2937; padding: 8px; border-radius: 6px; margin-bottom: 6px;">
+                <div>
+                    <strong>£${parseFloat(t.amount).toFixed(2)}</strong> - ${t.category || 'General'}
+                    <div style="font-size: 12px; color: #9ca3af;">${t.notes || ''}</div>
+                </div>
+                <button onclick="deleteTransaction(${idx})" style="background: transparent; border: none; color: #ef4444; cursor: pointer;">✕</button>
+            </div>
+        `).join('');
+    }
+
+    function addSpending() {
+        const amount = document.getElementById('amountInput').value;
+        const notes = document.getElementById('notesInput').value;
+        const category = document.getElementById('categorySelect') ? document.getElementById('categorySelect').value : 'General';
+
+        if (!amount || isNaN(amount)) return;
+
+        const monthKey = selectedDate.substring(0, 7);
+        if (!transactions[monthKey]) transactions[monthKey] = [];
+
+        transactions[monthKey].push({
+            id: Date.now(),
+            date: selectedDate,
+            amount: parseFloat(amount),
+            notes: notes,
+            category: category,
+            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+
+        saveData();
+        renderDayTransactions();
+        updateDisplay();
+        buildCalendar();
+
+        document.getElementById('amountInput').value = '';
+        document.getElementById('notesInput').value = '';
+    }
+
+    function deleteTransaction(index) {
+        const monthKey = selectedDate.substring(0, 7);
+        const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+        const target = dayTransactions[index];
+
+        if (target) {
+            transactions[monthKey] = transactions[monthKey].filter(t => t.id !== target.id);
+            saveData();
+            renderDayTransactions();
+            updateDisplay();
+            buildCalendar();
+        }
+    }
+
+    function openMonthlyOverview() {
+        let selectedCategory = 'All';
+
+        const modal = document.createElement('div');
+        modal.id = 'monthlyOverviewModal';
+        modal.style.cssText = 'position: fixed; inset: 0; background: rgba(0,0,0,0.7); display: flex; align-items: center; justify-content: center; z-index: 1000;';
+        
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.remove();
+        };
+
+        function renderContent() {
+            const year = currentYear;
+            const month = currentMonth;
+            const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+            const monthTransactions = transactions[monthKey] || [];
+
+            const catMap = typeof spendingCategories !== 'undefined' ? spendingCategories : {};
+            const presentCategories = ['All', ...new Set(monthTransactions.map(t => t.category).filter(Boolean))];
+
+            const filteredTransactions = selectedCategory === 'All' 
+                ? monthTransactions 
+                : monthTransactions.filter(t => t.category === selectedCategory);
+
+            const categoryTotal = filteredTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+
+            const filterHtml = `
+                <div style="display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;">
+                    ${presentCategories.map(catKey => {
+                        const isActive = catKey === selectedCategory;
+                        const catInfo = catMap[catKey];
+                        const label = catKey === 'All' ? 'All' : (catInfo ? (catInfo.name || catKey) : catKey);
+                        const iconHtml = catInfo && catInfo.icon ? `<i data-lucide="${catInfo.icon}"></i> ` : '';
+                        
+                        return `
+                            <button class="cat-filter-btn" data-cat="${catKey}" style="
+                                padding: 6px 12px;
+                                border-radius: 20px;
+                                border: 1px solid ${isActive ? '#3b82f6' : '#374151'};
+                                background: ${isActive ? '#1d4ed8' : '#1f2937'};
+                                color: #ffffff;
+                                cursor: pointer;
+                                font-size: 13px;
+                                display: flex;
+                                align-items: center;
+                                gap: 6px;
+                                white-space: nowrap;
+                            ">${iconHtml}${label}</button>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+
+            let listHtml = '';
+            if (filteredTransactions.length === 0) {
+                listHtml = '<div style="text-align: center; color: #9ca3af; padding: 20px;">No transactions found.</div>';
+            } else {
+                listHtml = filteredTransactions.map(t => {
+                    const catInfo = catMap[t.category];
+                    const badgeColor = catInfo ? (catInfo.color || 'bg-slate-600') : 'bg-slate-600';
+                    const badgeName = catInfo ? (catInfo.name || t.category) : (t.category || 'General');
+                    const badgeIcon = catInfo && catInfo.icon ? `<i data-lucide="${catInfo.icon}"></i>` : '';
+
+                    return `
+                        <div style="background: #1f2937; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                            <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 6px;">
+                                <span>£${parseFloat(t.amount).toFixed(2)}</span>
+                                <span style="font-size: 12px; color: #9ca3af;">${t.time || ''}</span>
+                            </div>
+                            <div style="display: flex; gap: 8px; align-items: center;">
+                                <span class="category-badge ${badgeColor}">${badgeIcon} ${badgeName}</span>
+                                <span style="color: #d1d5db; font-size: 14px;">${t.notes || ''}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            modal.innerHTML = `
+                <div style="background: #111827; padding: 20px; border-radius: 12px; max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto; color: white;">
+                    <div style="text-align: center; margin-bottom: 12px;">
+                        <h3 style="margin: 0 0 8px 0;">${new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
+                        <div style="display: inline-block; background: #10b981; color: white; padding: 4px 12px; border-radius: 6px; font-weight: bold;">
+                            Total: £${categoryTotal.toFixed(2)}
+                        </div>
+                    </div>
+                    ${filterHtml}
+                    <div style="margin-bottom: 16px;">${listHtml}</div>
+                    <button id="closeMonthlyBtn" style="width: 100%; padding: 10px; background: #374151; color: white; border: none; border-radius: 8px; cursor: pointer;">Close</button>
+                </div>
+            `;
+
+            modal.querySelectorAll('.cat-filter-btn').forEach(btn => {
+                btn.onclick = () => {
+                    selectedCategory = btn.getAttribute('data-cat');
+                    renderContent();
+                };
+            });
+
+            modal.querySelector('#closeMonthlyBtn').onclick = () => modal.remove();
+
+            if (window.lucide) {
+                lucide.createIcons();
+            }
+        }
+
+        document.body.appendChild(modal);
+        renderContent();
+    }
+
+    function showHelp() {
+        alert("Click any day cell on the calendar grid to log spending or view daily items. Click the total amount badge at the top to view category breakdowns.");
+    }
+
+    document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
+    document.getElementById('nextBtn').onclick = () => navigateMonth(1);
+    document.getElementById('addBtn').onclick = addSpending;
+    document.getElementById('closeBtn').onclick = closeModal;
+    document.getElementById('helpBtn').onclick = showHelp;
+    document.getElementById('monthTotal').onclick = () => openMonthlyOverview();
+    document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
+
+    loadData();
+    updateDisplay();
+    buildCalendar();
+    if (window.lucide) lucide.createIcons();
 </script>
 </body>
 </html>
