@@ -395,6 +395,12 @@ function openTransactionDetails() {
         itemHeader.style.cssText = 'display: flex; justify-content: space-between; margin-bottom: 4px;';
         itemHeader.innerHTML = `<div style="color: #34d399; font-weight: bold; font-size: 10px;">£${t.amount.toFixed(2)}</div><div style="font-size: 11px; color: #9ca3af;">${t.time || '--:--'}</div>`;
         item.appendChild(itemHeader);
+        const catKey = t.category || 'General';
+const cat = spendingCategories[catKey] || spendingCategories['General'];
+
+const badge = document.createElement('div');
+badge.innerHTML = `<span class="category-badge ${cat.color}"><i data-lucide="${cat.icon}"></i> ${cat.name}</span>`;
+item.appendChild(badge);
         if (t.notes) {
             const notes = document.createElement('div');
             notes.style.cssText = 'font-size: 10px; color: #d1d5db; margin-bottom: 6px; font-style: italic;';
@@ -424,6 +430,7 @@ function openTransactionDetails() {
     content.appendChild(closeBtn);
     modal.appendChild(content);
     modal.onclick = (e) => { if (e.target === modal) closeTransactionDetails(); };
+    if (window.lucide) lucide.createIcons();
     document.body.appendChild(modal);
 }
 
