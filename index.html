@@ -659,14 +659,6 @@ function openMonthlyOverview() {
     renderContent();
 }
 
-
-}
-
-function closeMonthlyOverview() {
-    const modal = document.getElementById('monthlyOverviewModal');
-    if (modal) modal.remove();
-}
-
 document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
 document.getElementById('nextBtn').onclick = () => navigateMonth(1);
 document.getElementById('addBtn').onclick = addSpending;
