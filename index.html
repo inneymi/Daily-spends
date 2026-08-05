@@ -6,14 +6,14 @@
     <title>Daily Spends</title>
     <style>
         /* Glowing outline and shadow for today's calendar cell */
-.day-cell.today {
+.day.today {
   position: relative;
   border: 1px solid #3b82f6 !important;
   box-shadow: 0 0 10px rgba(59, 130, 246, 0.4), inset 0 0 6px rgba(59, 130, 246, 0.2);
 }
 
 /* Glowing dot in the top corner of today's cell */
-.day-cell.today::after {
+.day.today::after {
   content: '';
   position: absolute;
   top: 6px;
