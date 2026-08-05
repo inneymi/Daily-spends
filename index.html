@@ -238,7 +238,7 @@ input[type="number"] {
     const monthEl = document.getElementById('monthYearDisplay') || document.getElementById('currentMonth') || document.querySelector('h2');
     if (monthEl) {
         monthEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-    }
+    
     
     const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
     const monthTransactions = transactions[monthKey] || [];
@@ -248,7 +248,7 @@ input[type="number"] {
     if (totalEl) {
         totalEl.textContent = `Total: £${total.toFixed(2)}`;
 
-
+   }
     function navigateMonth(direction) {
         currentMonth += direction;
         if (currentMonth < 0) {
@@ -259,6 +259,7 @@ input[type="number"] {
             currentYear++;
         }
         updateDisplay();
+
         buildCalendar();
     }
 
