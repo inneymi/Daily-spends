@@ -5,6 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daily Spends</title>
     <style>
+        /* Remove up/down spinners from number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #111827; color: #f9fafb; min-height: 100vh; padding: 16px; }
         .container { max-width: 360px; margin: 0 auto; background: #1f2937; border-radius: 16px; padding: 12px; }
@@ -54,16 +64,6 @@
         .btn-close:hover { background: #4b5563; }
         .error-message { color: #f87171; font-size: 12px; margin-top: 4px; text-align: center; display: none; }
     </style>
-    /* Remove up/down spinners from number inputs */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
-}
 </head>
 <body>
     <div class="container">
