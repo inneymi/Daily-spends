@@ -54,6 +54,16 @@
         .btn-close:hover { background: #4b5563; }
         .error-message { color: #f87171; font-size: 12px; margin-top: 4px; text-align: center; display: none; }
     </style>
+    /* Remove up/down spinners from number inputs */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type="number"] {
+  -moz-appearance: textfield;
+}
 </head>
 <body>
     <div class="container">
