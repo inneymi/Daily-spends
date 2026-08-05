@@ -79,22 +79,26 @@ input[type="number"] {
   gap: 6px;
 }
 .pill-btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
+  gap: 4px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #94a3b8;
-  padding: 8px 12px;
+  padding: 6px 4px;
   border-radius: 6px;
+  font-size: 11px;
+  white-space: nowrap;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .pill-btn svg,
 .pill-btn [data-lucide] {
-  width: 16px !important;
-  height: 16px !important;
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px;
   stroke-width: 2;
 }
 .pill-btn.active {
@@ -138,12 +142,12 @@ input[type="number"] {
          <div class="category-pills-container">
   <div class="category-pills-container">
   <div class="category-pills" id="categoryPills">
-    <button type="button" class="pill-btn active" data-category="General"><i data-lucide="tag"></i> General</button>
-    <button type="button" class="pill-btn" data-category="Food"><i data-lucide="utensils"></i> Food</button>
-    <button type="button" class="pill-btn" data-category="Transport"><i data-lucide="car"></i> Transport</button>
-    <button type="button" class="pill-btn" data-category="Bills"><i data-lucide="receipt"></i> Bills</button>
-    <button type="button" class="pill-btn" data-category="Shopping"><i data-lucide="shopping-bag"></i> Shopping</button>
-    <button type="button" class="pill-btn" data-category="Fun"><i data-lucide="smile"></i> Fun</button>
+ <button type="button" class="pill-btn active" data-category="General"><i data-lucide="tag"></i> General</button>
+<button type="button" class="pill-btn" data-category="Food"><i data-lucide="utensils"></i> Food</button>
+<button type="button" class="pill-btn" data-category="Transport"><i data-lucide="car"></i> Transport</button>
+<button type="button" class="pill-btn" data-category="Bills"><i data-lucide="receipt"></i> Bills</button>
+<button type="button" class="pill-btn" data-category="Shopping"><i data-lucide="shopping-bag"></i> Shopping</button>
+<button type="button" class="pill-btn" data-category="Fun"><i data-lucide="smile"></i> Fun</button>
   </div>
   <input type="hidden" id="categoryInput" value="General">
 </div>
