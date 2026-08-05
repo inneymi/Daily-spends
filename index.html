@@ -425,7 +425,7 @@ function openTransactionDetails() {
 const cat = spendingCategories[catKey] || spendingCategories['General'];
 
 const badge = document.createElement('div');
-badge.innerHTML = `<span class="category-badge ${cat.color}"><i data-lucide="${cat.icon}"></i> ${cat.name}</span>`;
+badge.innerHTML = `<span class="category-badge"><i data-lucide="${cat.icon}"></i> ${cat.name}</span>`;
 item.appendChild(badge);
         if (t.notes) {
             const notes = document.createElement('div');
@@ -456,8 +456,9 @@ item.appendChild(badge);
     content.appendChild(closeBtn);
     modal.appendChild(content);
     modal.onclick = (e) => { if (e.target === modal) closeTransactionDetails(); };
-    if (window.lucide) lucide.createIcons();
     document.body.appendChild(modal);
+    if (window.lucide) {
+        lucide.createIcons();
 }
 
 function showError(msg) {
