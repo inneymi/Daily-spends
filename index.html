@@ -232,15 +232,23 @@ input[type="number"] {
         localStorage.setItem('daily_spends_data', JSON.stringify(transactions));
     }
 
-    function updateDisplay() {
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        const monthDisplayEl = document.getElementById('monthYearDisplay') || document.querySelector('.month-year') || document.querySelector('h2') || document.querySelector('div');
-if (monthDisplayEl) monthDisplayEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-        
-        const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-        const monthTransactions = transactions[monthKey] || [];
-        const total = monthTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
-        document.getElementById('monthTotal').textContent = `Total: £${total.toFixed(2)}`;
+   function updateDisplay() {
+    const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    
+    const monthEl = document.getElementById('monthYearDisplay') || document.getElementById('currentMonth') || document.querySelector('h2');
+    if (monthEl) {
+        monthEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    }
+    
+    const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+    const monthTransactions = transactions[monthKey] || [];
+    const total = monthTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+    
+    const totalEl = document.getElementById('monthTotal') || document.querySelector('.total-badge');
+    if (totalEl) {
+        totalEl.textContent = `Total: £${total.toFixed(2)}`;
+    }
+}
     }
 
     function navigateMonth(direction) {
