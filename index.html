@@ -108,6 +108,19 @@ input[type="number"] {
     </div>
 
 <script>
+    // Spending Categories Setup
+const spendingCategories = {
+  General: { name: 'General', color: 'bg-slate-600', icon: 'tag' },
+  Food: { name: 'Food', color: 'bg-emerald-600', icon: 'utensils' },
+  Transport: { name: 'Transport', color: 'bg-blue-600', icon: 'car' },
+  Bills: { name: 'Bills', color: 'bg-amber-600', icon: 'receipt' },
+  Shopping: { name: 'Shopping', color: 'bg-purple-600', icon: 'shopping-bag' },
+  Fun: { name: 'Fun', color: 'bg-rose-600', icon: 'smile' }
+};
+
+function getCategory(categoryName) {
+  return spendingCategories[categoryName] || spendingCategories.General;
+}
 let spendingData = {};
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
