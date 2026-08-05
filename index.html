@@ -337,7 +337,9 @@ function buildCalendar() {
                 currentMonth === today.getMonth() && 
                 currentYear === today.getFullYear();
 
-dayEl.className = isToday ? 'day day-cell today' : 'day day-cell';
+dayEl.className = isToday ? 'day today' : 'day';
+        
+        const amount = getDayTotal(day);
         if (amount > 0) dayEl.className += ' has-spending';
         dayEl.innerHTML = `<div class="day-number">${day}</div>` + (amount > 0 ? `<div class="day-amount">£${amount.toFixed(2)}</div>` : '<div class="plus-icon">+</div>');
         dayEl.onclick = () => openModal(day);
