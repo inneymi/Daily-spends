@@ -546,8 +546,8 @@ function openMonthlyOverview() {
     let selectedCategory = 'All';
 
     function renderContent() {
-        const year = currentDate.getFullYear();
-        const month = currentDate.getMonth();
+        const year = currentYear.getFullYear();
+        const month = currentMonth.getMonth();
         const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
         const monthTransactions = transactions[monthKey] || [];
 
@@ -646,6 +646,12 @@ function openMonthlyOverview() {
             lucide.createIcons();
         }
     }
+function openMonthlyOverview() {
+    let selectedCategory = 'All';
+
+    // Create modal element first so it's always available
+function openMonthlyOverview() {
+    let selectedCategory = 'All';
 
     const modal = document.createElement('div');
     modal.id = 'monthlyOverviewModal';
@@ -655,16 +661,105 @@ function openMonthlyOverview() {
         if (e.target === modal) modal.remove();
     };
 
+    function renderContent() {
+        const year = currentYear;
+        const month = currentMonth;
+        const monthKey = `${year}-${String(month + 1).padStart(2, '0')}`;
+        const monthTransactions = transactions[monthKey] || [];
+
+        const catMap = typeof spendingCategories !== 'undefined' ? spendingCategories : (typeof categories !== 'undefined' ? categories : {});
+
+        const presentCategories = ['All', ...new Set(monthTransactions.map(t => t.category).filter(Boolean))];
+
+        const filteredTransactions = selectedCategory === 'All' 
+            ? monthTransactions 
+            : monthTransactions.filter(t => t.category === selectedCategory);
+
+        const categoryTotal = filteredTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+
+        const filterHtml = `
+            <div style="display: flex; gap: 8px; margin-bottom: 16px; overflow-x: auto; padding-bottom: 4px;">
+                ${presentCategories.map(catKey => {
+                    const isActive = catKey === selectedCategory;
+                    const catInfo = catMap[catKey];
+                    const label = catKey === 'All' ? 'All' : (catInfo ? (catInfo.name || catKey) : catKey);
+                    const iconHtml = catInfo && catInfo.icon ? `<i data-lucide="${catInfo.icon}"></i> ` : '';
+                    
+                    return `
+                        <button class="cat-filter-btn" data-cat="${catKey}" style="
+                            padding: 6px 12px;
+                            border-radius: 20px;
+                            border: 1px solid ${isActive ? '#3b82f6' : '#374151'};
+                            background: ${isActive ? '#1d4ed8' : '#1f2937'};
+                            color: #ffffff;
+                            cursor: pointer;
+                            font-size: 13px;
+                            display: flex;
+                            align-items: center;
+                            gap: 6px;
+                            white-space: nowrap;
+                        ">${iconHtml}${label}</button>
+                    `;
+                }).join('')}
+            </div>
+        `;
+
+        let listHtml = '';
+        if (filteredTransactions.length === 0) {
+            listHtml = '<div style="text-align: center; color: #9ca3af; padding: 20px;">No transactions found.</div>';
+        } else {
+            listHtml = filteredTransactions.map(t => {
+                const catInfo = catMap[t.category];
+                const badgeColor = catInfo ? (catInfo.color || 'bg-slate-600') : 'bg-slate-600';
+                const badgeName = catInfo ? (catInfo.name || t.category) : (t.category || 'General');
+                const badgeIcon = catInfo && catInfo.icon ? `<i data-lucide="${catInfo.icon}"></i>` : '';
+
+                return `
+                    <div style="background: #1f2937; padding: 12px; border-radius: 8px; margin-bottom: 8px;">
+                        <div style="display: flex; justify-content: space-between; font-weight: bold; margin-bottom: 6px;">
+                            <span>£${parseFloat(t.amount).toFixed(2)}</span>
+                            <span style="font-size: 12px; color: #9ca3af;">${t.time || ''}</span>
+                        </div>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span class="category-badge ${badgeColor}">${badgeIcon} ${badgeName}</span>
+                            <span style="color: #d1d5db; font-size: 14px;">${t.notes || ''}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        modal.innerHTML = `
+            <div style="background: #111827; padding: 20px; border-radius: 12px; max-width: 400px; width: 90%; max-height: 80vh; overflow-y: auto; color: white;">
+                <div style="text-align: center; margin-bottom: 12px;">
+                    <h3 style="margin: 0 0 8px 0;">${new Date(year, month).toLocaleString('default', { month: 'long', year: 'numeric' })}</h3>
+                    <div style="display: inline-block; background: #10b981; color: white; padding: 4px 12px; border-radius: 6px; font-weight: bold;">
+                        Total: £${categoryTotal.toFixed(2)}
+                    </div>
+                </div>
+                ${filterHtml}
+                <div style="margin-bottom: 16px;">${listHtml}</div>
+                <button id="closeMonthlyBtn" style="width: 100%; padding: 10px; background: #374151; color: white; border: none; border-radius: 8px; cursor: pointer;">Close</button>
+            </div>
+        `;
+
+        modal.querySelectorAll('.cat-filter-btn').forEach(btn => {
+            btn.onclick = () => {
+                selectedCategory = btn.getAttribute('data-cat');
+                renderContent();
+            };
+        });
+
+        modal.querySelector('#closeMonthlyBtn').onclick = () => modal.remove();
+
+        if (window.lucide) {
+            lucide.createIcons();
+        }
+    }
+
     document.body.appendChild(modal);
     renderContent();
 }
-
-document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
-document.getElementById('nextBtn').onclick = () => navigateMonth(1);
-document.getElementById('addBtn').onclick = addSpending;
-document.getElementById('closeBtn').onclick = closeModal;
-document.getElementById('helpBtn').onclick = showHelp;
-document.getElementById('monthTotal').onclick = () => openMonthlyOverview();
 document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
 document.getElementById('amountInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); addSpending(); } });
 document.getElementById('notesInput').addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); addSpending(); } });
