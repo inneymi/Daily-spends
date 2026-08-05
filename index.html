@@ -234,7 +234,7 @@ input[type="number"] {
 
     function updateDisplay() {
         const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        document.getElementById('monthYearDisplay').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+        document.getElementById('yourActualHtmlElementId').textContent = `${monthNames[currentMonth]} ${currentYear}`;
         
         const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
         const monthTransactions = transactions[monthKey] || [];
