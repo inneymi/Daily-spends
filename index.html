@@ -387,8 +387,25 @@ input[type="number"] {
         }
     }
 
-    function showHelp() {
-        alert("Click any day cell on the calendar grid to log spending or view daily items.");
+   function showHelp() {
+        const helpModal = document.getElementById('helpModal');
+        if (helpModal) helpModal.style.display = 'flex';
+    }
+
+    function closeHelp() {
+        const helpModal = document.getElementById('helpModal');
+        if (helpModal) helpModal.style.display = 'none';
+    }
+
+    // Attach listener to the help close button and background click
+    const helpCloseBtn = document.getElementById('helpCloseBtn');
+    if (helpCloseBtn) helpCloseBtn.onclick = closeHelp;
+
+    const helpModal = document.getElementById('helpModal');
+    if (helpModal) {
+        helpModal.onclick = function(e) {
+            if (e.target === this) closeHelp();
+        };
     }
 
     document.querySelectorAll('.pill-btn').forEach(btn => {
