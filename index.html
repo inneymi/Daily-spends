@@ -348,7 +348,9 @@ input[type="number"] {
         if (!amount || isNaN(amount)) return;
 
         const monthKey = selectedDate.substring(0, 7);
-        if (!transactions[monthKey]) transactions[monthKey] = [];
+       if (!transactions[monthKey]) {
+    transactions[monthKey] = [];
+}
 
         transactions[monthKey].push({
             id: Date.now(),
