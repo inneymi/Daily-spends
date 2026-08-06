@@ -272,13 +272,13 @@ function updateDisplay() {
 
         for (let i = 0; i < firstDay; i++) {
             const emptyCell = document.createElement('div');
-            emptyCell.className = 'calendar-day empty';
+            emptyCell.className = 'day empty-day';
             grid.appendChild(emptyCell);
         }
 
         for (let day = 1; day <= daysInMonth; day++) {
             const cell = document.createElement('div');
-            cell.className = 'calendar-day';
+            cell.className = 'day';
             const dateStr = `${monthKey}-${String(day).padStart(2, '0')}`;
             
             const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === dateStr);
@@ -286,7 +286,7 @@ function updateDisplay() {
 
             cell.innerHTML = `
                 <span class="day-number">${day}</span>
-                ${dayTotal > 0 ? `<span class="day-total">£${dayTotal.toFixed(2)}</span>` : ''}
+                ${dayTotal > 0 ? `<span class="day-amount">£${dayTotal.toFixed(2)}</span>` : '<span class="plus-icon">+</span>'}
             `;
 
             cell.onclick = () => openDayModal(dateStr);
