@@ -263,12 +263,13 @@ function updateDisplay() {
     
 
     function buildCalendar() {
-        const grid = document.getElementById('daysGrid');
-        grid.innerHTML = '';
-
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+    const grid = document.getElementById('daysGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
         for (let i = 0; i < firstDay; i++) {
             const emptyCell = document.createElement('div');
