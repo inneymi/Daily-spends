@@ -325,13 +325,21 @@ input[type="number"] {
         const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
         const dayTotal = dayTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
 
-        const modalTotalEl = document.querySelector('#modal #monthTotal') || document.querySelector('#modal .total-badge');
+        const modalTotalEl = document.querySelector('.modal-content #monthTotal') || document.querySelector('.modal #monthTotal') || document.querySelector('#modal .total-badge');
         if (modalTotalEl) modalTotalEl.textContent = `Total: £${dayTotal.toFixed(2)}`;
 
         if (dayTransactions.length === 0) {
             container.innerHTML = '<div id="summaryText">No transactions yet</div>';
             return;
         }
+
+        container.innerHTML = dayTransactions.map(t => `
+            <div class="transaction-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px;">
+                <span><strong>${t.category}</strong>: £${parseFloat(t.amount).toFixed(2)} ${t.notes ? '(' + t.notes + ')' : ''}</span>
+                <button onclick="deleteTransaction(${t.id})" style="background:none; border:none; color:#f87171; cursor:pointer;">×</button>
+            </div>
+        `).join('');
+    }
 
         container.innerHTML = dayTransactions.map(t => `
             <div class="transaction-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px;">
