@@ -300,11 +300,11 @@ input[type="number"] {
         document.getElementById('modalDate').textContent = dateStr;
         document.getElementById('amountInput').value = '';
         document.getElementById('notesInput').value = '';
-        document.getElementById('modal').style.display = 'flex';
+        document.getElementById('modal').classList.add('show');
     }
 
     function closeModal() {
-        document.getElementById('modal').style.display = 'none';
+        document.getElementById('modal').classList.remove('show');
     }
 
     function addSpending() {
