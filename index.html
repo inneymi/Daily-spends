@@ -341,14 +341,6 @@ input[type="number"] {
         `).join('');
     }
 
-        container.innerHTML = dayTransactions.map(t => `
-            <div class="transaction-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px;">
-                <span><strong>${t.category}</strong>: £${parseFloat(t.amount).toFixed(2)} ${t.notes ? '(' + t.notes + ')' : ''}</span>
-                <button onclick="deleteTransaction(${t.id})" style="background:none; border:none; color:#f87171; cursor:pointer;">×</button>
-            </div>
-        `).join('');
-    }
-
     function addSpending() {
         const amount = document.getElementById('amountInput').value;
         const notes = document.getElementById('notesInput').value;
