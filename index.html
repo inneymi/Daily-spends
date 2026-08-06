@@ -208,17 +208,11 @@ input[type="number"] {
     </div>
 
 <script>
-    let currentYear = new Date().getFullYear();
+   let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
     let selectedDate = null;
     let transactions = {};
-
-    const spendingCategories = {
-        'Food': { name: 'Food', color: 'bg-emerald-600', icon: 'utensils' },
-        'General': { name: 'General', color: 'bg-slate-600', icon: 'wallet' },
-        'Transport': { name: 'Transport', color: 'bg-amber-600', icon: 'bus' },
-        'Bills': { name: 'Bills', color: 'bg-rose-600', icon: 'file-text' }
-    };
+    let selectedCategory = 'General';
 
     function loadData() {
         const saved = localStorage.getItem('daily_spends_data');
@@ -297,9 +291,13 @@ input[type="number"] {
 
     function openDayModal(dateStr) {
         selectedDate = dateStr;
-        document.getElementById('modalDate').textContent = dateStr;
+        const [y, m, d] = dateStr.split('-');
+        document.getElementById('modalDate').textContent = `${d}/${m}/${y}`;
         document.getElementById('amountInput').value = '';
         document.getElementById('notesInput').value = '';
+        selectedCategory = 'General';
+        updateCategoryPills();
+        renderDayTransactions();
         document.getElementById('modal').classList.add('show');
     }
 
@@ -307,10 +305,45 @@ input[type="number"] {
         document.getElementById('modal').classList.remove('show');
     }
 
+    function updateCategoryPills() {
+        document.querySelectorAll('.pill-btn').forEach(btn => {
+            if (btn.getAttribute('data-category') === selectedCategory) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+        const hiddenInput = document.getElementById('categoryInput');
+        if (hiddenInput) hiddenInput.value = selectedCategory;
+    }
+
+    function renderDayTransactions() {
+        const container = document.getElementById('transactionSummary');
+        if (!container) return;
+
+        const monthKey = selectedDate.substring(0, 7);
+        const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+        const dayTotal = dayTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+
+        const modalTotalEl = document.querySelector('#modal #monthTotal') || document.querySelector('#modal .total-badge');
+        if (modalTotalEl) modalTotalEl.textContent = `Total: £${dayTotal.toFixed(2)}`;
+
+        if (dayTransactions.length === 0) {
+            container.innerHTML = '<div id="summaryText">No transactions yet</div>';
+            return;
+        }
+
+        container.innerHTML = dayTransactions.map(t => `
+            <div class="transaction-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px;">
+                <span><strong>${t.category}</strong>: £${parseFloat(t.amount).toFixed(2)} ${t.notes ? '(' + t.notes + ')' : ''}</span>
+                <button onclick="deleteTransaction(${t.id})" style="background:none; border:none; color:#f87171; cursor:pointer;">×</button>
+            </div>
+        `).join('');
+    }
+
     function addSpending() {
         const amount = document.getElementById('amountInput').value;
         const notes = document.getElementById('notesInput').value;
-        const category = document.getElementById('categoryInput') ? document.getElementById('categoryInput').value : 'General';
 
         if (!amount || isNaN(amount)) return;
 
@@ -322,19 +355,40 @@ input[type="number"] {
             date: selectedDate,
             amount: parseFloat(amount),
             notes: notes,
-            category: category,
+            category: selectedCategory,
             time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         });
 
         saveData();
         updateDisplay();
         buildCalendar();
-        closeModal();
+        renderDayTransactions();
+        
+        document.getElementById('amountInput').value = '';
+        document.getElementById('notesInput').value = '';
+    }
+
+    function deleteTransaction(id) {
+        const monthKey = selectedDate.substring(0, 7);
+        if (transactions[monthKey]) {
+            transactions[monthKey] = transactions[monthKey].filter(t => t.id !== id);
+            saveData();
+            updateDisplay();
+            buildCalendar();
+            renderDayTransactions();
+        }
     }
 
     function showHelp() {
         alert("Click any day cell on the calendar grid to log spending or view daily items.");
     }
+
+    document.querySelectorAll('.pill-btn').forEach(btn => {
+        btn.onclick = () => {
+            selectedCategory = btn.getAttribute('data-category');
+            updateCategoryPills();
+        };
+    });
 
     document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
     document.getElementById('nextBtn').onclick = () => navigateMonth(1);
