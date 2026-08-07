@@ -403,21 +403,17 @@ input[type="number"] {
         }
     }
 
-    function showHelp() {
-        const helpModal = document.getElementById('helpModal');
+   function showHelp() {
+        const helpModal = document.getElementById('help-modal');
         if (helpModal) helpModal.style.display = 'flex';
     }
 
     function closeHelp() {
-        const helpModal = document.getElementById('helpModal');
+        const helpModal = document.getElementById('help-modal');
         if (helpModal) helpModal.style.display = 'none';
     }
 
-    // Attach listeners
-    const helpCloseBtn = document.getElementById('helpCloseBtn');
-    if (helpCloseBtn) helpCloseBtn.onclick = closeHelp;
-
-    const helpModal = document.getElementById('helpModal');
+    const helpModal = document.getElementById('help-modal');
     if (helpModal) {
         helpModal.onclick = function(e) {
             if (e.target === this) closeHelp();
@@ -443,5 +439,35 @@ input[type="number"] {
     buildCalendar();
     if (window.lucide) lucide.createIcons();
 </script>
+    <script>
+    // ... all your JavaScript code stays here ...
+    loadData();
+    updateDisplay();
+    buildCalendar();
+    if (window.lucide) lucide.createIcons();
+</script>
+
+    <!-- Help Modal placed correctly at the end -->
+    <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
+        <div class="modal-content">
+            <div style="font-weight: bold; margin-bottom: 8px;">Daily Spends Help</div>
+            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">
+                <strong>Data Storage</strong><br>
+                Your data is saved in your browser.
+            </div>
+            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 12px;">
+                <strong>Managing</strong><br>
+                • Select a day<br>
+                • Enter amount<br>
+                • Add notes<br>
+                • Edit or delete
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-close" id="helpCloseBtn" onclick="closeHelp()">Got it!</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
 </body>
 </html>
