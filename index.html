@@ -175,28 +175,29 @@ input[type="number"] {
             <button class="footer-link" id="helpBtn">Help</button>
         </div>
     </div>
+
+    <!-- Main Spending Modal -->
     <div class="modal" id="modal">
         <div class="modal-content">
             <div class="modal-header">
                 <div class="modal-date" id="modalDate" style="font-size: 14px; font-weight: normal;"></div>
                 <div class="modal-total" id="modalTotal">Total: £0.00</div>
             </div>
-          <input type="number" step="0.01" class="amount-input" id="amountInput" placeholder="Amount to add (£)" style="font-size: 16px;">
-<div id="amountError" class="error-message"></div>
-         <div class="category-pills-container">
-  <div class="category-pills-container">
-  <div class="category-pills" id="categoryPills">
- <button type="button" class="pill-btn active" data-category="General"><i data-lucide="tag"></i> General</button>
-<button type="button" class="pill-btn" data-category="Food"><i data-lucide="utensils"></i> Food</button>
-<button type="button" class="pill-btn" data-category="Transport"><i data-lucide="car"></i> Transport</button>
-<button type="button" class="pill-btn" data-category="Bills"><i data-lucide="receipt"></i> Bills</button>
-<button type="button" class="pill-btn" data-category="Shopping"><i data-lucide="shopping-bag"></i> Shopping</button>
-<button type="button" class="pill-btn" data-category="Fun"><i data-lucide="smile"></i> Fun</button>
-  </div>
-  <input type="hidden" id="categoryInput" value="General">
-</div>
-<input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)" maxlength="100" style="font-size: 16px;">
-<div id="transactionSummary" class="transaction-summary">
+            <input type="number" step="0.01" class="amount-input" id="amountInput" placeholder="Amount to add (£)" style="font-size: 16px;">
+            <div id="amountError" class="error-message"></div>
+            <div class="category-pills-container">
+                <div class="category-pills" id="categoryPills">
+                    <button type="button" class="pill-btn active" data-category="General"><i data-lucide="tag"></i> General</button>
+                    <button type="button" class="pill-btn" data-category="Food"><i data-lucide="utensils"></i> Food</button>
+                    <button type="button" class="pill-btn" data-category="Transport"><i data-lucide="car"></i> Transport</button>
+                    <button type="button" class="pill-btn" data-category="Bills"><i data-lucide="receipt"></i> Bills</button>
+                    <button type="button" class="pill-btn" data-category="Shopping"><i data-lucide="shopping-bag"></i> Shopping</button>
+                    <button type="button" class="pill-btn" data-category="Fun"><i data-lucide="smile"></i> Fun</button>
+                </div>
+                <input type="hidden" id="categoryInput" value="General">
+            </div>
+            <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)" maxlength="100" style="font-size: 16px;">
+            <div id="transactionSummary" class="transaction-summary">
                 <div id="summaryText">No transactions yet</div>
                 <div id="summaryHint" style="display: none; color: #9ca3af; font-size: 10px; margin-top: 2px;">Tap to view details</div>
             </div>
@@ -207,8 +208,29 @@ input[type="number"] {
         </div>
     </div>
 
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal" onclick="if(event.target === this) closeHelp();">
+        <div class="modal-content">
+            <div style="font-weight: bold; margin-bottom: 8px;">Daily Spends Help</div>
+            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">
+                <strong>Data Storage</strong><br>
+                Your data is saved in your browser.
+            </div>
+            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 12px;">
+                <strong>Managing</strong><br>
+                • Select a day<br>
+                • Enter amount<br>
+                • Add notes<br>
+                • Edit or delete
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-close" id="helpCloseBtn" onclick="closeHelp()">Got it!</button>
+            </div>
+        </div>
+    </div>
+
 <script>
-   let currentYear = new Date().getFullYear();
+    let currentYear = new Date().getFullYear();
     let currentMonth = new Date().getMonth();
     let selectedDate = null;
     let transactions = {};
@@ -289,7 +311,7 @@ input[type="number"] {
         }
     }
 
-   function openDayModal(dateStr) {
+    function openDayModal(dateStr) {
         selectedDate = dateStr;
         const [y, m, d] = dateStr.split('-');
         document.getElementById('modalDate').textContent = `${d}/${m}/${y}`;
@@ -348,9 +370,9 @@ input[type="number"] {
         if (!amount || isNaN(amount)) return;
 
         const monthKey = selectedDate.substring(0, 7);
-       if (!transactions[monthKey]) {
-    transactions[monthKey] = [];
-}
+        if (!transactions[monthKey]) {
+            transactions[monthKey] = [];
+        }
 
         transactions[monthKey].push({
             id: Date.now(),
@@ -381,7 +403,7 @@ input[type="number"] {
         }
     }
 
-   function showHelp() {
+    function showHelp() {
         const helpModal = document.getElementById('helpModal');
         if (helpModal) helpModal.style.display = 'flex';
     }
@@ -391,7 +413,7 @@ input[type="number"] {
         if (helpModal) helpModal.style.display = 'none';
     }
 
-    // Attach listener to the help close button and background click
+    // Attach listeners
     const helpCloseBtn = document.getElementById('helpCloseBtn');
     if (helpCloseBtn) helpCloseBtn.onclick = closeHelp;
 
@@ -421,25 +443,5 @@ input[type="number"] {
     buildCalendar();
     if (window.lucide) lucide.createIcons();
 </script>
-     <div class="modal" id="helpModal" onclick="if(event.target === this) closeHelp();">
-    <div class="modal-content">
-        <div style="font-weight: bold; margin-bottom: 8px;">Daily Spends Help</div>
-        <div style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">
-            <strong>Data Storage</strong><br>
-            Your data is saved in your browser.
-        </div>
-        <div style="font-size: 11px; color: #9ca3af; margin-bottom: 12px;">
-            <strong>Managing</strong><br>
-            • Select a day<br>
-            • Enter amount<br>
-            • Add notes<br>
-            • Edit or delete
-        </div>
-        <div class="modal-buttons">
-            <button class="modal-btn btn-close" id="helpCloseBtn" onclick="closeHelp()">Got it!</button>
-        </div>
-    </div>
-</div>
-</div>
 </body>
 </html>
