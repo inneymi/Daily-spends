@@ -408,68 +408,47 @@ function renderDayTransactions() {
     }
 
     function renderDayTransactions() {
-        const container = document.getElementById('transactionSummary');
-        if (!container) return;
+    const container = document.getElementById('transactionSummary');
+    if (!container) return;
 
-        const monthKey = selectedDate.substring(0, 7);
-        const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
-        const dayTotal = dayTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+    const monthKey = selectedDate.substring(0, 7);
+    const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+    const dayTotal = dayTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+    const notesCount = dayTransactions.filter(t => t.notes && t.notes.trim() !== '').length;
 
-        const modalTotalEl = document.getElementById('modalTotal');
-        if (modalTotalEl) modalTotalEl.textContent = `Total: £${dayTotal.toFixed(2)}`;
+    // Update modal total badge
+    const modalTotalEl = document.getElementById('modalTotal');
+    if (modalTotalEl) modalTotalEl.textContent = `Total: £${dayTotal.toFixed(2)}`;
 
-        if (dayTransactions.length === 0) {
-            container.innerHTML = '<div id="summaryText">No transactions yet</div>';
-            return;
-        }
+    if (dayTransactions.length === 0) {
+        container.innerHTML = '<div id="summaryText">No transactions yet</div>';
+        return;
+    }
 
-        container.innerHTML = dayTransactions.map(t => `
-            <div class="transaction-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 13px;">
-                <span><strong>${t.category}</strong>: £${parseFloat(t.amount).toFixed(2)} ${t.notes ? '(' + t.notes + ')' : ''}</span>
-                <button onclick="deleteTransaction(${t.id})" style="background:none; border:none; color:#f87171; cursor:pointer;">×</button>
+    if (!isViewingDetails) {
+        const notesText = notesCount === 1 ? '1 with notes' : `${notesCount} with notes`;
+        container.innerHTML = `
+            <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; text-align: center; cursor: pointer;" onclick="toggleDetailsView(true)">
+                <div style="font-weight: bold; color: #34d399; font-size: 13px;">${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'} (${notesText})</div>
+                <div style="font-size: 10px; color: #9ca3af; margin-top: 2px;">Tap to view details</div>
             </div>
-        `).join('');
+        `;
+    } else {
+        container.innerHTML = dayTransactions.map(t => `
+            <div class="transaction-item" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; background: rgba(255,255,255,0.05); padding: 8px; border-radius: 6px;">
+                <div>
+                    <strong>${t.category}</strong>: £${parseFloat(t.amount).toFixed(2)}
+                    ${t.notes ? `<div style="font-size: 11px; color: #9ca3af;">${t.notes}</div>` : ''}
+                </div>
+                <button onclick="deleteTransaction('${t.id}')" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 16px;">&times;</button>
+            </div>
+        `).join('') + `
+            <div style="text-align: center; margin-top: 8px;">
+                <button onclick="toggleDetailsView(false)" style="background: none; border: none; color: #34d399; cursor: pointer; font-size: 11px;">Back to summary</button>
+            </div>
+        `;
     }
-
-    function addSpending() {
-        const amount = document.getElementById('amountInput').value;
-        const notes = document.getElementById('notesInput').value;
-
-        if (!amount || isNaN(amount)) return;
-
-        const monthKey = selectedDate.substring(0, 7);
-        if (!transactions[monthKey]) {
-            transactions[monthKey] = [];
-        }
-
-        transactions[monthKey].push({
-            id: Date.now(),
-            date: selectedDate,
-            amount: parseFloat(amount),
-            notes: notes,
-            category: selectedCategory,
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        });
-
-        saveData();
-        updateDisplay();
-        buildCalendar();
-        renderDayTransactions();
-        
-        document.getElementById('amountInput').value = '';
-        document.getElementById('notesInput').value = '';
-    }
-
-    function deleteTransaction(id) {
-        const monthKey = selectedDate.substring(0, 7);
-        if (transactions[monthKey]) {
-            transactions[monthKey] = transactions[monthKey].filter(t => t.id !== id);
-            saveData();
-            updateDisplay();
-            buildCalendar();
-            renderDayTransactions();
-        }
-    }
+}
 
    function showHelp() {
         const helpModal = document.getElementById('help-modal');
