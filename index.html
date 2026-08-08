@@ -390,7 +390,34 @@ function renderDayTransactions() {
         renderDayTransactions();
         document.getElementById('modal').classList.add('show');
     }
+    function addSpending() {
+    const amountInput = document.getElementById('amountInput');
+    const notesInput = document.getElementById('notesInput');
+    const amount = parseFloat(amountInput.value);
 
+    if (isNaN(amount) || amount <= 0) return;
+
+    const monthKey = selectedDate.substring(0, 7);
+    if (!transactions[monthKey]) {
+        transactions[monthKey] = [];
+    }
+
+    transactions[monthKey].push({
+        id: Date.now().toString(),
+        date: selectedDate,
+        amount: amount,
+        category: selectedCategory,
+        notes: notesInput.value.trim()
+    });
+
+    saveData();
+    updateDisplay();
+    buildCalendar();
+    renderDayTransactions();
+
+    amountInput.value = '';
+    notesInput.value = '';
+}
     function closeModal() {
         document.getElementById('modal').classList.remove('show');
     }
