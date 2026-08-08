@@ -501,6 +501,7 @@ function renderDayTransactions() {
     document.getElementById('closeBtn').onclick = closeModal;
     document.getElementById('helpBtn').onclick = showHelp;
     document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
+    
 let isViewingDetails = false;
     loadData();
     updateDisplay();
