@@ -418,8 +418,8 @@ function editTransaction(id) {
     function renderDayTransactions() {
     const monthKey = selectedDate.length >= 7 ? selectedDate.substring(0, 7) : '';
     const dayTransactions = (transactions[monthKey] || []).filter(t => {
-    const tDate = t.date || t.dateStr || t.day || '';
-    return tDate.includes(selectedDate) || selectedDate.includes(tDate);
+    const tDate = t.date || '';
+return tDate === selectedDate;
 });
     
     const container = document.getElementById('dayTransactionsContainer'); 
