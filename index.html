@@ -178,7 +178,7 @@ input[type="number"] {
 
     <!-- Main Spending Modal -->
     <div class="modal" id="modal">
-        <div class="modal-content">
+        <div class="modal-content" id="modalContentBox">
             <div class="modal-header">
                 <div class="modal-date" id="modalDate" style="font-size: 14px; font-weight: normal;"></div>
                 <div class="modal-total" id="modalTotal">Total: £0.00</div>
@@ -440,19 +440,13 @@ input[type="number"] {
     document.getElementById('closeBtn').onclick = closeModal;
     document.getElementById('helpBtn').onclick = showHelp;
     document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
-
+let isViewingDetails = false;
     loadData();
     updateDisplay();
     buildCalendar();
     if (window.lucide) lucide.createIcons();
 </script>
-    <script>
-    // ... all your JavaScript code stays here ...
-    loadData();
-    updateDisplay();
-    buildCalendar();
-    if (window.lucide) lucide.createIcons();
-</script> 
+    
    <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
         <div class="modal-content">
             <div style="font-weight: bold; font-size: 14px; margin-bottom: 12px; text-align: center;">Daily Spends Help</div>
