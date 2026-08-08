@@ -415,7 +415,7 @@ function renderDayTransactions() {
         const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
         const dayTotal = dayTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
 
-        const modalTotalEl = document.querySelector('.modal-content #monthTotal') || document.querySelector('.modal #monthTotal') || document.querySelector('#modal .total-badge');
+        const modalTotalEl = document.getElementById('modalTotal');
         if (modalTotalEl) modalTotalEl.textContent = `Total: £${dayTotal.toFixed(2)}`;
 
         if (dayTransactions.length === 0) {
