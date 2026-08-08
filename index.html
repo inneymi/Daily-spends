@@ -313,7 +313,10 @@ input[type="number"] {
             cell.className = 'day';
             const dateStr = `${monthKey}-${String(day).padStart(2, '0')}`;
             
-            const dayTransactions = (transactions[monthKey] || []).filter(t => t.dateStr === selectedDate);
+            const dayTransactions = (transactions[monthKey] || []).filter(t => {
+    return String(t.date).trim() === String(selectedDate).trim() || 
+           new Date(t.date).toDateString() === new Date(selectedDate).toDateString();
+});
             const dayTotal = (transactions[monthKey] || [])
     .filter(t => t.date === dateStr)
     .reduce((sum, t) => sum + Number(t.amount), 0);
