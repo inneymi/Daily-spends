@@ -242,7 +242,67 @@ input[type="number"] {
     let selectedDate = null;
     let transactions = {};
     let selectedCategory = 'General';
+let isViewingDetails = false;
 
+function toggleDetailsView(status) {
+    isViewingDetails = status;
+    if (selectedDate) {
+        renderDayTransactions();
+    }
+}
+
+function renderDayTransactions() {
+    const container = document.getElementById('transactionSummary');
+    if (!container) return;
+
+    const monthKey = selectedDate.substring(0, 7);
+    const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+    const dayTotal = dayTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+    const notesCount = dayTransactions.filter(t => t.notes && t.notes.trim() !== '').length;
+
+    // Update modal total badge
+    const modalTotalEl = document.getElementById('modalTotal');
+    if (modalTotalEl) modalTotalEl.textContent = `Total: £${dayTotal.toFixed(2)}`;
+
+    if (!isViewingDetails) {
+        // Summary View Box
+        if (dayTransactions.length === 0) {
+            container.innerHTML = '<div id="summaryText">No transactions yet</div><div id="summaryHint" style="display: none; color: #9ca3af; font-size: 10px; margin-top: 2px;">Tap to view details</div>';
+        } else {
+            container.innerHTML = `
+                <div onclick="toggleDetailsView(true)" style="cursor: pointer;">
+                    <div style="font-size: 11px; color: #34d399; font-weight: bold;">${dayTransactions.length} transaction${dayTransactions.length > 1 ? 's' : ''} (${notesCount} with notes)</div>
+                    <div style="font-size: 9px; color: #94a3b8; margin-top: 2px;">Tap to view details</div>
+                </div>
+            `;
+        }
+    } else {
+        // Detailed Transaction List View
+        let detailsHtml = `<div style="font-size: 12px; font-weight: bold; color: #f9fafb; margin-bottom: 8px;">Transactions</div>`;
+        
+        dayTransactions.forEach((t) => {
+            detailsHtml += `
+                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; margin-bottom: 8px; position: relative; text-align: left;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <span style="font-size: 12px; font-weight: bold; color: #34d399;">£${parseFloat(t.amount).toFixed(2)}</span>
+                        <span style="font-size: 9px; color: #64748b;">${t.time || ''}</span>
+                    </div>
+                    ${t.category ? `<div style="font-size: 9px; background: #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">${t.category}</div>` : ''}
+                    ${t.notes ? `<div style="font-size: 10px; color: #94a3b8; margin-bottom: 8px;">${t.notes}</div>` : ''}
+                    <div>
+                        <button onclick="deleteTransaction(${t.id})" style="background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; font-size: 9px; cursor: pointer;">Delete</button>
+                    </div>
+                </div>
+            `;
+        });
+
+        detailsHtml += `
+            <button onclick="toggleDetailsView(false)" style="width: 100%; background: #334155; color: white; border: none; padding: 6px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-top: 4px;">Back to Add View</button>
+        `;
+        
+        container.innerHTML = detailsHtml;
+    }
+}
     function loadData() {
         const saved = localStorage.getItem('daily_spends_data');
         if (saved) {
