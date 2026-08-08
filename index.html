@@ -179,31 +179,33 @@ input[type="number"] {
     <!-- Main Spending Modal -->
     <div class="modal" id="modal">
         <div class="modal-content" id="modalContentBox">
-            <div class="modal-header">
-                <div class="modal-date" id="modalDate" style="font-size: 14px; font-weight: normal;"></div>
-            </div>
-            <input type="number" step="0.01" class="amount-input" id="amountInput" placeholder="Amount to add (£)" style="font-size: 16px;">
-            <div id="amountError" class="error-message"></div>
-            <div class="category-pills-container">
-                <div class="category-pills" id="categoryPills">
-                    <button type="button" class="pill-btn active" data-category="General"><i data-lucide="tag"></i> General</button>
-                    <button type="button" class="pill-btn" data-category="Food"><i data-lucide="utensils"></i> Food</button>
-                    <button type="button" class="pill-btn" data-category="Transport"><i data-lucide="car"></i> Transport</button>
-                    <button type="button" class="pill-btn" data-category="Bills"><i data-lucide="receipt"></i> Bills</button>
-                    <button type="button" class="pill-btn" data-category="Shopping"><i data-lucide="shopping-bag"></i> Shopping</button>
-                    <button type="button" class="pill-btn" data-category="Fun"><i data-lucide="smile"></i> Fun</button>
-                    <div id="dayTransactionsContainer" style="margin-top: 20px;"></div>
-                </div>
-                <input type="hidden" id="categoryInput" value="General">
-            </div>
-            <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)" maxlength="100" style="font-size: 16px;">
-            
-            <div class="modal-buttons">
-                <button class="modal-btn btn-add" id="addBtn">Add</button>
-                <button class="modal-btn btn-close" id="closeBtn">Close</button>
-            </div>
+    <div class="modal-header">
+        <div class="modal-date" id="modalDate" style="font-size: 14px; font-weight: normal;"></div>
+    </div>
+    
+    <!-- Input Section -->
+    <input type="number" step="0.01" class="amount-input" id="amountInput" placeholder="Amount to add (£)" style="font-size: 16px;">
+    <div id="amountError" class="error-message"></div>
+    <div class="category-pills-container">
+        <div class="category-pills" id="categoryPills">
+            <button type="button" class="pill-btn active" data-category="General"><i data-lucide="tag"></i> General</button>
+            <button type="button" class="pill-btn" data-category="Food"><i data-lucide="utensils"></i> Food</button>
+            <button type="button" class="pill-btn" data-category="Transport"><i data-lucide="car"></i> Transport</button>
+            <button type="button" class="pill-btn" data-category="Bills"><i data-lucide="receipt"></i> Bills</button>
+            <button type="button" class="pill-btn" data-category="Shopping"><i data-lucide="shopping-bag"></i> Shopping</button>
+            <button type="button" class="pill-btn" data-category="Fun"><i data-lucide="smile"></i> Fun</button>
+        </div>
+        <input type="hidden" id="categoryInput" value="General">
+    </div>
+    <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)" maxlength="100" style="font-size: 16px;">
+    
+    <div class="modal-buttons" style="margin-bottom: 15px;">
+        <button class="modal-btn btn-add" id="addBtn">Add</button>
+        <button class="modal-btn btn-close" id="closeBtn">Close</button>
+    </div>
 
-            <div id="dayTransactionsContainer" style="margin-top: 20px;"></div>
+    <!-- Transaction History List Container -->
+    <div id="dayTransactionsContainer"></div>
 </div>
 </div>
   <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
