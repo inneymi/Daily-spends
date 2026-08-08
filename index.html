@@ -411,58 +411,51 @@ function editTransaction(id) {
     }
 
     function renderDayTransactions() {
-        const container = document.getElementById('transactionSummary');
-        if (!container) return;
+    const monthKey = selectedDate.substring(0, 7);
+    const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+    
+    const container = document.getElementById('dayTransactionsContainer'); // or wherever your list renders
+    if (!container) return;
 
-        const monthKey = selectedDate.substring(0, 7);
-        const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
-        const dayTotal = dayTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
-        const notesCount = dayTransactions.filter(t => t.notes && t.notes.trim() !== '').length;
+    const total = dayTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
+    const formattedDate = new Date(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
 
-        const modalTotalEl = document.getElementById('modalTotal');
-        if (modalTotalEl) modalTotalEl.textContent = `Total: £${dayTotal.toFixed(2)}`;
+    let html = `
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">${formattedDate}</h3>
+            <div style="display: inline-block; background: #059669; color: white; padding: 4px 16px; border-radius: 12px; font-size: 14px; font-weight: 500;">Total: £${total.toFixed(2)}</div>
+        </div>
+        <div style="font-weight: 600; margin-bottom: 12px;">Transactions</div>
+        <div style="display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; margin-bottom: 20px;">
+    `;
 
-        if (!isViewingDetails) {
-            if (dayTransactions.length === 0) {
-                container.innerHTML = '<div id="summaryText">No transactions yet</div><div id="summaryHint" style="display: none; color: #9ca3af; font-size: 10px; margin-top: 2px;">Tap to view details</div>';
-            } else {
-                container.innerHTML = `
-                    <div onclick="toggleDetailsView(true)" style="cursor: pointer; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; text-align: center;">
-                        <div style="font-size: 11px; color: #34d399; font-weight: bold;">${dayTransactions.length} transaction${dayTransactions.length > 1 ? 's' : ''} (${notesCount} with notes)</div>
-                        <div style="font-size: 9px; color: #94a3b8; margin-top: 2px;">Tap to view details</div>
+    if (dayTransactions.length === 0) {
+        html += `<div style="text-align: center; color: #9ca3af; padding: 20px;">No transactions for this day</div>`;
+    } else {
+        dayTransactions.forEach(t => {
+            const timeStr = t.timestamp ? new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+            html += `
+                <div style="background: #374151; padding: 12px 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="color: #34d399; font-weight: 600; font-size: 15px;">£${Number(t.amount).toFixed(2)}</span>
+                        <span style="color: #9ca3af; font-size: 12px;">${timeStr}</span>
                     </div>
-                `;
-            }
-        } else {
-            let detailsHtml = `<div style="font-size: 12px; font-weight: bold; color: #f9fafb; margin-bottom: 8px;">Transactions</div>`;
-            
-            dayTransactions.forEach((t) => {
-                detailsHtml += `
-                    <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; margin-bottom: 8px; text-align: left;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                            <span style="font-size: 14px; font-weight: bold; color: #34d399;">£${parseFloat(t.amount).toFixed(2)}</span>
-                            <span style="font-size: 10px; color: #9ca3af;">${t.time || '16:48'}</span>
-                        </div>
-                        <div style="margin-bottom: ${t.notes ? '6px' : '8px'};">
-                            <span style="font-size: 10px; background: rgba(255,255,255,0.1); color: #cbd5e1; padding: 2px 6px; border-radius: 4px; display: inline-block;">${t.category}</span>
-                        </div>
-                        ${t.notes ? `<div style="font-size: 12px; color: #e5e7eb; margin-bottom: 8px;">${t.notes}</div>` : ''}
-                        <div style="display: flex; gap: 6px;">
-                            <button onclick="editTransaction('${t.id}')" style="background: #334155; color: white; border: none; padding: 3px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;">Edit</button>
-                            <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: white; border: none; padding: 3px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;">Delete</button>
-                        </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="background: #4b5563; padding: 2px 8px; border-radius: 6px; font-size: 11px; color: #e5e7eb;">${t.category || 'General'}</span>
                     </div>
-                `;
-            });
-
-            detailsHtml += `
-                <div style="text-align: center; margin-top: 8px;">
-                    <button onclick="toggleDetailsView(false)" style="background: none; border: none; color: #34d399; cursor: pointer; font-size: 11px;">Back to summary</button>
+                    ${t.notes ? `<div style="color: #d1d5db; font-size: 13px; margin-top: 2px;">${t.notes}</div>` : ''}
+                    <div style="display: flex; gap: 8px; margin-top: 6px;">
+                        <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">Edit</button>
+                        <button onclick="deleteTransaction('${t.id}')" style="background: #ef4444; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">Delete</button>
+                    </div>
                 </div>
             `;
+        });
+    }
 
-            container.innerHTML = detailsHtml;
-        }
+    html += `</div>`;
+    container.innerHTML = html;
+}
     }
 
     function showHelp() {
