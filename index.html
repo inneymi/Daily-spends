@@ -411,14 +411,20 @@ function editTransaction(id) {
     }
 
     function renderDayTransactions() {
-    const monthKey = selectedDate.substring(0, 7);
-    const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+    const monthKey = selectedDate.length >= 7 ? selectedDate.substring(0, 7) : '';
+    const dayTransactions = (transactions[monthKey] || []).filter(t => {
+        return t.date === selectedDate || new Date(t.date).toDateString() === new Date(selectedDate).toDateString();
+    });
     
-    const container = document.getElementById('dayTransactionsContainer'); // or wherever your list renders
+    const container = document.getElementById('dayTransactionsContainer'); 
     if (!container) return;
 
     const total = dayTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
-    const formattedDate = new Date(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long' });
+    
+    let formattedDate = selectedDate;
+    try {
+        formattedDate = new Date(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+    } catch (e) {}
 
     let html = `
         <div style="text-align: center; margin-bottom: 20px;">
@@ -430,7 +436,7 @@ function editTransaction(id) {
     `;
 
     if (dayTransactions.length === 0) {
-        html += `<div style="text-align: center; color: #9ca3af; padding: 20px;">No transactions for this day</div>`;
+        html += `<div style="text-align: center; color: #9ca3af; padding: 20px;">No transactions yet</div>`;
     } else {
         dayTransactions.forEach(t => {
             const timeStr = t.timestamp ? new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
