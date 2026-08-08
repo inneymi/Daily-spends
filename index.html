@@ -380,18 +380,19 @@ input[type="number"] {
         }
     }
 
-    function editTransaction(id) {
-        const monthKey = selectedDate.substring(0, 7);
-        const transaction = (transactions[monthKey] || []).find(t => t.id === id);
-        if (!transaction) return;
+   function editTransaction(id) {
+    const monthKey = selectedDate.substring(0, 7);
+    const transaction = (transactions[monthKey] || []).find(t => t.id === id);
+    if (!transaction) return;
 
-        document.getElementById('amountInput').value = transaction.amount;
-        document.getElementById('notesInput').value = transaction.notes || '';
-        selectedCategory = transaction.category || 'General';
-        updateCategoryPills();
+    document.getElementById('amountInput').value = transaction.amount;
+    document.getElementById('notesInput').value = transaction.notes || '';
+    selectedCategory = transaction.category || 'General';
+    updateCategoryPills();
 
-        deleteTransaction(id);
-    }
+    deleteTransaction(id);
+    toggleDetailsView(false);
+}
 
     function closeModal() {
         document.getElementById('modal').classList.remove('show');
