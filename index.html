@@ -6,60 +6,54 @@
     <title>Daily Spends</title>
     <style>
         .category-badge svg,
-.category-badge i {
-  width: 14px;
-  height: 14px;
-  display: inline-block;
-  vertical-align: middle;
-}
+        .category-badge i {
+          width: 14px;
+          height: 14px;
+          display: inline-block;
+          vertical-align: middle;
+        }
         .category-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 500;
-  margin-top: 4px;
-  margin-bottom: 6px;
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #e5e7eb;
-}
-
-.category-badge svg {
-  width: 12px;
-  height: 12px;
-}
-        /* Glowing outline and shadow for today's calendar cell */
-.day.today {
-  position: relative;
-  border: 1px solid #3b82f6 !important;
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4), inset 0 0 6px rgba(59, 130, 246, 0.2);
-}
-
-/* Glowing dot in the top corner of today's cell */
-.day.today::after {
-  content: '';
-  position: absolute;
-  top: 6px;
-  right: 6px;
-  width: 5px;
-  height: 5px;
-  background-color: #60a5fa;
-  border-radius: 50%;
-  box-shadow: 0 0 6px #60a5fa;
-}
-        /* Remove up/down spinners from number inputs */
-input[type="number"]::-webkit-inner-spin-button,
-input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-input[type="number"] {
-  -moz-appearance: textfield;
-}
-* { margin: 0; padding: 0; box-sizing: border-box; }
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 4px 10px;
+          border-radius: 6px;
+          font-size: 12px;
+          font-weight: 500;
+          margin-top: 4px;
+          margin-bottom: 6px;
+          background-color: rgba(255, 255, 255, 0.12);
+          color: #e5e7eb;
+        }
+        .category-badge svg {
+          width: 12px;
+          height: 12px;
+        }
+        .day.today {
+          position: relative;
+          border: 1px solid #3b82f6 !important;
+          box-shadow: 0 0 10px rgba(59, 130, 246, 0.4), inset 0 0 6px rgba(59, 130, 246, 0.2);
+        }
+        .day.today::after {
+          content: '';
+          position: absolute;
+          top: 6px;
+          right: 6px;
+          width: 5px;
+          height: 5px;
+          background-color: #60a5fa;
+          border-radius: 50%;
+          box-shadow: 0 0 6px #60a5fa;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
+        }
+        input[type="number"] {
+          -moz-appearance: textfield;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; background: #0b0f19; color: #f9fafb; min-height: 100vh; padding: 16px; }
         .container { max-width: 360px; margin: 0 auto; background: #131b2e; border: 1px solid #1e293b; border-radius: 16px; padding: 12px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
         @media (min-width: 768px) { .container { max-width: 420px; } }
@@ -76,10 +70,8 @@ input[type="number"] {
         .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; margin-bottom: 6px; }
         .weekday { text-align: center; font-size: 8px; color: #64748b; padding: 4px 0; }
         .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; min-height: 180px; }
-       .day { aspect-ratio: 1; border: 1px solid #1e293b; background: #0f172a; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 2px 4px 2px; font-size: 11px; }
+        .day { aspect-ratio: 1; border: 1px solid #1e293b; background: #0f172a; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 2px 4px 2px; font-size: 11px; }
         .day:hover { background: #1e293b; border-color: #334155; transform: scale(1.05); }
-        .day.today { border-color: #3b82f6; background: rgba(59, 130, 246, 0.25); }
-        .day.has-spending { border-color: #059669; background: rgba(5, 150, 105, 0.2); }
         .day-number { font-weight: 600; font-size: 9px; color: #cbd5e1; }
         .day-amount { font-size: 11px; color: #34d399; }
         .plus-icon { font-size: 9px; color: #64748b; }
@@ -93,12 +85,11 @@ input[type="number"] {
         .modal-content { background: #1f2937; border-radius: 16px; padding: 20px; width: 100%; max-width: 340px; }
         .modal-header { text-align: center; margin-bottom: 12px; }
         .modal-date { font-size: 16px; color: #f9fafb; margin-bottom: 6px; }
-        .modal-total { background: #059669; color: white; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; display: inline-block; }
         .amount-input { width: 100%; padding: 12px; background: #374151; border: 2px solid #4b5563; border-radius: 8px; color: #f9fafb; font-size: 14px; text-align: center; outline: none; margin-bottom: 8px; }
         .amount-input:focus { border-color: #3b82f6; }
         .notes-input { width: 100%; padding: 10px; background: #374151; border: 2px solid #4b5563; border-radius: 8px; color: #f9fafb; font-size: 13px; outline: none; margin-bottom: 12px; }
         .notes-input:focus { border-color: #3b82f6; }
-        .transaction-summary { background: #374151; border-radius: 8px; padding: 8px 12px; margin: 12px 0; font-size: 11px; color: #d1d5db; border: 1px solid #4b5563; text-align: center; cursor: pointer; }
+        .transaction-summary { background: #374151; border-radius: 8px; padding: 10px 12px; margin: 12px 0; font-size: 12px; color: #d1d5db; border: 1px solid #4b5563; text-align: center; cursor: pointer; }
         .transaction-summary:hover { background: #4b5563; }
         .modal-buttons { display: flex; gap: 6px; margin-top: 16px; }
         .modal-btn { flex: 1; padding: 8px; border: none; border-radius: 6px; cursor: pointer; font-size: 12px; }
@@ -107,49 +98,11 @@ input[type="number"] {
         .btn-close { background: #6b7280; color: #d1d5db; }
         .btn-close:hover { background: #4b5563; }
         .error-message { color: #f87171; font-size: 12px; margin-top: 4px; text-align: center; display: none; }
-        .category-pills-container {
-  margin-bottom: 12px;
-  text-align: left;
-}
-.category-label {
-  display: block;
-  font-size: 11px;
-  color: #94a3b8;
-  margin-bottom: 6px;
-}
-.category-pills {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 6px;
-}
-.pill-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 4px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
-  padding: 6px 4px;
-  border-radius: 6px;
-  font-size: 11px;
-  white-space: nowrap;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.pill-btn svg,
-.pill-btn [data-lucide] {
-  width: 12px !important;
-  height: 12px !important;
-  min-width: 12px;
-  stroke-width: 2;
-}
-.pill-btn.active {
-  background: #2563eb;
-  color: #ffffff;
-  border-color: #3b82f6;
-}
+        .category-pills-container { margin-bottom: 12px; text-align: left; }
+        .category-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .pill-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 4px; border-radius: 6px; font-size: 11px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; }
+        .pill-btn svg, .pill-btn [data-lucide] { width: 12px !important; height: 12px !important; min-width: 12px; stroke-width: 2; }
+        .pill-btn.active { background: #2563eb; color: #ffffff; border-color: #3b82f6; }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -176,71 +129,57 @@ input[type="number"] {
         </div>
     </div>
 
-    <!-- Main Spending Modal -->
+    <!-- Main Spending / Entry Modal -->
     <div class="modal" id="modal">
         <div class="modal-content" id="modalContentBox">
-    <div class="modal-header">
-        <div class="modal-date" id="modalDate" style="font-size: 14px; font-weight: normal;"></div>
-    </div>
-    
-    <!-- Input Section -->
-    <input type="number" step="0.01" class="amount-input" id="amountInput" placeholder="Amount to add (£)" style="font-size: 16px;">
-    <div id="amountError" class="error-message"></div>
-    <div class="category-pills-container">
-        <div class="category-pills" id="categoryPills">
-            <button type="button" class="pill-btn active" data-category="General"><i data-lucide="tag"></i> General</button>
-            <button type="button" class="pill-btn" data-category="Food"><i data-lucide="utensils"></i> Food</button>
-            <button type="button" class="pill-btn" data-category="Transport"><i data-lucide="car"></i> Transport</button>
-            <button type="button" class="pill-btn" data-category="Bills"><i data-lucide="receipt"></i> Bills</button>
-            <button type="button" class="pill-btn" data-category="Shopping"><i data-lucide="shopping-bag"></i> Shopping</button>
-            <button type="button" class="pill-btn" data-category="Fun"><i data-lucide="smile"></i> Fun</button>
-        </div>
-        <input type="hidden" id="categoryInput" value="General">
-    </div>
-    <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)" maxlength="100" style="font-size: 16px;">
-    
-    <div class="modal-buttons" style="margin-bottom: 15px;">
-        <button class="modal-btn btn-add" id="addBtn">Add</button>
-        <button class="modal-btn btn-close" id="closeBtn">Close</button>
-    </div>
+            <div class="modal-header">
+                <div class="modal-date" id="modalDate" style="font-size: 16px; font-weight: bold;"></div>
+            </div>
+            
+            <input type="number" step="0.01" class="amount-input" id="amountInput" placeholder="Amount to add (£)" style="font-size: 16px;">
+            <div id="amountError" class="error-message"></div>
+            
+            <div class="category-pills-container">
+                <div class="category-pills" id="categoryPills">
+                    <button type="button" class="pill-btn active" data-category="General"><i data-lucide="tag"></i> General</button>
+                    <button type="button" class="pill-btn" data-category="Food"><i data-lucide="utensils"></i> Food</button>
+                    <button type="button" class="pill-btn" data-category="Transport"><i data-lucide="car"></i> Transport</button>
+                    <button type="button" class="pill-btn" data-category="Bills"><i data-lucide="receipt"></i> Bills</button>
+                    <button type="button" class="pill-btn" data-category="Shopping"><i data-lucide="shopping-bag"></i> Shopping</button>
+                    <button type="button" class="pill-btn" data-category="Fun"><i data-lucide="smile"></i> Fun</button>
+                </div>
+                <input type="hidden" id="categoryInput" value="General">
+            </div>
+            
+            <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)" maxlength="100" style="font-size: 16px;">
+            
+            <!-- Summary card launcher for details modal -->
+            <div id="dayTransactionsContainer"></div>
 
-    <!-- Transaction History List Container -->
-    <div id="dayTransactionsContainer"></div>
-<!-- Transaction History List Container -->
-    <div id="dayTransactionsContainer"></div>
-</div>
-
-<!-- Details Modal -->
-<div class="modal" id="detailsModal">
-    <div class="modal-content">
-        <div class="modal-buttons" style="margin-top: 15px;">
-            <button class="modal-btn btn-close" onclick="closeDetailsModal()">Close</button>
+            <div class="modal-buttons" style="margin-top: 15px;">
+                <button class="modal-btn btn-add" id="addBtn">Add</button>
+                <button class="modal-btn btn-close" id="closeBtn">Close</button>
+            </div>
         </div>
     </div>
-</div>
-</div>
-  <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
+
+    <!-- Details Pop-up Modal for Transactions List -->
+    <div class="modal" id="detailsModal">
+        <div class="modal-content" id="detailsModalContent">
+            <!-- Details content dynamically injected here -->
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
         <div class="modal-content">
             <div style="font-weight: bold; font-size: 14px; margin-bottom: 14px; text-align: center;">Daily Spends Help</div>
-            
             <div style="font-size: 11px; color: #9ca3af; margin-bottom: 14px; line-height: 1.6;">
                 <strong style="color: #34d399; display: block; margin-bottom: 4px;">Managing Expenses</strong>
                 • Select a day and enter your spend<br>
                 <span style="display: inline-block; margin-top: 3px;">• Add optional notes (coffee, taxi, etc.)</span><br>
                 <span style="display: inline-block; margin-top: 3px;">• Add, edit, and delete entries anytime</span>
             </div>
-
-            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 14px; line-height: 1.6;">
-                <strong style="color: #34d399; display: block; margin-bottom: 4px;">Viewing Your Data</strong>
-                • Tap monthly total at top to view all transactions<br>
-                <span style="display: inline-block; margin-top: 3px;">• Each day shows total spending</span>
-            </div>
-
-            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 18px; line-height: 1.6;">
-                <strong style="color: #34d399; display: block; margin-bottom: 4px;">Data Storage</strong>
-                Your spending data is automatically saved in your browser and stays private on your device.
-            </div>
-
             <div class="modal-buttons">
                 <button class="modal-btn btn-close" id="helpCloseBtn" onclick="closeHelp()">Got it!</button>
             </div>
@@ -248,288 +187,283 @@ input[type="number"] {
     </div>
 
     <script>
-    let currentYear = new Date().getFullYear();
-    let currentMonth = new Date().getMonth();
-    let selectedDate = null;
-    let transactions = {};
-    let selectedCategory = 'General';
-    let isViewingDetails = false;
+        let currentYear = new Date().getFullYear();
+        let currentMonth = new Date().getMonth();
+        let selectedDate = null;
+        let transactions = {};
+        let selectedCategory = 'General';
 
-    function toggleDetailsView(status) {
-        isViewingDetails = status;
-        if (selectedDate) {
-            renderDayTransactions();
-        }
-    }
-
-    function loadData() {
-        const saved = localStorage.getItem('daily_spends_data');
-        if (saved) {
-            try { transactions = JSON.parse(saved); } catch(e) { transactions = {}; }
-        }
-    }
-
-    function saveData() {
-        localStorage.setItem('daily_spends_data', JSON.stringify(transactions));
-    }
-
-    function updateDisplay() {
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        
-        const monthEl = document.getElementById('monthTitle');
-        if (monthEl) {
-            monthEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
-        }
-        
-        const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-        const monthTransactions = transactions[monthKey] || [];
-        const total = monthTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
-        
-        const totalEl = document.getElementById('monthTotal');
-        if (totalEl) {
-            totalEl.textContent = `Total: £${total.toFixed(2)}`;
-        }
-    }
-
-    function navigateMonth(direction) {
-        currentMonth += direction;
-        if (currentMonth < 0) {
-            currentMonth = 11;
-            currentYear--;
-        } else if (currentMonth > 11) {
-            currentMonth = 0;
-            currentYear++;
-        }
-        updateDisplay();
-        buildCalendar();
-    }
-
-    function buildCalendar() {
-        const grid = document.getElementById('daysGrid');
-        if (!grid) return;
-        grid.innerHTML = '';
-        
-        const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-        const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-        const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
-
-        for (let i = 0; i < firstDay; i++) {
-            const emptyCell = document.createElement('div');
-            emptyCell.className = 'day empty-day';
-            grid.appendChild(emptyCell);
+        function loadData() {
+            const saved = localStorage.getItem('daily_spends_data');
+            if (saved) {
+                try { transactions = JSON.parse(saved); } catch(e) { transactions = {}; }
+            }
         }
 
-        for (let day = 1; day <= daysInMonth; day++) {
-            const cell = document.createElement('div');
-            cell.className = 'day';
-            const dateStr = `${monthKey}-${String(day).padStart(2, '0')}`;
+        function saveData() {
+            localStorage.setItem('daily_spends_data', JSON.stringify(transactions));
+        }
+
+        function updateDisplay() {
+            const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthEl = document.getElementById('monthTitle');
+            if (monthEl) {
+                monthEl.textContent = `${monthNames[currentMonth]} ${currentYear}`;
+            }
             
-            const dayTransactions = (transactions[monthKey] || []).filter(t => {
-    return String(t.date).trim() === String(selectedDate).trim() || 
-           new Date(t.date).toDateString() === new Date(selectedDate).toDateString();
-});
-            const dayTotal = (transactions[monthKey] || [])
-    .filter(t => t.date === dateStr)
-    .reduce((sum, t) => sum + Number(t.amount), 0);
-
-            cell.innerHTML = `
-                <span class="day-number">${day}</span>
-                ${dayTotal > 0 ? `<span class="day-amount">£${dayTotal.toFixed(2)}</span>` : '<span class="plus-icon">+</span>'}
-            `;
-
-            cell.onclick = () => openDayModal(dateStr);
-            grid.appendChild(cell);
-        }
-    }
-
-    function openDayModal(dateStr) {
-        selectedDate = dateStr;
-        isViewingDetails = false;
-        const [y, m, d] = dateStr.split('-');
-        document.getElementById('modalDate').textContent = `${d}/${m}/${y}`;
-        document.getElementById('amountInput').value = '';
-        document.getElementById('notesInput').value = '';
-        selectedCategory = 'General';
-        updateCategoryPills();
-        renderDayTransactions();
-        document.getElementById('modal').classList.add('show');
-    }
-
-    function addSpending() {
-        const amountInput = document.getElementById('amountInput');
-        const notesInput = document.getElementById('notesInput');
-        const amount = parseFloat(amountInput.value);
-
-        if (isNaN(amount) || amount <= 0) return;
-
-        const monthKey = selectedDate.substring(0, 7);
-        if (!transactions[monthKey]) {
-            transactions[monthKey] = [];
+            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const monthTransactions = transactions[monthKey] || [];
+            const total = monthTransactions.reduce((sum, t) => sum + parseFloat(t.amount || 0), 0);
+            
+            const totalEl = document.getElementById('monthTotal');
+            if (totalEl) {
+                totalEl.textContent = `Total: £${total.toFixed(2)}`;
+            }
         }
 
-        transactions[monthKey].push({
-            id: Date.now().toString(),
-            date: selectedDate,
-            amount: amount,
-            category: selectedCategory,
-            notes: notesInput.value.trim(),
-            time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-        });
+        function navigateMonth(direction) {
+            currentMonth += direction;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            updateDisplay();
+            buildCalendar();
+        }
 
-        saveData();
-        updateDisplay();
-        buildCalendar();
-        renderDayTransactions();
+        function buildCalendar() {
+            const grid = document.getElementById('daysGrid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
 
-        amountInput.value = '';
-        notesInput.value = '';
-    }
+            for (let i = 0; i < firstDay; i++) {
+                const emptyCell = document.createElement('div');
+                emptyCell.className = 'day empty-day';
+                grid.appendChild(emptyCell);
+            }
 
-    function deleteTransaction(id) {
-        const monthKey = selectedDate.substring(0, 7);
-        if (transactions[monthKey]) {
-            transactions[monthKey] = transactions[monthKey].filter(t => t.id !== id);
+            for (let day = 1; day <= daysInMonth; day++) {
+                const cell = document.createElement('div');
+                cell.className = 'day';
+                const dateStr = `${monthKey}-${String(day).padStart(2, '0')}`;
+                
+                const dayTotal = (transactions[monthKey] || [])
+                    .filter(t => t.date === dateStr)
+                    .reduce((sum, t) => sum + Number(t.amount), 0);
+
+                cell.innerHTML = `
+                    <span class="day-number">${day}</span>
+                    ${dayTotal > 0 ? `<span class="day-amount">£${dayTotal.toFixed(2)}</span>` : '<span class="plus-icon">+</span>'}
+                `;
+
+                cell.onclick = () => openDayModal(dateStr);
+                grid.appendChild(cell);
+            }
+        }
+
+        function openDayModal(dateStr) {
+            selectedDate = dateStr;
+            const [y, m, d] = dateStr.split('-');
+            document.getElementById('modalDate').textContent = `${d}/${m}/${y}`;
+            document.getElementById('amountInput').value = '';
+            document.getElementById('notesInput').value = '';
+            selectedCategory = 'General';
+            updateCategoryPills();
+            renderDaySummaryCard();
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function addSpending() {
+            const amountInput = document.getElementById('amountInput');
+            const notesInput = document.getElementById('notesInput');
+            const amount = parseFloat(amountInput.value);
+
+            if (isNaN(amount) || amount <= 0) return;
+
+            const monthKey = selectedDate.substring(0, 7);
+            if (!transactions[monthKey]) {
+                transactions[monthKey] = [];
+            }
+
+            transactions[monthKey].push({
+                id: Date.now().toString(),
+                date: selectedDate,
+                amount: amount,
+                category: selectedCategory,
+                notes: notesInput.value.trim(),
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            });
+
             saveData();
             updateDisplay();
             buildCalendar();
-            renderDayTransactions();
+            renderDaySummaryCard();
+
+            amountInput.value = '';
+            notesInput.value = '';
         }
-    }
 
-function editTransaction(id) {
-    const monthKey = selectedDate.substring(0, 7);
-    const transaction = (transactions[monthKey] || []).find(t => t.id === id);
-    if (!transaction) return;
-
-    document.getElementById('amountInput').value = transaction.amount;
-    document.getElementById('notesInput').value = transaction.notes || '';
-    selectedCategory = transaction.category || 'General';
-    updateCategoryPills();
-
-    deleteTransaction(id);
-    toggleDetailsView(false);
-}
-
-    function closeModal() {
-        document.getElementById('modal').classList.remove('show');
-    }
-
-    function updateCategoryPills() {
-        document.querySelectorAll('.pill-btn').forEach(btn => {
-            if (btn.getAttribute('data-category') === selectedCategory) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
+        function deleteTransaction(id) {
+            const monthKey = selectedDate.substring(0, 7);
+            if (transactions[monthKey]) {
+                transactions[monthKey] = transactions[monthKey].filter(t => t.id !== id);
+                saveData();
+                updateDisplay();
+                buildCalendar();
+                renderDaySummaryCard();
+                renderDetailsModalContent();
             }
-        });
-        const hiddenInput = document.getElementById('categoryInput');
-        if (hiddenInput) hiddenInput.value = selectedCategory;
-    }
+        }
 
-    function renderDayTransactions() {
-    const monthKey = selectedDate.length >= 7 ? selectedDate.substring(0, 7) : '';
-    const dayTransactions = (transactions[monthKey] || []).filter(t => {
-    const tDate = t.date || '';
-return tDate === selectedDate;
-});
-    
-    const container = document.getElementById('dayTransactionsContainer'); 
-    if (!container) return;
+        function editTransaction(id) {
+            const monthKey = selectedDate.substring(0, 7);
+            const transaction = (transactions[monthKey] || []).find(t => t.id === id);
+            if (!transaction) return;
 
-    const total = dayTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
-    
-    let formattedDate = selectedDate;
-    try {
-        formattedDate = new Date(selectedDate).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-    } catch (e) {}
+            document.getElementById('amountInput').value = transaction.amount;
+            document.getElementById('notesInput').value = transaction.notes || '';
+            selectedCategory = transaction.category || 'General';
+            updateCategoryPills();
 
-    let html = `
-        <div style="text-align: center; margin-bottom: 20px;">
-            <h3 style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">${formattedDate}</h3>
-            <div style="display: inline-block; background: #059669; color: white; padding: 4px 16px; border-radius: 12px; font-size: 14px; font-weight: 500;">Total: £${total.toFixed(2)}</div>
-        </div>
-        <div style="font-weight: 600; margin-bottom: 12px;">Transactions</div>
-        <div style="display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; margin-bottom: 20px;">
-    `;
+            deleteTransaction(id);
+            closeDetailsModal();
+        }
 
-    if (dayTransactions.length === 0) {
-        html += `<div style="text-align: center; color: #9ca3af; padding: 20px;">No transactions yet</div>`;
-    } else {
-        dayTransactions.forEach(t => {
-            const timeStr = t.timestamp ? new Date(t.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
-            html += `
-                <div style="background: #374151; padding: 12px 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px;">
-                    <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="color: #34d399; font-weight: 600; font-size: 15px;">£${Number(t.amount).toFixed(2)}</span>
-                        <span style="color: #9ca3af; font-size: 12px;">${timeStr}</span>
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="background: #4b5563; padding: 2px 8px; border-radius: 6px; font-size: 11px; color: #e5e7eb;">${t.category || 'General'}</span>
-                    </div>
-                    ${t.notes ? `<div style="color: #d1d5db; font-size: 13px; margin-top: 2px;">${t.notes}</div>` : ''}
-                    <div style="display: flex; gap: 8px; margin-top: 6px;">
-                        <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">Edit</button>
-                        <button onclick="deleteTransaction('${t.id}')" style="background: #ef4444; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">Delete</button>
-                    </div>
+        function closeModal() {
+            document.getElementById('modal').classList.remove('show');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.remove('show');
+        }
+
+        function openDetailsModal() {
+            renderDetailsModalContent();
+            document.getElementById('detailsModal').classList.add('show');
+        }
+
+        function updateCategoryPills() {
+            document.querySelectorAll('.pill-btn').forEach(btn => {
+                if (btn.getAttribute('data-category') === selectedCategory) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            const hiddenInput = document.getElementById('categoryInput');
+            if (hiddenInput) hiddenInput.value = selectedCategory;
+        }
+
+        function renderDaySummaryCard() {
+            const monthKey = selectedDate.substring(0, 7);
+            const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+            const container = document.getElementById('dayTransactionsContainer');
+            if (!container) return;
+
+            if (dayTransactions.length === 0) {
+                container.innerHTML = '';
+                return;
+            }
+
+            const count = dayTransactions.length;
+            const notesCount = dayTransactions.filter(t => t.notes && t.notes.trim() !== '').length;
+            const notesText = notesCount > 0 ? ` (${notesCount} with note${notesCount > 1 ? 's' : ''})` : '';
+
+            container.innerHTML = `
+                <div class="transaction-summary" onclick="openDetailsModal()">
+                    <div style="font-weight: 600; color: #34d399;">${count} transaction${count > 1 ? 's' : ''}${notesText}</div>
+                    <div style="font-size: 10px; color: #9ca3af; margin-top: 2px;">Tap to view details</div>
                 </div>
             `;
+        }
+
+        function renderDetailsModalContent() {
+            const monthKey = selectedDate.substring(0, 7);
+            const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+            const container = document.getElementById('detailsModalContent');
+            if (!container) return;
+
+            let formattedDate = selectedDate;
+            try {
+                const [y, m, d] = selectedDate.split('-');
+                formattedDate = `${d}/${m}/${y}`;
+            } catch (e) {}
+
+            let html = `
+                <div class="modal-header">
+                    <div class="modal-date" style="font-size: 16px; font-weight: bold;">Transactions for ${formattedDate}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; margin: 12px 0;">
+            `;
+
+            if (dayTransactions.length === 0) {
+                html += `<div style="text-align: center; color: #9ca3af; padding: 20px;">No transactions yet</div>`;
+            } else {
+                dayTransactions.forEach(t => {
+                    html += `
+                        <div style="background: #374151; padding: 12px 16px; border-radius: 12px; display: flex; flex-direction: column; gap: 6px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <span style="color: #34d399; font-weight: 600; font-size: 15px;">£${Number(t.amount).toFixed(2)}</span>
+                                <span style="color: #9ca3af; font-size: 12px;">${t.time || ''}</span>
+                            </div>
+                            <div>
+                                <span style="background: #4b5563; padding: 2px 8px; border-radius: 6px; font-size: 11px; color: #e5e7eb;">${t.category || 'General'}</span>
+                            </div>
+                            ${t.notes ? `<div style="color: #d1d5db; font-size: 13px;">${t.notes}</div>` : ''}
+                            <div style="display: flex; gap: 8px; margin-top: 6px;">
+                                <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">Edit</button>
+                                <button onclick="deleteTransaction('${t.id}')" style="background: #ef4444; color: white; border: none; padding: 4px 12px; border-radius: 6px; font-size: 12px; cursor: pointer;">Delete</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            html += `
+                </div>
+                <div class="modal-buttons" style="margin-top: 15px;">
+                    <button class="modal-btn btn-close" onclick="closeDetailsModal()">Close</button>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        function showHelp() {
+            const helpModal = document.getElementById('help-modal');
+            if (helpModal) helpModal.style.display = 'flex';
+        }
+
+        function closeHelp() {
+            const helpModal = document.getElementById('help-modal');
+            if (helpModal) helpModal.style.display = 'none';
+        }
+
+        document.querySelectorAll('.pill-btn').forEach(btn => {
+            btn.onclick = () => {
+                selectedCategory = btn.getAttribute('data-category');
+                updateCategoryPills();
+            };
         });
-    }
 
-    html += `</div>`;
-    container.innerHTML = html;
-}
+        document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
+        document.getElementById('nextBtn').onclick = () => navigateMonth(1);
+        document.getElementById('addBtn').onclick = addSpending;
+        document.getElementById('closeBtn').onclick = closeModal;
+        document.getElementById('helpBtn').onclick = showHelp;
+        document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
+        document.getElementById('detailsModal').onclick = function(e) { if (e.target === this) closeDetailsModal(); };
 
-    function showHelp() {
-        const helpModal = document.getElementById('help-modal');
-        if (helpModal) helpModal.style.display = 'flex';
-    }
-
-    function closeHelp() {
-        const helpModal = document.getElementById('help-modal');
-        if (helpModal) helpModal.style.display = 'none';
-    }
-
-    document.querySelectorAll('.pill-btn').forEach(btn => {
-        btn.onclick = () => {
-            selectedCategory = btn.getAttribute('data-category');
-            updateCategoryPills();
-        };
-    });
-
-    document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
-    document.getElementById('nextBtn').onclick = () => navigateMonth(1);
-    document.getElementById('addBtn').onclick = addSpending;
-    document.getElementById('closeBtn').onclick = closeModal;
-    document.getElementById('helpBtn').onclick = showHelp;
-    document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
-
-    loadData();
-    updateDisplay();
-    buildCalendar();
-    if (window.lucide) lucide.createIcons();
-</script>
-    
-   <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
-        <div class="modal-content">
-            <div style="font-weight: bold; font-size: 14px; margin-bottom: 12px; text-align: center;">Daily Spends Help</div>
-            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 10px; line-height: 1.4;">
-                <strong style="color: #34d399; display: block; margin-bottom: 2px;">Data Storage</strong>
-                Your data is saved in your browser.
-            </div>
-            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 16px; line-height: 1.4;">
-                <strong style="color: #34d399; display: block; margin-bottom: 2px;">Managing</strong>
-                • Select a day<br>
-                • Enter amount<br>
-                • Add notes<br>
-                • Edit or delete
-            </div>
-            <div class="modal-buttons">
-                <button class="modal-btn btn-close" id="helpCloseBtn" onclick="closeHelp()">Got it!</button>
-            </div>
-        </div>
-    </div>
-</body>
-</html>
+        loadData();
+        updateDisplay();
+        buildCalendar();
+        if (window.lucide) lucide.createIcons();
+    </script>
 </body>
 </html>
