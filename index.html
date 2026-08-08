@@ -380,7 +380,7 @@ input[type="number"] {
         }
     }
 
-   function editTransaction(id) {
+window.editTransaction = function(id) {
     const monthKey = selectedDate.substring(0, 7);
     const transaction = (transactions[monthKey] || []).find(t => t.id === id);
     if (!transaction) return;
@@ -392,7 +392,7 @@ input[type="number"] {
 
     deleteTransaction(id);
     toggleDetailsView(false);
-}
+};
 
     function closeModal() {
         document.getElementById('modal').classList.remove('show');
