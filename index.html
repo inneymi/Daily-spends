@@ -283,15 +283,18 @@ function renderDayTransactions() {
         
         dayTransactions.forEach((t) => {
             detailsHtml += `
-                <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 10px; margin-bottom: 8px; position: relative; text-align: left;">
+                <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 12px; margin-bottom: 8px; text-align: left;">
                     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                        <span style="font-size: 12px; font-weight: bold; color: #34d399;">£${parseFloat(t.amount).toFixed(2)}</span>
-                        <span style="font-size: 9px; color: #64748b;">${t.time || ''}</span>
+                        <span style="font-size: 14px; font-weight: bold; color: #34d399;">£${parseFloat(t.amount).toFixed(2)}</span>
+                        <span style="font-size: 10px; color: #9ca3af;">${t.time || '16:48'}</span>
                     </div>
-                    ${t.category ? `<div style="font-size: 9px; background: #334155; color: #cbd5e1; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-bottom: 4px;">${t.category}</div>` : ''}
-                    ${t.notes ? `<div style="font-size: 10px; color: #94a3b8; margin-bottom: 8px;">${t.notes}</div>` : ''}
-                    <div>
-                        <button onclick="deleteTransaction('${t.id}')" style="background: #ef4444; color: white; border: none; padding: 3px 10px; border-radius: 4px; font-size: 9px; cursor: pointer;">Delete</button>
+                    <div style="margin-bottom: ${t.notes ? '6px' : '8px'};">
+                        <span style="font-size: 10px; background: rgba(255,255,255,0.1); color: #cbd5e1; padding: 2px 6px; border-radius: 4px; display: inline-block;">${t.category}</span>
+                    </div>
+                    ${t.notes ? `<div style="font-size: 12px; color: #e5e7eb; margin-bottom: 8px;">${t.notes}</div>` : ''}
+                    <div style="display: flex; gap: 6px;">
+                        <button onclick="editTransaction('${t.id}')" style="background: #334155; color: white; border: none; padding: 3px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;">Edit</button>
+                        <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: white; border: none; padding: 3px 12px; border-radius: 4px; font-size: 11px; cursor: pointer;">Delete</button>
                     </div>
                 </div>
             `;
