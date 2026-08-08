@@ -65,7 +65,7 @@
         .footer-link { background: transparent; border: none; color: #9ca3af; font-size: 12px; cursor: pointer; padding: 8px 12px; border-radius: 6px; }
         .footer-link:hover { color: #d1d5db; background: rgba(55, 65, 81, 0.5); }
         
-        /* Modal styling - compact matching screenshot */
+        /* Modal styling */
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
         .modal.show { display: flex; }
         .modal-content { background: #131b2e; border: 1px solid #1e293b; border-radius: 16px; padding: 16px; width: 280px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
@@ -100,6 +100,21 @@
         .pill-btn svg, .pill-btn [data-lucide] { width: 10px !important; height: 10px !important; min-width: 10px; stroke-width: 2; }
         .pill-btn.active { background: #2563eb; color: #ffffff; border-color: #3b82f6; }
         .pill-btn:hover:not(.active) { background: #1e293b; color: #e2e8f0; }
+
+        /* Custom minimal scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #334155;
+        }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -296,7 +311,6 @@
             }
 
             if (editingTransactionId) {
-                // Update existing
                 const index = transactions[monthKey].findIndex(t => t.id === editingTransactionId);
                 if (index !== -1) {
                     transactions[monthKey][index] = {
@@ -310,7 +324,6 @@
                 document.getElementById('addBtn').textContent = 'Add';
                 document.getElementById('cancelBtn').style.display = 'none';
             } else {
-                // Add new
                 transactions[monthKey].push({
                     id: Date.now().toString(),
                     date: selectedDate,
@@ -433,7 +446,7 @@
                 <div class="modal-header">
                     <div class="modal-date">Transactions for ${formattedDate}</div>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; margin-bottom: 12px;">
+                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;">
             `;
 
             if (dayTransactions.length === 0) {
@@ -442,12 +455,12 @@
                 dayTransactions.forEach(t => {
                     html += `
                         <div style="background: #0f172a; border: 1px solid #1e293b; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                 <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
-                                <span style="color: #64748b; font-size: 10px;">${t.time || ''}</span>
-                            </div>
-                            <div>
-                                <span style="background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #e2e8f0;">${t.category || 'General'}</span>
+                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+                                    <span style="color: #64748b; font-size: 10px;">${t.time || ''}</span>
+                                    <span style="background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 10px; color: #e2e8f0; display: inline-block;">${t.category || 'General'}</span>
+                                </div>
                             </div>
                             ${t.notes ? `<div style="color: #cbd5e1; font-size: 11px;">${t.notes}</div>` : ''}
                             <div style="display: flex; gap: 4px; margin-top: 2px;">
