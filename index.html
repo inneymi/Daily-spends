@@ -208,21 +208,28 @@ input[type="number"] {
         </div>
     </div>
 
-    <!-- Help Modal -->
-    <div class="modal" id="helpModal" onclick="if(event.target === this) closeHelp();">
+   <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
         <div class="modal-content">
-            <div style="font-weight: bold; margin-bottom: 8px;">Daily Spends Help</div>
-            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 8px;">
-                <strong>Data Storage</strong><br>
-                Your data is saved in your browser.
+            <div style="font-weight: bold; font-size: 14px; margin-bottom: 12px; text-align: center;">Daily Spends Help</div>
+            
+            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 10px; line-height: 1.4;">
+                <strong style="color: #34d399; display: block; margin-bottom: 2px;">Managing Expenses</strong>
+                • Select a day and enter your spend<br>
+                • Add optional notes (coffee, taxi, etc.)<br>
+                • Add, edit, and delete entries anytime
             </div>
-            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 12px;">
-                <strong>Managing</strong><br>
-                • Select a day<br>
-                • Enter amount<br>
-                • Add notes<br>
-                • Edit or delete
+
+            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 10px; line-height: 1.4;">
+                <strong style="color: #34d399; display: block; margin-bottom: 2px;">Viewing Your Data</strong>
+                • Tap monthly total at top to view all transactions<br>
+                • Each day shows total spending
             </div>
+
+            <div style="font-size: 11px; color: #9ca3af; margin-bottom: 16px; line-height: 1.4;">
+                <strong style="color: #34d399; display: block; margin-bottom: 2px;">Data Storage</strong>
+                Your spending data is automatically saved in your browser and stays private on your device.
+            </div>
+
             <div class="modal-buttons">
                 <button class="modal-btn btn-close" id="helpCloseBtn" onclick="closeHelp()">Got it!</button>
             </div>
