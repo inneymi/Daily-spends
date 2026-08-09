@@ -182,10 +182,10 @@
             
             <div id="dayTransactionsSummaryBox" style="margin-top: auto; margin-bottom: 12px; flex-shrink: 0;"></div>
 
-            <div class="modal-buttons">
-                <button class="modal-btn btn-close" id="cancelBtn" style="display:none;">Cancel</button>
-                <button class="modal-btn btn-add" id="addBtn">Add</button>
-                <button class="modal-btn btn-close" id="closeBtn">Close</button>
+            <div class="modal-buttons" id="modalButtonsContainer">
+                <button class="modal-btn btn-close" id="cancelBtn" style="display:none;" onclick="cancelEdit()">Cancel</button>
+                <button class="modal-btn btn-add" id="addBtn" onclick="handleSaveOrUpdate()">Add</button>
+                <button class="modal-btn btn-close" id="closeBtn" onclick="closeModal()">Close</button>
             </div>
         </div>
     </div>
@@ -393,6 +393,23 @@
             }
         }
 
+        function updateModalButtons() {
+            const container = document.getElementById('modalButtonsContainer');
+            if (!container) return;
+
+            if (editingTransactionId) {
+                container.innerHTML = `
+                    <button class="modal-btn btn-add" id="addBtn" onclick="handleSaveOrUpdate()">Update</button>
+                    <button class="modal-btn btn-close" id="cancelBtn" onclick="cancelEdit()">Cancel</button>
+                `;
+            } else {
+                container.innerHTML = `
+                    <button class="modal-btn btn-add" id="addBtn" onclick="handleSaveOrUpdate()">Add</button>
+                    <button class="modal-btn btn-close" id="closeBtn" onclick="closeModal()">Close</button>
+                `;
+            }
+        }
+
         function openDayModal(dateStr) {
             selectedDate = dateStr;
             editingTransactionId = null;
@@ -407,8 +424,7 @@
             updateCategoryPills();
             renderDaySummaryBox();
             
-            document.getElementById('addBtn').textContent = 'Add';
-            document.getElementById('cancelBtn').style.display = 'none';
+            updateModalButtons();
             document.getElementById('modal').classList.add('show');
             if (window.lucide) lucide.createIcons();
         }
@@ -436,8 +452,7 @@
                     };
                 }
                 editingTransactionId = null;
-                document.getElementById('addBtn').textContent = 'Add';
-                document.getElementById('cancelBtn').style.display = 'none';
+                updateModalButtons();
             } else {
                 transactions[monthKey].push({
                     id: Date.now().toString(),
@@ -508,8 +523,7 @@
             updateCategoryPills();
             renderDaySummaryBox();
 
-            document.getElementById('addBtn').textContent = 'Update';
-            document.getElementById('cancelBtn').style.display = 'block';
+            updateModalButtons();
             document.getElementById('modal').classList.add('show');
             if (window.lucide) lucide.createIcons();
         }
@@ -520,8 +534,7 @@
             document.getElementById('notesInput').value = '';
             selectedCategory = 'General';
             updateCategoryPills();
-            document.getElementById('addBtn').textContent = 'Add';
-            document.getElementById('cancelBtn').style.display = 'none';
+            updateModalButtons();
         }
 
         function closeModal() {
@@ -801,9 +814,6 @@
         document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
         document.getElementById('nextBtn').onclick = () => navigateMonth(1);
         document.getElementById('monthTotal').onclick = openMonthlyOverview;
-        document.getElementById('addBtn').onclick = handleSaveOrUpdate;
-        document.getElementById('cancelBtn').onclick = cancelEdit;
-        document.getElementById('closeBtn').onclick = closeModal;
         document.getElementById('helpBtn').onclick = showHelp;
         document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
         document.getElementById('dayDetailsModal').onclick = function(e) { if (e.target === this) closeDayDetailsModal(); };
