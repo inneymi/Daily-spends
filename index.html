@@ -86,7 +86,7 @@
         .notes-input:focus { border-color: #3b82f6; background: #131b2e; }
         .notes-input::placeholder { color: #64748b; }
         
-        .modal-buttons { display: flex; gap: 6px; margin-top: auto; flex-shrink: 0; }
+        .modal-buttons { display: flex; gap: 6px; flex-shrink: 0; }
         .modal-btn { flex: 1; padding: 6px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 500; }
         .btn-add { background: #3b82f6; color: white; }
         .btn-add:hover { background: #2563eb; }
@@ -162,7 +162,7 @@
             
             <input type="text" class="notes-input" id="notesInput" placeholder="Notes" maxlength="100">
             
-            <div id="dayTransactionsSummaryBox" style="margin-bottom: 12px; flex-shrink: 0;"></div>
+            <div id="dayTransactionsSummaryBox" style="margin-top: auto; margin-bottom: 12px; flex-shrink: 0;"></div>
 
             <div class="modal-buttons">
                 <button class="modal-btn btn-close" id="cancelBtn" style="display:none;">Cancel</button>
@@ -172,7 +172,7 @@
         </div>
     </div>
 
-    <!-- Day Details Modal (Image 1 style) -->
+    <!-- Day Details Modal -->
     <div class="modal" id="dayDetailsModal">
         <div class="modal-content" id="dayDetailsModalContent"></div>
     </div>
@@ -216,7 +216,7 @@
                 • Your spending data is automatically saved in your browser<br>
                 • It stays private on your device
             </div>
-            <div class="modal-buttons">
+            <div class="modal-buttons" style="margin-top: auto;">
                 <button class="modal-btn btn-close" onclick="closeHelp()">Got it!</button>
             </div>
         </div>
@@ -499,12 +499,9 @@
                 return;
             }
 
-            const notesCount = dayTransactions.filter(t => t.notes && t.notes.trim() !== '').length;
-            const countText = `${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'} (${notesCount} with note${notesCount === 1 ? '' : 's'})`;
-
             container.innerHTML = `
                 <div onclick="openDayDetailsModal()" style="background: #111827; border: 1px solid #2a3752; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: border-color 0.2s;">
-                    <div style="color: #34d399; font-weight: bold; font-size: 12px; margin-bottom: 2px;">${countText}</div>
+                    <div style="color: #34d399; font-weight: bold; font-size: 12px; margin-bottom: 2px;">${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'}</div>
                     <div style="color: #94a3b8; font-size: 10px;">Tap to view details</div>
                 </div>
             `;
@@ -599,11 +596,6 @@
             `;
             container.innerHTML = html;
             if (window.lucide) lucide.createIcons();
-        }
-
-        function setDayDetailsFilter(cat) {
-            dayDetailsCategoryFilter = cat;
-            renderDayDetailsModalContent();
         }
 
         function renderDetailsModalContent() {
