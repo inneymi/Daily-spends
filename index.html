@@ -188,11 +188,21 @@
     <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
         <div class="modal-content">
             <div style="font-weight: bold; font-size: 12px; margin-bottom: 10px; text-align: center;">Daily Spends Help</div>
-            <div style="font-size: 10px; color: #9ca3af; margin-bottom: 12px; line-height: 1.5;">
-                <strong style="color: #34d399; display: block; margin-bottom: 4px;">Managing Expenses</strong>
+            <div class="custom-scrollbar" style="font-size: 10px; color: #9ca3af; margin-bottom: 12px; line-height: 1.5; max-height: 240px; overflow-y: auto; padding-right: 4px;">
+                <strong style="color: #34d399; display: block; margin-bottom: 2px;">Managing Expenses</strong>
                 • Select a day and enter your spend<br>
-                <span style="display: inline-block; margin-top: 2px;">• Add optional notes (coffee, taxi, etc.)</span><br>
-                <span style="display: inline-block; margin-top: 2px;">• Add, edit, and delete entries anytime</span>
+                • Add optional notes (coffee, taxi, teabags, etc)<br>
+                • Tap Add to save<br>
+                • Add, edit, and delete entries anytime<br>
+                
+                <strong style="color: #34d399; display: block; margin-top: 8px; margin-bottom: 2px;">Viewing Your Data</strong>
+                • Tap monthly total at top to view all monthly transactions<br>
+                • Each day shows total spending<br>
+                • Tap transaction summaries to view details<br>
+
+                <strong style="color: #34d399; display: block; margin-top: 8px; margin-bottom: 2px;">Data Storage</strong>
+                • Your spending data is automatically saved in your browser<br>
+                • It stays private on your device
             </div>
             <div class="modal-buttons">
                 <button class="modal-btn btn-close" id="helpCloseBtn" onclick="closeHelp()">Got it!</button>
@@ -472,7 +482,11 @@
             const container = document.getElementById('detailsModalContent');
             if (!container) return;
 
-            const categoriesList = ['General', 'Food', 'Transport', 'Bills', 'Shopping', 'Fun'];
+            const usedCategoriesSet = new Set();
+            monthTransactions.forEach(t => {
+                usedCategoriesSet.add(t.category || 'General');
+            });
+            const categoriesList = Array.from(usedCategoriesSet);
 
             let html = `
                 <div class="modal-header" style="margin-bottom: 8px;">
