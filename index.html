@@ -68,7 +68,7 @@
         /* Modal styling */
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
         .modal.show { display: flex; }
-        .modal-content { background: #131b2e; border: 1px solid #1e293b; border-radius: 16px; padding: 16px; width: 280px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        .modal-content { background: #131b2e; border: 1px solid #1e293b; border-radius: 16px; padding: 16px; width: 310px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
         
         .modal-header { text-align: center; margin-bottom: 12px; }
         .modal-date { font-size: 12px; font-weight: bold; color: #f9fafb; }
@@ -176,10 +176,10 @@
         </div>
     </div>
 
-    <!-- Details Pop-up Modal for Transactions List -->
+    <!-- Monthly Overview Modal -->
     <div class="modal" id="detailsModal">
         <div class="modal-content" id="detailsModalContent">
-            <!-- Details content dynamically injected here -->
+            <!-- Dynamically injected -->
         </div>
     </div>
 
@@ -206,6 +206,7 @@
         let transactions = {};
         let selectedCategory = 'General';
         let editingTransactionId = null;
+        let overviewCategoryFilter = 'All';
 
         const categoryIcons = {
             'General': 'tag',
@@ -353,32 +354,36 @@
         }
 
         function deleteTransaction(id) {
-            const monthKey = selectedDate.substring(0, 7);
+            const monthKey = selectedDate ? selectedDate.substring(0, 7) : `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
             if (transactions[monthKey]) {
                 transactions[monthKey] = transactions[monthKey].filter(t => t.id !== id);
                 saveData();
                 updateDisplay();
                 buildCalendar();
-                renderDaySummaryCard();
                 renderDetailsModalContent();
                 if (window.lucide) lucide.createIcons();
             }
         }
 
         function editTransaction(id) {
-            const monthKey = selectedDate.substring(0, 7);
+            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
             const transaction = (transactions[monthKey] || []).find(t => t.id === id);
             if (!transaction) return;
 
+            closeDetailsModal();
+            selectedDate = transaction.date;
             editingTransactionId = id;
+            const [y, m, d] = selectedDate.split('-');
+            document.getElementById('modalDate').textContent = `${d}/${m}/${y}`;
             document.getElementById('amountInput').value = transaction.amount;
             document.getElementById('notesInput').value = transaction.notes || '';
             selectedCategory = transaction.category || 'General';
             updateCategoryPills();
+            renderDaySummaryCard();
 
             document.getElementById('addBtn').textContent = 'Update';
             document.getElementById('cancelBtn').style.display = 'block';
-            closeDetailsModal();
+            document.getElementById('modal').classList.add('show');
         }
 
         function cancelEdit() {
@@ -400,7 +405,8 @@
             document.getElementById('detailsModal').classList.remove('show');
         }
 
-        function openDetailsModal() {
+        function openMonthlyOverview() {
+            overviewCategoryFilter = 'All';
             renderDetailsModalContent();
             document.getElementById('detailsModal').classList.add('show');
             if (window.lucide) lucide.createIcons();
@@ -429,60 +435,113 @@
                 return;
             }
 
-            const count = dayTransactions.length;
-
             container.innerHTML = `
-                <div class="transaction-summary" onclick="openDetailsModal()">
-                    <div style="font-weight: 600;">${count} transaction${count > 1 ? 's' : ''}</div>
+                <div class="transaction-summary" onclick="openMonthlyOverview()">
+                    <div style="font-weight: 600;">Notes</div>
                     <div style="font-size: 9px; color: #9ca3af; margin-top: 2px;">Tap to view details</div>
                 </div>
             `;
         }
 
         function renderDetailsModalContent() {
-            const monthKey = selectedDate.substring(0, 7);
-            const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+            const monthNames = ["August", "September", "October", "November", "December", "January", "February", "March", "April", "May", "June", "July"];
+            // Use current selected month name and year
+            const actualMonthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const currentMonthName = actualMonthNames[currentMonth];
+            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            let monthTransactions = transactions[monthKey] || [];
+
+            // Filter transactions based on overviewCategoryFilter
+            let filteredTransactions = monthTransactions;
+            if (overviewCategoryFilter !== 'All') {
+                filteredTransactions = monthTransactions.filter(t => (t.category || 'General') === overviewCategoryFilter);
+            }
+
+            const currentFilteredTotal = filteredTransactions.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+            // Group filtered transactions by date
+            const groupedByDate = {};
+            filteredTransactions.forEach(t => {
+                if (!groupedByDate[t.date]) {
+                    groupedByDate[t.date] = [];
+                }
+                groupedByDate[t.date].push(t);
+            });
+
+            // Sort dates chronologically
+            const sortedDates = Object.keys(groupedByDate).sort();
+
             const container = document.getElementById('detailsModalContent');
             if (!container) return;
 
-            let formattedDate = selectedDate;
-            try {
-                const [y, m, d] = selectedDate.split('-');
-                formattedDate = `${d}/${m}/${y}`;
-            } catch (e) {}
+            const categoriesList = ['General', 'Food', 'Transport', 'Bills', 'Shopping', 'Fun'];
 
             let html = `
-                <div class="modal-header">
-                    <div class="modal-date">${formattedDate}</div>
+                <div class="modal-header" style="margin-bottom: 8px;">
+                    <div class="modal-date" style="font-size: 14px;">${currentMonthName} ${currentYear}</div>
                 </div>
-                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;">
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <span style="display: inline-block; background: #059669; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold;">
+                        ${overviewCategoryFilter === 'All' ? 'Total' : overviewCategoryFilter}: £${currentFilteredTotal.toFixed(2)}
+                    </span>
+                </div>
+                <div style="display: flex; gap: 4px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px;" class="custom-scrollbar">
+                    <button onclick="setOverviewFilter('All')" style="background: ${overviewCategoryFilter === 'All' ? '#2563eb' : '#0f172a'}; border: 1px solid ${overviewCategoryFilter === 'All' ? '#3b82f6' : '#1e293b'}; color: ${overviewCategoryFilter === 'All' ? '#fff' : '#94a3b8'}; padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer; white-space: nowrap;">All</button>
             `;
 
-            if (dayTransactions.length === 0) {
-                html += `<div style="text-align: center; color: #9ca3af; padding: 16px; font-size: 11px;">No transactions yet</div>`;
+            categoriesList.forEach(cat => {
+                const isActive = overviewCategoryFilter === cat;
+                const icon = categoryIcons[cat] || 'tag';
+                html += `
+                    <button onclick="setOverviewFilter('${cat}')" style="display: inline-flex; align-items: center; gap: 3px; background: ${isActive ? '#2563eb' : '#0f172a'}; border: 1px solid ${isActive ? '#3b82f6' : '#1e293b'}; color: ${isActive ? '#fff' : '#94a3b8'}; padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer; white-space: nowrap;">
+                        <i data-lucide="${icon}" style="width: 10px; height: 10px;"></i> ${cat}
+                    </button>
+                `;
+            });
+
+            html += `
+                </div>
+                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; margin-bottom: 10px; padding-right: 4px;">
+            `;
+
+            if (sortedDates.length === 0) {
+                html += `<div style="text-align: center; color: #9ca3af; padding: 16px; font-size: 11px;">No transactions found</div>`;
             } else {
-                dayTransactions.forEach(t => {
-                    const cat = t.category || 'General';
-                    const iconName = categoryIcons[cat] || 'tag';
+                sortedDates.forEach(dateStr => {
+                    const dayItems = groupedByDate[dateStr];
+                    const [y, m, dNum] = dateStr.split('-');
+                    const dateObj = new Date(y, m - 1, dNum);
+                    const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+                    const dayOfWeekStr = daysOfWeek[dateObj.getDay()];
+                    const formattedDayLabel = `${dayOfWeekStr} ${parseInt(dNum, 10)}`;
+
                     html += `
-                        <div style="background: #1e293b; border: 1px solid #334155; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
-                                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
-                                    <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
-                                    <div style="display: flex; align-items: center; gap: 4px; color: #cbd5e1; font-size: 11px;">
-                                        <i data-lucide="${iconName}" style="width: 12px; height: 12px;"></i>
-                                        <span>${cat}</span>
+                        <div style="font-size: 11px; font-weight: 600; color: #94a3b8; margin-top: 4px;">${formattedDayLabel}</div>
+                    `;
+
+                    dayItems.forEach(t => {
+                        const cat = t.category || 'General';
+                        const iconName = categoryIcons[cat] || 'tag';
+                        html += `
+                            <div style="background: #1e293b; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                    <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
+                                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
+                                        <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
+                                        <div style="display: flex; align-items: center; gap: 4px; color: #cbd5e1; font-size: 11px;">
+                                            <i data-lucide="${iconName}" style="width: 12px; height: 12px;"></i>
+                                            <span>${cat}</span>
+                                        </div>
                                     </div>
                                 </div>
+                                ${t.notes ? `<div style="color: #e2e8f0; font-size: 11px;">${t.notes}</div>` : ''}
+                                <div style="display: flex; gap: 4px; margin-top: 2px;">
+                                    <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Edit</button>
+                                    <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Delete</button>
+                                </div>
                             </div>
-                            ${t.notes ? `<div style="color: #e2e8f0; font-size: 11px;">${t.notes}</div>` : ''}
-                            <div style="display: flex; gap: 4px; margin-top: 4px;">
-                                <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 10px; cursor: pointer;">Edit</button>
-                                <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 4px 10px; border-radius: 4px; font-size: 10px; cursor: pointer;">Delete</button>
-                            </div>
-                        </div>
-                    `;
+                        `;
+                    });
                 });
             }
 
@@ -493,6 +552,12 @@
                 </div>
             `;
             container.innerHTML = html;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function setOverviewFilter(cat) {
+            overviewCategoryFilter = cat;
+            renderDetailsModalContent();
         }
 
         function showHelp() {
@@ -514,6 +579,7 @@
 
         document.getElementById('prevBtn').onclick = () => navigateMonth(-1);
         document.getElementById('nextBtn').onclick = () => navigateMonth(1);
+        document.getElementById('monthTotal').onclick = openMonthlyOverview;
         document.getElementById('addBtn').onclick = handleSaveOrUpdate;
         document.getElementById('cancelBtn').onclick = cancelEdit;
         document.getElementById('closeBtn').onclick = closeModal;
