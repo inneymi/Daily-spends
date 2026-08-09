@@ -69,23 +69,23 @@
         /* Modal styling */
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
         .modal.show { display: flex; }
-        .modal-content { background: #172036; border: 1px solid #2a3752; border-radius: 16px; padding: 16px; width: 310px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
+        .modal-content { background: #172036; border: 1px solid #2a3752; border-radius: 16px; padding: 16px; width: 310px; height: 420px; display: flex; flex-direction: column; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
         
-        .modal-header { text-align: center; margin-bottom: 12px; }
+        .modal-header { text-align: center; margin-bottom: 12px; flex-shrink: 0; }
         .modal-date { font-size: 12px; font-weight: bold; color: #f9fafb; }
         
-        .amount-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 12px; text-align: center; outline: none; margin-bottom: 10px; }
+        .amount-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 12px; text-align: center; outline: none; margin-bottom: 10px; flex-shrink: 0; }
         .amount-input:focus { border-color: #3b82f6; background: #131b2e; }
         .amount-input::placeholder { color: #64748b; }
 
-        .notes-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 12px; outline: none; margin-bottom: 12px; }
+        .notes-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 12px; outline: none; margin-bottom: 12px; flex-shrink: 0; }
         .notes-input:focus { border-color: #3b82f6; background: #131b2e; }
         .notes-input::placeholder { color: #64748b; }
 
         .transaction-summary { background: #0f172a; border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 11px; color: #34d399; border: 1px solid #1e293b; text-align: center; cursor: pointer; }
         .transaction-summary:hover { background: #1e293b; }
         
-        .modal-buttons { display: flex; gap: 6px; margin-top: 2px; }
+        .modal-buttons { display: flex; gap: 6px; margin-top: auto; flex-shrink: 0; }
         .modal-btn { flex: 1; padding: 6px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 500; }
         .btn-add { background: #3b82f6; color: white; }
         .btn-add:hover { background: #2563eb; }
@@ -94,7 +94,7 @@
         
         .error-message { color: #f87171; font-size: 10px; margin-bottom: 6px; text-align: center; display: none; }
         
-        .category-pills-container { margin-bottom: 12px; text-align: left; }
+        .category-pills-container { margin-bottom: 12px; text-align: left; flex-shrink: 0; }
         .category-label { font-size: 10px; color: #9ca3af; margin-bottom: 6px; font-weight: 500; }
         .category-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
         .pill-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: #0f172a; border: 1px solid #1e293b; color: #94a3b8; padding: 6px 4px; border-radius: 6px; font-size: 10px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; }
@@ -167,7 +167,7 @@
             
             <input type="text" class="notes-input" id="notesInput" placeholder="Notes" maxlength="100">
             
-            <div id="dayTransactionsContainer"></div>
+            <div id="dayTransactionsContainer" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;"></div>
 
             <div class="modal-buttons">
                 <button class="modal-btn btn-close" id="cancelBtn" style="display:none;">Cancel</button>
@@ -187,8 +187,8 @@
     <!-- Help Modal -->
     <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
         <div class="modal-content">
-            <div style="font-weight: bold; font-size: 13px; margin-bottom: 10px; text-align: center;">Daily Spends Help</div>
-            <div class="custom-scrollbar" style="font-size: 10px; color: #9ca3af; margin-bottom: 12px; line-height: 1.5; max-height: 240px; overflow-y: auto; padding-right: 4px;">
+            <div style="font-weight: bold; font-size: 13px; margin-bottom: 10px; text-align: center; flex-shrink: 0;">Daily Spends Help</div>
+            <div class="custom-scrollbar" style="font-size: 10px; color: #9ca3af; margin-bottom: 12px; line-height: 1.5; flex: 1; overflow-y: auto; padding-right: 4px;">
                 <strong style="color: #34d399; display: block; margin-bottom: 2px; font-size: 10px;">Managing Expenses</strong>
                 • Select a day and enter your spend<br>
                 • Add optional notes (coffee, taxi, teabags, etc)<br>
@@ -450,14 +450,14 @@
             }
 
             let html = `
-                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto; margin-bottom: 10px; padding-right: 4px;">
+                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 6px; overflow-y: auto; margin-bottom: 10px; padding-right: 4px; flex: 1;">
             `;
 
             dayTransactions.forEach(t => {
                 const cat = t.category || 'General';
                 const iconName = categoryIcons[cat] || 'tag';
                 html += `
-                    <div style="background: #1e293b; border: 1px solid #334155; padding: 6px 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
+                    <div style="background: #1e293b; border: 1px solid #334155; padding: 6px 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <span style="color: #34d399; font-weight: 600; font-size: 11px;">£${Number(t.amount).toFixed(2)}</span>
                             <span style="color: #94a3b8; font-size: 9px;">${t.time || ''}</span>
@@ -518,12 +518,12 @@
                 <div class="modal-header" style="margin-bottom: 8px;">
                     <div class="modal-date" style="font-size: 14px;">${currentMonthName} ${currentYear}</div>
                 </div>
-                <div style="text-align: center; margin-bottom: 10px;">
+                <div style="text-align: center; margin-bottom: 10px; flex-shrink: 0;">
                     <span style="display: inline-block; background: #059669; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold;">
                         ${overviewCategoryFilter === 'All' ? 'Total' : overviewCategoryFilter}: £${currentFilteredTotal.toFixed(2)}
                     </span>
                 </div>
-                <div style="display: flex; gap: 4px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px;" class="custom-scrollbar">
+                <div style="display: flex; gap: 4px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; flex-shrink: 0;" class="custom-scrollbar">
                     <button onclick="setOverviewFilter('All')" style="background: ${overviewCategoryFilter === 'All' ? '#2563eb' : '#0f172a'}; border: 1px solid ${overviewCategoryFilter === 'All' ? '#3b82f6' : '#1e293b'}; color: ${overviewCategoryFilter === 'All' ? '#fff' : '#94a3b8'}; padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer; white-space: nowrap;">All</button>
             `;
 
@@ -539,7 +539,7 @@
 
             html += `
                 </div>
-                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 8px; max-height: 260px; overflow-y: auto; margin-bottom: 10px; padding-right: 4px;">
+                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; margin-bottom: 10px; padding-right: 4px;">
             `;
 
             if (sortedDates.length === 0) {
@@ -561,7 +561,7 @@
                         const cat = t.category || 'General';
                         const iconName = categoryIcons[cat] || 'tag';
                         html += `
-                            <div style="background: #1e293b; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
+                            <div style="background: #1e293b; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                     <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
                                     <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
