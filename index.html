@@ -55,8 +55,8 @@
         .weekdays { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-bottom: 6px; }
         .weekday { text-align: center; font-size: 8px; color: #64748b; padding: 4px 0; }
         .days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; min-height: 180px; }
-        .day { aspect-ratio: 1; border: 1px solid #2a3752; background: #0f172a; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 2px 4px 2px; font-size: 11px; }
-        .day:hover { background: #1e293b; border-color: #3b82f6; transform: scale(1.05); }
+        .day { aspect-ratio: 1; border: 1px solid #2a3752; background: #111827; border-radius: 6px; display: flex; flex-direction: column; justify-content: space-between; align-items: center; cursor: pointer; padding: 5px 2px 4px 2px; font-size: 11px; }
+        .day:hover { background: #1f2937; border-color: #3b82f6; transform: scale(1.05); }
         .day-number { font-weight: 600; font-size: 9px; color: #cbd5e1; }
         .day-amount { font-size: 11px; color: #34d399; }
         .plus-icon { font-size: 9px; color: #64748b; }
@@ -66,24 +66,25 @@
         .footer-link { background: transparent; border: none; color: #9ca3af; font-size: 12px; cursor: pointer; padding: 8px 12px; border-radius: 6px; }
         .footer-link:hover { color: #d1d5db; background: rgba(55, 65, 81, 0.5); }
         
-        /* Modal styling */
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
         .modal.show { display: flex; }
         .modal-content { background: #172036; border: 1px solid #2a3752; border-radius: 16px; padding: 16px; width: 310px; height: 420px; display: flex; flex-direction: column; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
         
+        #noteModal { z-index: 1050; }
+        #noteModal .modal-content { height: auto; min-height: 180px; width: 280px; }
+
+        #help-modal .modal-content { height: 420px; width: 310px; }
+
         .modal-header { text-align: center; margin-bottom: 12px; flex-shrink: 0; }
         .modal-date { font-size: 12px; font-weight: bold; color: #f9fafb; }
         
-        .amount-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 12px; text-align: center; outline: none; margin-bottom: 10px; flex-shrink: 0; }
+        .amount-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 16px; text-align: center; outline: none; margin-bottom: 10px; flex-shrink: 0; }
         .amount-input:focus { border-color: #3b82f6; background: #131b2e; }
         .amount-input::placeholder { color: #64748b; }
 
-        .notes-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 12px; outline: none; margin-bottom: 12px; flex-shrink: 0; }
+        .notes-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 16px; outline: none; margin-bottom: 12px; flex-shrink: 0; }
         .notes-input:focus { border-color: #3b82f6; background: #131b2e; }
         .notes-input::placeholder { color: #64748b; }
-
-        .transaction-summary { background: #0f172a; border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 11px; color: #34d399; border: 1px solid #1e293b; text-align: center; cursor: pointer; }
-        .transaction-summary:hover { background: #1e293b; }
         
         .modal-buttons { display: flex; gap: 6px; margin-top: auto; flex-shrink: 0; }
         .modal-btn { flex: 1; padding: 6px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 500; }
@@ -102,20 +103,13 @@
         .pill-btn.active { background: #2563eb; color: #ffffff; border-color: #3b82f6; }
         .pill-btn:hover:not(.active) { background: #1e293b; color: #e2e8f0; }
 
-        /* Custom minimal scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #334155;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #334155; }
+        
+        .clickable-note { color: #e2e8f0; font-size: 11px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; cursor: pointer; padding: 2px 0; transition: color 0.2s; }
+        .clickable-note:hover { color: #60a5fa; text-decoration: underline; text-underline-offset: 2px; }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -128,7 +122,7 @@
         <div class="subtitle">Click any day to track spending</div>
         <div class="nav">
             <button class="nav-btn" id="prevBtn">‹ Prev</button>
-            <div class="month-title" id="monthTitle">November 2025</div>
+            <div class="month-title" id="monthTitle">August 2026</div>
             <button class="nav-btn" id="nextBtn">Next ›</button>
         </div>
         <div class="calendar">
@@ -142,11 +136,12 @@
         </div>
     </div>
 
-    <!-- Main Spending / Entry Modal -->
+    <!-- Main Spending Modal -->
     <div class="modal" id="modal">
         <div class="modal-content" id="modalContentBox">
             <div class="modal-header">
                 <div class="modal-date" id="modalDate"></div>
+                <div id="modalDayTotalBadge" style="margin-top: 4px;"></div>
             </div>
             
             <input type="number" step="0.01" class="amount-input" id="amountInput" placeholder="Amount to add (£)">
@@ -167,7 +162,7 @@
             
             <input type="text" class="notes-input" id="notesInput" placeholder="Notes" maxlength="100">
             
-            <div id="dayTransactionsContainer" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;"></div>
+            <div id="dayTransactionsSummaryBox" style="margin-bottom: 12px; flex-shrink: 0;"></div>
 
             <div class="modal-buttons">
                 <button class="modal-btn btn-close" id="cancelBtn" style="display:none;">Cancel</button>
@@ -177,35 +172,52 @@
         </div>
     </div>
 
+    <!-- Day Details Modal (Image 1 style) -->
+    <div class="modal" id="dayDetailsModal">
+        <div class="modal-content" id="dayDetailsModalContent"></div>
+    </div>
+
     <!-- Monthly Overview Modal -->
     <div class="modal" id="detailsModal">
-        <div class="modal-content" id="detailsModalContent">
-            <!-- Dynamically injected -->
+        <div class="modal-content" id="detailsModalContent"></div>
+    </div>
+
+    <!-- Note Details Modal -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header" style="margin-bottom: 8px;">
+                <div class="modal-date">Transaction Notes</div>
+            </div>
+            <div id="noteModalContent" class="custom-scrollbar" style="flex: 1; color: #f8fafc; font-size: 13px; line-height: 1.5; overflow-y: auto; margin-bottom: 16px; word-wrap: break-word; text-align: center; padding: 10px;">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-close" onclick="closeNoteModal()">Close</button>
+            </div>
         </div>
     </div>
 
     <!-- Help Modal -->
-    <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
+    <div class="modal" id="help-modal">
         <div class="modal-content">
-            <div style="font-weight: bold; font-size: 13px; margin-bottom: 10px; text-align: center; flex-shrink: 0;">Daily Spends Help</div>
-            <div class="custom-scrollbar" style="font-size: 10px; color: #9ca3af; margin-bottom: 12px; line-height: 1.5; flex: 1; overflow-y: auto; padding-right: 4px;">
-                <strong style="color: #34d399; display: block; margin-bottom: 2px; font-size: 10px;">Managing Expenses</strong>
+            <div style="font-weight: bold; font-size: 14px; margin-bottom: 10px; text-align: center; flex-shrink: 0;">Daily Spends Help</div>
+            <div class="custom-scrollbar" style="font-size: 11px; color: #9ca3af; margin-bottom: 12px; line-height: 1.6; flex: 1; overflow-y: auto; padding-right: 4px;">
+                <strong style="color: #34d399; display: block; margin-bottom: 3px; font-size: 12px;">Managing Expenses</strong>
                 • Select a day and enter your spend<br>
                 • Add optional notes (coffee, taxi, teabags, etc)<br>
-                • Tap Add to save<br>
-                • Add, edit, and delete entries anytime<br>
+                • Click any transaction note to view it fully<br>
+                • Add, edit, and delete entries anytime<br><br>
                 
-                <strong style="color: #34d399; display: block; margin-top: 8px; margin-bottom: 2px; font-size: 10px;">Viewing Your Data</strong>
+                <strong style="color: #34d399; display: block; margin-top: 4px; margin-bottom: 3px; font-size: 12px;">Viewing Your Data</strong>
                 • Tap monthly total at top to view all monthly transactions<br>
                 • Each day shows total spending<br>
-                • Tap transaction summaries to view details<br>
+                • Tap transaction summaries to view details<br><br>
 
-                <strong style="color: #34d399; display: block; margin-top: 8px; margin-bottom: 2px; font-size: 10px;">Data Storage</strong>
+                <strong style="color: #34d399; display: block; margin-top: 4px; margin-bottom: 3px; font-size: 12px;">Data Storage</strong>
                 • Your spending data is automatically saved in your browser<br>
                 • It stays private on your device
             </div>
             <div class="modal-buttons">
-                <button class="modal-btn btn-close" id="helpCloseBtn" onclick="closeHelp()">Got it!</button>
+                <button class="modal-btn btn-close" onclick="closeHelp()">Got it!</button>
             </div>
         </div>
     </div>
@@ -218,6 +230,7 @@
         let selectedCategory = 'General';
         let editingTransactionId = null;
         let overviewCategoryFilter = 'All';
+        let dayDetailsCategoryFilter = 'All';
 
         const categoryIcons = {
             'General': 'tag',
@@ -307,12 +320,15 @@
             selectedDate = dateStr;
             editingTransactionId = null;
             const [y, m, d] = dateStr.split('-');
-            document.getElementById('modalDate').textContent = `${d}/${m}/${y}`;
+            const monthNamesFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthName = monthNamesFull[parseInt(m, 10) - 1];
+            
+            document.getElementById('modalDate').textContent = `${monthName} ${parseInt(d, 10)}`;
             document.getElementById('amountInput').value = '';
             document.getElementById('notesInput').value = '';
             selectedCategory = 'General';
             updateCategoryPills();
-            renderDaySummaryCard();
+            renderDaySummaryBox();
             
             document.getElementById('addBtn').textContent = 'Add';
             document.getElementById('cancelBtn').style.display = 'none';
@@ -359,7 +375,7 @@
             saveData();
             updateDisplay();
             buildCalendar();
-            renderDaySummaryCard();
+            renderDaySummaryBox();
 
             amountInput.value = '';
             notesInput.value = '';
@@ -372,27 +388,31 @@
                 saveData();
                 updateDisplay();
                 buildCalendar();
+                renderDayDetailsModalContent();
                 renderDetailsModalContent();
-                renderDaySummaryCard();
+                renderDaySummaryBox();
                 if (window.lucide) lucide.createIcons();
             }
         }
 
         function editTransaction(id) {
-            const monthKey = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const monthKey = selectedDate.substring(0, 7);
             const transaction = (transactions[monthKey] || []).find(t => t.id === id);
             if (!transaction) return;
 
-            closeDetailsModal();
+            closeDayDetailsModal();
             selectedDate = transaction.date;
             editingTransactionId = id;
             const [y, m, d] = selectedDate.split('-');
-            document.getElementById('modalDate').textContent = `${d}/${m}/${y}`;
+            const monthNamesFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthName = monthNamesFull[parseInt(m, 10) - 1];
+            
+            document.getElementById('modalDate').textContent = `${monthName} ${parseInt(d, 10)}`;
             document.getElementById('amountInput').value = transaction.amount;
             document.getElementById('notesInput').value = transaction.notes || '';
             selectedCategory = transaction.category || 'General';
             updateCategoryPills();
-            renderDaySummaryCard();
+            renderDaySummaryBox();
 
             document.getElementById('addBtn').textContent = 'Update';
             document.getElementById('cancelBtn').style.display = 'block';
@@ -415,8 +435,32 @@
             document.getElementById('modal').classList.remove('show');
         }
 
+        function closeDayDetailsModal() {
+            document.getElementById('dayDetailsModal').classList.remove('show');
+        }
+
         function closeDetailsModal() {
             document.getElementById('detailsModal').classList.remove('show');
+        }
+
+        function openNoteModal(id, dateStr) {
+            const monthKey = dateStr.substring(0, 7);
+            const transaction = (transactions[monthKey] || []).find(t => t.id === id);
+            if (transaction) {
+                document.getElementById('noteModalContent').innerHTML = transaction.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>';
+                document.getElementById('noteModal').classList.add('show');
+            }
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModal').classList.remove('show');
+        }
+
+        function openDayDetailsModal() {
+            dayDetailsCategoryFilter = 'All';
+            renderDayDetailsModalContent();
+            document.getElementById('dayDetailsModal').classList.add('show');
+            if (window.lucide) lucide.createIcons();
         }
 
         function openMonthlyOverview() {
@@ -438,48 +482,128 @@
             if (hiddenInput) hiddenInput.value = selectedCategory;
         }
 
-        function renderDaySummaryCard() {
+        function renderDaySummaryBox() {
             const monthKey = selectedDate.substring(0, 7);
             const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
-            const container = document.getElementById('dayTransactionsContainer');
+            const container = document.getElementById('dayTransactionsSummaryBox');
+            const totalBadge = document.getElementById('modalDayTotalBadge');
             if (!container) return;
+
+            const dayTotal = dayTransactions.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+            if (totalBadge) {
+                totalBadge.innerHTML = `<span style="display: inline-block; background: #059669; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold;">Total: £${dayTotal.toFixed(2)}</span>`;
+            }
 
             if (dayTransactions.length === 0) {
                 container.innerHTML = '';
                 return;
             }
 
+            const notesCount = dayTransactions.filter(t => t.notes && t.notes.trim() !== '').length;
+            const countText = `${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'} (${notesCount} with note${notesCount === 1 ? '' : 's'})`;
+
+            container.innerHTML = `
+                <div onclick="openDayDetailsModal()" style="background: #111827; border: 1px solid #2a3752; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: border-color 0.2s;">
+                    <div style="color: #34d399; font-weight: bold; font-size: 12px; margin-bottom: 2px;">${countText}</div>
+                    <div style="color: #94a3b8; font-size: 10px;">Tap to view details</div>
+                </div>
+            `;
+        }
+
+        function renderDayDetailsModalContent() {
+            const monthKey = selectedDate.substring(0, 7);
+            const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+
+            let filtered = dayTransactions;
+            if (dayDetailsCategoryFilter !== 'All') {
+                filtered = dayTransactions.filter(t => (t.category || 'General') === dayDetailsCategoryFilter);
+            }
+
+            const filteredTotal = filtered.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+            const [y, m, dNum] = selectedDate.split('-');
+            const monthNamesFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthName = monthNamesFull[parseInt(m, 10) - 1];
+
+            const usedCategoriesSet = new Set();
+            dayTransactions.forEach(t => usedCategoriesSet.add(t.category || 'General'));
+            const categoriesList = Array.from(usedCategoriesSet);
+
+            const container = document.getElementById('dayDetailsModalContent');
+            if (!container) return;
+
             let html = `
-                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 6px; overflow-y: auto; margin-bottom: 10px; padding-right: 4px; flex: 1;">
+                <div class="modal-header" style="margin-bottom: 8px;">
+                    <div class="modal-date" style="font-size: 14px;">${monthName} ${parseInt(dNum, 10)}</div>
+                </div>
+                <div style="text-align: center; margin-bottom: 10px; flex-shrink: 0;">
+                    <span style="display: inline-block; background: #059669; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold;">
+                        ${dayDetailsCategoryFilter === 'All' ? 'Total' : dayDetailsCategoryFilter}: £${filteredTotal.toFixed(2)}
+                    </span>
+                </div>
             `;
 
-            dayTransactions.forEach(t => {
-                const cat = t.category || 'General';
-                const iconName = categoryIcons[cat] || 'tag';
+            if (categoriesList.length > 0) {
                 html += `
-                    <div style="background: #1e293b; border: 1px solid #334155; padding: 6px 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <span style="color: #34d399; font-weight: 600; font-size: 11px;">£${Number(t.amount).toFixed(2)}</span>
-                            <span style="color: #94a3b8; font-size: 9px;">${t.time || ''}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="color: #e2e8f0; font-size: 10px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">${t.notes || ''}</div>
-                            <div class="category-badge">
-                                <i data-lucide="${iconName}"></i>
-                                <span>${cat}</span>
+                    <div style="display: flex; gap: 4px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; flex-shrink: 0;" class="custom-scrollbar">
+                        <button onclick="setDayDetailsFilter('All')" style="background: ${dayDetailsCategoryFilter === 'All' ? '#2563eb' : '#0f172a'}; border: 1px solid ${dayDetailsCategoryFilter === 'All' ? '#3b82f6' : '#1e293b'}; color: ${dayDetailsCategoryFilter === 'All' ? '#fff' : '#94a3b8'}; padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer; white-space: nowrap;">All</button>
+                `;
+                categoriesList.forEach(cat => {
+                    const isActive = dayDetailsCategoryFilter === cat;
+                    const icon = categoryIcons[cat] || 'tag';
+                    html += `
+                        <button onclick="setDayDetailsFilter('${cat}')" style="display: inline-flex; align-items: center; gap: 3px; background: ${isActive ? '#2563eb' : '#0f172a'}; border: 1px solid ${isActive ? '#3b82f6' : '#1e293b'}; color: ${isActive ? '#fff' : '#94a3b8'}; padding: 4px 8px; border-radius: 6px; font-size: 10px; cursor: pointer; white-space: nowrap;">
+                            <i data-lucide="${icon}" style="width: 10px; height: 10px;"></i> ${cat}
+                        </button>
+                    `;
+                });
+                html += `</div>`;
+            }
+
+            html += `<div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 8px; flex: 1; overflow-y: auto; margin-bottom: 10px; padding-right: 4px;">`;
+
+            if (filtered.length === 0) {
+                html += `<div style="text-align: center; color: #9ca3af; padding: 16px; font-size: 11px;">No transactions found</div>`;
+            } else {
+                filtered.forEach(t => {
+                    const cat = t.category || 'General';
+                    const iconName = categoryIcons[cat] || 'tag';
+                    html += `
+                        <div style="background: #1e293b; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
+                                <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                                <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
+                                    ${t.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>'}
+                                </div>
+                                <div class="category-badge" style="flex-shrink: 0;">
+                                    <i data-lucide="${iconName}"></i>
+                                    <span>${cat}</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 4px; margin-top: 2px;">
+                                <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Edit</button>
+                                <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Delete</button>
                             </div>
                         </div>
-                        <div style="display: flex; gap: 4px; margin-top: 2px;">
-                            <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 2px 6px; border-radius: 4px; font-size: 9px; cursor: pointer;">Edit</button>
-                            <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 2px 6px; border-radius: 4px; font-size: 9px; cursor: pointer;">Delete</button>
-                        </div>
-                    </div>
-                `;
-            });
+                    `;
+                });
+            }
 
-            html += `</div>`;
+            html += `
+                </div>
+                <div class="modal-buttons">
+                    <button class="modal-btn btn-close" onclick="closeDayDetailsModal()">Close</button>
+                </div>
+            `;
             container.innerHTML = html;
             if (window.lucide) lucide.createIcons();
+        }
+
+        function setDayDetailsFilter(cat) {
+            dayDetailsCategoryFilter = cat;
+            renderDayDetailsModalContent();
         }
 
         function renderDetailsModalContent() {
@@ -564,13 +688,13 @@
                             <div style="background: #1e293b; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
                                 <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                     <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
-                                    <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
-                                        <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
-                                    </div>
+                                    <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div style="color: #e2e8f0; font-size: 11px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;">${t.notes || ''}</div>
-                                    <div class="category-badge">
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                                    <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
+                                        ${t.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>'}
+                                    </div>
+                                    <div class="category-badge" style="flex-shrink: 0;">
                                         <i data-lucide="${iconName}"></i>
                                         <span>${cat}</span>
                                     </div>
@@ -602,13 +726,23 @@
 
         function showHelp() {
             const helpModal = document.getElementById('help-modal');
-            if (helpModal) helpModal.style.display = 'flex';
+            if (helpModal) helpModal.classList.add('show');
         }
 
         function closeHelp() {
             const helpModal = document.getElementById('help-modal');
-            if (helpModal) helpModal.style.display = 'none';
+            if (helpModal) helpModal.classList.remove('show');
         }
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeModal();
+                closeDayDetailsModal();
+                closeDetailsModal();
+                closeHelp();
+                closeNoteModal();
+            }
+        });
 
         document.querySelectorAll('.pill-btn').forEach(btn => {
             btn.onclick = () => {
@@ -625,7 +759,10 @@
         document.getElementById('closeBtn').onclick = closeModal;
         document.getElementById('helpBtn').onclick = showHelp;
         document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
+        document.getElementById('dayDetailsModal').onclick = function(e) { if (e.target === this) closeDayDetailsModal(); };
         document.getElementById('detailsModal').onclick = function(e) { if (e.target === this) closeDetailsModal(); };
+        document.getElementById('noteModal').onclick = function(e) { if (e.target === this) closeNoteModal(); };
+        document.getElementById('help-modal').onclick = function(e) { if (e.target === this) closeHelp(); };
 
         loadData();
         updateDisplay();
@@ -634,5 +771,3 @@
     </script>
 </body>
 </html>
-
-```
