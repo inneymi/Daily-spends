@@ -178,11 +178,9 @@
             </div>
             
             <input type="text" class="notes-input" id="notesInput" placeholder="Notes" maxlength="100">
-            
-            <div id="dayTransactionsSummaryBox" style="margin-top: auto; margin-bottom: 12px; flex-shrink: 0;"></div>
 
             <div class="modal-buttons" id="modalButtonsContainer">
-                <!-- Dynamically updated: Update on the left, Cancel on the right when editing -->
+                <!-- Dynamically updated -->
             </div>
         </div>
     </div>
@@ -246,6 +244,7 @@
         let editingTransactionId = null;
         let overviewCategoryFilter = 'All';
         let dayDetailsCategoryFilter = 'All';
+        let lastOpenedFromDetails = false;
 
         const categoryIcons = {
             'General': 'tag',
@@ -409,7 +408,7 @@
             if (editingTransactionId) {
                 container.innerHTML = `
                     <button class="modal-btn btn-add" id="addBtn" onclick="handleSaveOrUpdate()">Update</button>
-                    <button class="modal-btn btn-close" id="cancelBtn" onclick="cancelEdit()">Cancel</button>
+                    <button class="modal-btn btn-close" id="closeBtn" onclick="closeEditAndReturn()">Close</button>
                 `;
             } else {
                 container.innerHTML = `
@@ -422,6 +421,7 @@
         function openDayModal(dateStr) {
             selectedDate = dateStr;
             editingTransactionId = null;
+            lastOpenedFromDetails = false;
             const [y, m, d] = dateStr.split('-');
             const monthNamesFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const monthName = monthNamesFull[parseInt(m, 10) - 1];
@@ -431,7 +431,6 @@
             document.getElementById('notesInput').value = '';
             selectedCategory = 'General';
             updateCategoryPills();
-            renderDaySummaryBox();
             
             updateModalButtons();
             document.getElementById('modal').classList.add('show');
@@ -460,8 +459,20 @@
                         notes: notesInput.value.trim()
                     };
                 }
+                const wasFromDetails = lastOpenedFromDetails;
+                const savedDate = selectedDate;
                 editingTransactionId = null;
-                updateModalButtons();
+                document.getElementById('modal').classList.remove('show');
+                
+                saveData();
+                updateDisplay();
+                buildCalendar();
+
+                if (wasFromDetails) {
+                    selectedDate = savedDate;
+                    openDayDetailsModal();
+                }
+                return;
             } else {
                 transactions[monthKey].push({
                     id: Date.now().toString() + Math.random().toString(36).substring(2, 5),
@@ -476,7 +487,6 @@
             saveData();
             updateDisplay();
             buildCalendar();
-            renderDaySummaryBox();
 
             amountInput.value = '';
             notesInput.value = '';
@@ -491,7 +501,6 @@
                 buildCalendar();
                 renderDayDetailsModalContent();
                 renderDetailsModalContent();
-                renderDaySummaryBox();
                 if (window.lucide) lucide.createIcons();
             }
         }
@@ -516,6 +525,10 @@
 
             if (!transaction) return;
 
+            const isDayDetailsOpen = document.getElementById('dayDetailsModal').classList.contains('show');
+            const isMonthlyOpen = document.getElementById('detailsModal').classList.contains('show');
+            lastOpenedFromDetails = isDayDetailsOpen || isMonthlyOpen;
+
             closeDayDetailsModal();
             closeDetailsModal();
             
@@ -530,20 +543,22 @@
             document.getElementById('notesInput').value = transaction.notes || '';
             selectedCategory = transaction.category || 'General';
             updateCategoryPills();
-            renderDaySummaryBox();
 
             updateModalButtons();
             document.getElementById('modal').classList.add('show');
             if (window.lucide) lucide.createIcons();
         }
 
-        function cancelEdit() {
+        function closeEditAndReturn() {
+            const wasFromDetails = lastOpenedFromDetails;
+            const savedDate = selectedDate;
             editingTransactionId = null;
-            document.getElementById('amountInput').value = '';
-            document.getElementById('notesInput').value = '';
-            selectedCategory = 'General';
-            updateCategoryPills();
-            updateModalButtons();
+            document.getElementById('modal').classList.remove('show');
+
+            if (wasFromDetails) {
+                selectedDate = savedDate;
+                openDayDetailsModal();
+            }
         }
 
         function closeModal() {
@@ -596,31 +611,6 @@
             });
             const hiddenInput = document.getElementById('categoryInput');
             if (hiddenInput) hiddenInput.value = selectedCategory;
-        }
-
-        function renderDaySummaryBox() {
-            const monthKey = selectedDate.substring(0, 7);
-            const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
-            const container = document.getElementById('dayTransactionsSummaryBox');
-            const totalBadge = document.getElementById('modalDayTotalBadge');
-            if (!container) return;
-
-            const dayTotal = dayTransactions.reduce((sum, t) => sum + Number(t.amount || 0), 0);
-            if (totalBadge) {
-                totalBadge.innerHTML = `<span class="badge-pill">Total: ${formatMoney(dayTotal)}</span>`;
-            }
-
-            if (dayTransactions.length === 0 || editingTransactionId) {
-                container.innerHTML = '';
-                return;
-            }
-
-            container.innerHTML = `
-                <div onclick="openDayDetailsModal()" style="background: #111827; border: 1px solid #2a3752; padding: 10px; border-radius: 8px; text-align: center; cursor: pointer; transition: border-color 0.2s;">
-                    <div style="color: #34d399; font-weight: bold; font-size: 12px; margin-bottom: 2px;">${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'}</div>
-                    <div style="color: #94a3b8; font-size: 10px;">Tap to view details</div>
-                </div>
-            `;
         }
 
         function renderDayDetailsModalContent() {
