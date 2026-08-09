@@ -23,6 +23,13 @@
           background-color: #0f172a;
           border: 1px solid #1e293b;
           color: #94a3b8;
+          cursor: pointer;
+          transition: all 0.2s ease;
+        }
+        .category-badge:hover {
+          background-color: #1e293b;
+          color: #f8fafc;
+          border-color: #3b82f6;
         }
         .category-badge svg, .category-badge [data-lucide] {
           width: 10px !important;
@@ -269,7 +276,7 @@
                         <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
                             ${t.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>'}
                         </div>
-                        <div class="category-badge" style="flex-shrink: 0;">
+                        <div class="category-badge" onclick="filterFromCard('${cat}')" title="Filter by ${cat}" style="flex-shrink: 0;">
                             <i data-lucide="${iconName}"></i>
                             <span>${cat}</span>
                         </div>
@@ -280,6 +287,20 @@
                     </div>
                 </div>
             `;
+        }
+
+        function filterFromCard(cat) {
+            const dayDetailsModal = document.getElementById('dayDetailsModal');
+            const detailsModal = document.getElementById('detailsModal');
+
+            if (dayDetailsModal.classList.contains('show')) {
+                setDayDetailsFilter(cat);
+            } else if (detailsModal.classList.contains('show')) {
+                setOverviewFilter(cat);
+            } else {
+                openDayDetailsModal();
+                setDayDetailsFilter(cat);
+            }
         }
 
         function loadData() {
