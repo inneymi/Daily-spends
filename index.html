@@ -317,6 +317,7 @@
             document.getElementById('addBtn').textContent = 'Add';
             document.getElementById('cancelBtn').style.display = 'none';
             document.getElementById('modal').classList.add('show');
+            if (window.lucide) lucide.createIcons();
         }
 
         function handleSaveOrUpdate() {
@@ -372,6 +373,7 @@
                 updateDisplay();
                 buildCalendar();
                 renderDetailsModalContent();
+                renderDaySummaryCard();
                 if (window.lucide) lucide.createIcons();
             }
         }
@@ -395,6 +397,7 @@
             document.getElementById('addBtn').textContent = 'Update';
             document.getElementById('cancelBtn').style.display = 'block';
             document.getElementById('modal').classList.add('show');
+            if (window.lucide) lucide.createIcons();
         }
 
         function cancelEdit() {
@@ -446,14 +449,37 @@
                 return;
             }
 
-            const countText = dayTransactions.length === 1 ? '1 transaction' : `${dayTransactions.length} transactions`;
-
-            container.innerHTML = `
-                <div class="transaction-summary" onclick="openMonthlyOverview()">
-                    <div style="font-weight: 600;">${countText}</div>
-                    <div style="font-size: 9px; color: #9ca3af; margin-top: 2px;">Tap to view details</div>
-                </div>
+            let html = `
+                <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 6px; max-height: 140px; overflow-y: auto; margin-bottom: 10px; padding-right: 4px;">
             `;
+
+            dayTransactions.forEach(t => {
+                const cat = t.category || 'General';
+                const iconName = categoryIcons[cat] || 'tag';
+                html += `
+                    <div style="background: #1e293b; border: 1px solid #334155; padding: 6px 8px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: #34d399; font-weight: 600; font-size: 11px;">£${Number(t.amount).toFixed(2)}</span>
+                            <span style="color: #94a3b8; font-size: 9px;">${t.time || ''}</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div class="category-badge">
+                                <i data-lucide="${iconName}"></i>
+                                <span>${cat}</span>
+                            </div>
+                            <div style="color: #e2e8f0; font-size: 10px; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">${t.notes || ''}</div>
+                        </div>
+                        <div style="display: flex; gap: 4px; margin-top: 2px;">
+                            <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 2px 6px; border-radius: 4px; font-size: 9px; cursor: pointer;">Edit</button>
+                            <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 2px 6px; border-radius: 4px; font-size: 9px; cursor: pointer;">Delete</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+            if (window.lucide) lucide.createIcons();
         }
 
         function renderDetailsModalContent() {
