@@ -66,11 +66,13 @@
         .footer-link { background: transparent; border: none; color: #9ca3af; font-size: 12px; cursor: pointer; padding: 8px 12px; border-radius: 6px; }
         .footer-link:hover { color: #d1d5db; background: rgba(55, 65, 81, 0.5); }
         
-        /* Modal styling */
         .modal { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.85); display: none; justify-content: center; align-items: center; padding: 20px; z-index: 1000; }
         .modal.show { display: flex; }
         .modal-content { background: #172036; border: 1px solid #2a3752; border-radius: 16px; padding: 16px; width: 310px; height: 420px; display: flex; flex-direction: column; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5); }
         
+        #noteModal { z-index: 1050; }
+        #noteModal .modal-content { height: auto; min-height: 180px; width: 280px; }
+
         .modal-header { text-align: center; margin-bottom: 12px; flex-shrink: 0; }
         .modal-date { font-size: 12px; font-weight: bold; color: #f9fafb; }
         
@@ -81,9 +83,6 @@
         .notes-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 16px; outline: none; margin-bottom: 12px; flex-shrink: 0; }
         .notes-input:focus { border-color: #3b82f6; background: #131b2e; }
         .notes-input::placeholder { color: #64748b; }
-
-        .transaction-summary { background: #0f172a; border-radius: 8px; padding: 10px; margin-bottom: 12px; font-size: 11px; color: #34d399; border: 1px solid #1e293b; text-align: center; cursor: pointer; }
-        .transaction-summary:hover { background: #1e293b; }
         
         .modal-buttons { display: flex; gap: 6px; margin-top: auto; flex-shrink: 0; }
         .modal-btn { flex: 1; padding: 6px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 500; }
@@ -102,20 +101,13 @@
         .pill-btn.active { background: #2563eb; color: #ffffff; border-color: #3b82f6; }
         .pill-btn:hover:not(.active) { background: #1e293b; color: #e2e8f0; }
 
-        /* Custom minimal scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #1e293b;
-            border-radius: 4px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #334155;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #1e293b; border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #334155; }
+        
+        .clickable-note { color: #e2e8f0; font-size: 11px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; cursor: pointer; padding: 2px 0; transition: color 0.2s; }
+        .clickable-note:hover { color: #60a5fa; text-decoration: underline; text-underline-offset: 2px; }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -128,7 +120,7 @@
         <div class="subtitle">Click any day to track spending</div>
         <div class="nav">
             <button class="nav-btn" id="prevBtn">‹ Prev</button>
-            <div class="month-title" id="monthTitle">November 2025</div>
+            <div class="month-title" id="monthTitle">August 2026</div>
             <button class="nav-btn" id="nextBtn">Next ›</button>
         </div>
         <div class="calendar">
@@ -142,7 +134,7 @@
         </div>
     </div>
 
-    <!-- Main Spending / Entry Modal -->
+    <!-- Main Spending Modal -->
     <div class="modal" id="modal">
         <div class="modal-content" id="modalContentBox">
             <div class="modal-header">
@@ -179,20 +171,32 @@
 
     <!-- Monthly Overview Modal -->
     <div class="modal" id="detailsModal">
-        <div class="modal-content" id="detailsModalContent">
-            <!-- Dynamically injected -->
+        <div class="modal-content" id="detailsModalContent"></div>
+    </div>
+
+    <!-- Note Details Modal -->
+    <div class="modal" id="noteModal">
+        <div class="modal-content">
+            <div class="modal-header" style="margin-bottom: 8px;">
+                <div class="modal-date">Transaction Notes</div>
+            </div>
+            <div id="noteModalContent" class="custom-scrollbar" style="flex: 1; color: #f8fafc; font-size: 13px; line-height: 1.5; overflow-y: auto; margin-bottom: 16px; word-wrap: break-word; text-align: center; padding: 10px;">
+            </div>
+            <div class="modal-buttons">
+                <button class="modal-btn btn-close" onclick="closeNoteModal()">Close</button>
+            </div>
         </div>
     </div>
 
     <!-- Help Modal -->
-    <div class="modal" id="help-modal" onclick="if(event.target === this) closeHelp();">
+    <div class="modal" id="help-modal">
         <div class="modal-content">
             <div style="font-weight: bold; font-size: 13px; margin-bottom: 10px; text-align: center; flex-shrink: 0;">Daily Spends Help</div>
             <div class="custom-scrollbar" style="font-size: 10px; color: #9ca3af; margin-bottom: 12px; line-height: 1.5; flex: 1; overflow-y: auto; padding-right: 4px;">
                 <strong style="color: #34d399; display: block; margin-bottom: 2px; font-size: 10px;">Managing Expenses</strong>
                 • Select a day and enter your spend<br>
                 • Add optional notes (coffee, taxi, teabags, etc)<br>
-                • Tap Add to save<br>
+                • Click any transaction note to view it fully<br>
                 • Add, edit, and delete entries anytime<br>
                 
                 <strong style="color: #34d399; display: block; margin-top: 8px; margin-bottom: 2px; font-size: 10px;">Viewing Your Data</strong>
@@ -205,7 +209,7 @@
                 • It stays private on your device
             </div>
             <div class="modal-buttons">
-                <button class="modal-btn btn-close" id="helpCloseBtn" onclick="closeHelp()">Got it!</button>
+                <button class="modal-btn btn-close" onclick="closeHelp()">Got it!</button>
             </div>
         </div>
     </div>
@@ -227,16 +231,6 @@
             'Shopping': 'shopping-bag',
             'Fun': 'smile'
         };
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            return String(str)
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#039;');
-        }
 
         function loadData() {
             const saved = localStorage.getItem('daily_spends_data');
@@ -429,6 +423,19 @@
             document.getElementById('detailsModal').classList.remove('show');
         }
 
+        function openNoteModal(id, dateStr) {
+            const monthKey = dateStr.substring(0, 7);
+            const transaction = (transactions[monthKey] || []).find(t => t.id === id);
+            if (transaction) {
+                document.getElementById('noteModalContent').innerHTML = transaction.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>';
+                document.getElementById('noteModal').classList.add('show');
+            }
+        }
+
+        function closeNoteModal() {
+            document.getElementById('noteModal').classList.remove('show');
+        }
+
         function openMonthlyOverview() {
             overviewCategoryFilter = 'All';
             renderDetailsModalContent();
@@ -472,9 +479,11 @@
                             <span style="color: #34d399; font-weight: 600; font-size: 11px;">£${Number(t.amount).toFixed(2)}</span>
                             <span style="color: #94a3b8; font-size: 9px;">${t.time || ''}</span>
                         </div>
-                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div style="color: #e2e8f0; font-size: 10px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 150px;">${escapeHtml(t.notes || '')}</div>
-                            <div class="category-badge">
+                        <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                            <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
+                                ${t.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>'}
+                            </div>
+                            <div class="category-badge" style="flex-shrink: 0;">
                                 <i data-lucide="${iconName}"></i>
                                 <span>${cat}</span>
                             </div>
@@ -578,9 +587,11 @@
                                         <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
                                     </div>
                                 </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center;">
-                                    <div style="color: #e2e8f0; font-size: 11px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 160px;">${escapeHtml(t.notes || '')}</div>
-                                    <div class="category-badge">
+                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                                    <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
+                                        ${t.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>'}
+                                    </div>
+                                    <div class="category-badge" style="flex-shrink: 0;">
                                         <i data-lucide="${iconName}"></i>
                                         <span>${cat}</span>
                                     </div>
@@ -620,12 +631,12 @@
             if (helpModal) helpModal.style.display = 'none';
         }
 
-        // Escape key listener for modals
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 closeModal();
                 closeDetailsModal();
                 closeHelp();
+                closeNoteModal();
             }
         });
 
@@ -645,6 +656,8 @@
         document.getElementById('helpBtn').onclick = showHelp;
         document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
         document.getElementById('detailsModal').onclick = function(e) { if (e.target === this) closeDetailsModal(); };
+        document.getElementById('noteModal').onclick = function(e) { if (e.target === this) closeNoteModal(); };
+        document.getElementById('help-modal').onclick = function(e) { if (e.target === this) closeHelp(); };
 
         loadData();
         updateDisplay();
