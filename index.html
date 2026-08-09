@@ -178,12 +178,12 @@
                 </div>
                 <input type="hidden" id="categoryInput" value="General">
             </div>
-            
-            <div id="dayTransactionsLinkContainer" style="margin-bottom: 8px; flex-shrink: 0;"></div>
 
             <div class="modal-buttons" id="modalButtonsContainer">
                 <!-- Dynamically updated -->
             </div>
+            
+            <div id="dayTransactionsLinkContainer" style="margin-top: 6px; flex-shrink: 0;"></div>
         </div>
     </div>
 
@@ -416,12 +416,9 @@
             const linkContainer = document.getElementById('dayTransactionsLinkContainer');
             if (linkContainer) {
                 if (dayTransactions.length > 0) {
-                    const notesCount = dayTransactions.filter(t => t.notes && t.notes.trim() !== '').length;
-                    const notesText = notesCount > 0 ? ` (${notesCount} with notes)` : '';
                     linkContainer.innerHTML = `
                         <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px; text-align: center; cursor: pointer;" onclick="openDayDetailsModalFromMain()">
-                            <div style="color: #34d399; font-size: 11px; font-weight: 600;">${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'}${notesText}</div>
-                            <div style="color: #94a3b8; font-size: 9px; margin-top: 2px;">Tap to view details</div>
+                            <div style="color: #34d399; font-size: 11px; font-weight: 600;">${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'}</div>
                         </div>
                     `;
                 } else {
