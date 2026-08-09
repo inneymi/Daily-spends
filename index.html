@@ -153,7 +153,7 @@
         </div>
     </div>
 
-    <!-- Main Spending Modal -->
+    <!-- Main Spending Modal (Add entry form) -->
     <div class="modal" id="modal">
         <div class="modal-content" id="modalContentBox">
             <div class="modal-header">
@@ -185,7 +185,7 @@
         </div>
     </div>
 
-    <!-- Day Details Modal -->
+    <!-- Day Details Modal (List of transactions for a specific day) -->
     <div class="modal" id="dayDetailsModal">
         <div class="modal-content" id="dayDetailsModalContent"></div>
     </div>
@@ -215,7 +215,7 @@
             <div style="font-weight: bold; font-size: 14px; margin-bottom: 10px; text-align: center; flex-shrink: 0;">Daily Spends Help</div>
             <div class="custom-scrollbar" style="font-size: 11px; color: #9ca3af; margin-bottom: 12px; line-height: 1.6; flex: 1; overflow-y: auto; padding-right: 4px;">
                 <strong style="color: #34d399; display: block; margin-bottom: 3px; font-size: 12px;">Managing Expenses</strong>
-                • Select a day and enter your spend<br>
+                • Select a day and view/add your spend<br>
                 • Add optional notes (coffee, taxi, teabags, etc)<br>
                 • Click any transaction note to view it fully<br>
                 • Add, edit, and delete entries anytime<br><br>
@@ -387,16 +387,21 @@
                 cell.className = 'day';
                 const dateStr = `${monthKey}-${String(day).padStart(2, '0')}`;
                 
-                const dayTotal = (transactions[monthKey] || [])
-                    .filter(t => t.date === dateStr)
-                    .reduce((sum, t) => sum + Number(t.amount), 0);
+                const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === dateStr);
+                const dayTotal = dayTransactions.reduce((sum, t) => sum + Number(t.amount), 0);
 
                 cell.innerHTML = `
                     <span class="day-number">${day}</span>
                     ${dayTotal > 0 ? `<span class="day-amount">${formatMoney(dayTotal)}</span>` : '<span class="plus-icon">+</span>'}
                 `;
 
-                cell.onclick = () => openDayModal(dateStr);
+                cell.onclick = () => {
+                    if (dayTotal > 0 || dayTransactions.length > 0) {
+                        openDayDetailsModalForDate(dateStr);
+                    } else {
+                        openDayModal(dateStr);
+                    }
+                };
                 grid.appendChild(cell);
             }
         }
@@ -435,6 +440,11 @@
             updateModalButtons();
             document.getElementById('modal').classList.add('show');
             if (window.lucide) lucide.createIcons();
+        }
+
+        function openDayDetailsModalForDate(dateStr) {
+            selectedDate = dateStr;
+            openDayDetailsModal();
         }
 
         function handleSaveOrUpdate() {
@@ -499,7 +509,14 @@
                 saveData();
                 updateDisplay();
                 buildCalendar();
-                renderDayDetailsModalContent();
+                
+                const remainingForDay = transactions[monthKey].filter(t => t.date === selectedDate);
+                if (remainingForDay.length === 0) {
+                    closeDayDetailsModal();
+                    openDayModal(selectedDate);
+                } else {
+                    renderDayDetailsModalContent();
+                }
                 renderDetailsModalContent();
                 if (window.lucide) lucide.createIcons();
             }
@@ -674,7 +691,8 @@
 
             html += `
                 </div>
-                <div class="modal-buttons">
+                <div class="modal-buttons" style="display: flex; gap: 6px;">
+                    <button class="modal-btn btn-add" onclick="closeDayDetailsModal(); openDayModal('${selectedDate}');">+ Add Transaction</button>
                     <button class="modal-btn btn-close" onclick="closeDayDetailsModal()">Close</button>
                 </div>
             `;
