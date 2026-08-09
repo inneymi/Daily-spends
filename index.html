@@ -464,7 +464,7 @@
                 updateModalButtons();
             } else {
                 transactions[monthKey].push({
-                    id: Date.now().toString() + Math.random().toString(36.substring(2, 5)),
+                    id: Date.now().toString() + Math.random().toString(36).substring(2, 5),
                     date: selectedDate,
                     amount: amount,
                     category: selectedCategory,
@@ -610,7 +610,6 @@
                 totalBadge.innerHTML = `<span class="badge-pill">Total: ${formatMoney(dayTotal)}</span>`;
             }
 
-            // Hide summary box when editing a transaction
             if (dayTransactions.length === 0 || editingTransactionId) {
                 container.innerHTML = '';
                 return;
