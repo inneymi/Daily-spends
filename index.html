@@ -446,6 +446,14 @@
             selectedDate = dateStr;
             editingTransactionId = null;
             lastOpenedFromDetails = false;
+            const monthKey = dateStr.substring(0, 7);
+            const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === dateStr);
+
+            if (dayTransactions.length > 0) {
+                openDayDetailsModal();
+                return;
+            }
+
             const [y, m, d] = dateStr.split('-');
             const monthNamesFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
             const monthName = monthNamesFull[parseInt(m, 10) - 1];
@@ -718,11 +726,30 @@
             html += `
                 </div>
                 <div class="modal-buttons" style="display: flex; gap: 6px;">
-                    <button class="modal-btn btn-add" onclick="closeDayDetailsModal(); openDayModal('${selectedDate}');">← Back to Add</button>
+                    <button class="modal-btn btn-add" onclick="closeDayDetailsModal(); openDayModalForAdding('${selectedDate}');">+ Add Transaction</button>
                     <button class="modal-btn btn-close" onclick="closeDayDetailsModal()">Close</button>
                 </div>
             `;
             container.innerHTML = html;
+            if (window.lucide) lucide.createIcons();
+        }
+
+        function openDayModalForAdding(dateStr) {
+            selectedDate = dateStr;
+            editingTransactionId = null;
+            lastOpenedFromDetails = false;
+            const [y, m, d] = dateStr.split('-');
+            const monthNamesFull = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            const monthName = monthNamesFull[parseInt(m, 10) - 1];
+            
+            document.getElementById('modalDate').textContent = `${monthName} ${parseInt(d, 10)}`;
+            document.getElementById('amountInput').value = '';
+            document.getElementById('notesInput').value = '';
+            selectedCategory = 'General';
+            updateCategoryPills();
+            
+            updateModalState();
+            document.getElementById('modal').classList.add('show');
             if (window.lucide) lucide.createIcons();
         }
 
