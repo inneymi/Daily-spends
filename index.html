@@ -118,7 +118,6 @@
         .clickable-note { color: #e2e8f0; font-size: 11px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; cursor: pointer; padding: 2px 0; transition: color 0.2s; }
         .clickable-note:hover { color: #60a5fa; text-decoration: underline; text-underline-offset: 2px; }
 
-        /* Refactored Transaction Card Classes */
         .tx-card { background: #1e293b; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
         .tx-header { display: flex; justify-content: space-between; align-items: flex-start; }
         .tx-amount { color: #34d399; font-weight: 600; font-size: 12px; }
@@ -321,7 +320,6 @@
             if (saved) {
                 try { 
                     transactions = JSON.parse(saved); 
-                    // Migration fallback: ensure all legacy transactions have an 'id'
                     for (const monthKey in transactions) {
                         if (Array.isArray(transactions[monthKey])) {
                             transactions[monthKey] = transactions[monthKey].map((t, idx) => {
@@ -612,7 +610,8 @@
                 totalBadge.innerHTML = `<span class="badge-pill">Total: ${formatMoney(dayTotal)}</span>`;
             }
 
-            if (dayTransactions.length === 0) {
+            // Hide summary box when editing a transaction
+            if (dayTransactions.length === 0 || editingTransactionId) {
                 container.innerHTML = '';
                 return;
             }
