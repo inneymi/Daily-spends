@@ -110,6 +110,17 @@
         
         .clickable-note { color: #e2e8f0; font-size: 11px; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; cursor: pointer; padding: 2px 0; transition: color 0.2s; }
         .clickable-note:hover { color: #60a5fa; text-decoration: underline; text-underline-offset: 2px; }
+
+        /* Refactored Transaction Card Classes */
+        .tx-card { background: #1e293b; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0; }
+        .tx-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .tx-amount { color: #34d399; font-weight: 600; font-size: 12px; }
+        .tx-time { color: #94a3b8; font-size: 10px; }
+        .tx-body { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+        .tx-actions { display: flex; gap: 4px; margin-top: 2px; }
+        .tx-btn-edit { background: #3b82f6; color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; }
+        .tx-btn-delete { background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer; }
+        .badge-pill { display: inline-block; background: #059669; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold; }
     </style>
     <script src="https://unpkg.com/lucide@latest"></script>
 </head>
@@ -241,6 +252,36 @@
             'Fun': 'smile'
         };
 
+        function formatMoney(n) {
+            return `£${Number(n || 0).toFixed(2)}`;
+        }
+
+        function renderTransactionCard(t) {
+            const cat = t.category || 'General';
+            const iconName = categoryIcons[cat] || 'tag';
+            return `
+                <div class="tx-card">
+                    <div class="tx-header">
+                        <span class="tx-amount">${formatMoney(t.amount)}</span>
+                        <span class="tx-time">${t.time || ''}</span>
+                    </div>
+                    <div class="tx-body">
+                        <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
+                            ${t.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>'}
+                        </div>
+                        <div class="category-badge" style="flex-shrink: 0;">
+                            <i data-lucide="${iconName}"></i>
+                            <span>${cat}</span>
+                        </div>
+                    </div>
+                    <div class="tx-actions">
+                        <button onclick="editTransaction('${t.id}')" class="tx-btn-edit">Edit</button>
+                        <button onclick="deleteTransaction('${t.id}')" class="tx-btn-delete">Delete</button>
+                    </div>
+                </div>
+            `;
+        }
+
         function loadData() {
             const saved = localStorage.getItem('daily_spends_data');
             if (saved) {
@@ -265,7 +306,7 @@
             
             const totalEl = document.getElementById('monthTotal');
             if (totalEl) {
-                totalEl.textContent = `Total: £${total.toFixed(2)}`;
+                totalEl.textContent = `Total: ${formatMoney(total)}`;
             }
         }
 
@@ -308,7 +349,7 @@
 
                 cell.innerHTML = `
                     <span class="day-number">${day}</span>
-                    ${dayTotal > 0 ? `<span class="day-amount">£${dayTotal.toFixed(2)}</span>` : '<span class="plus-icon">+</span>'}
+                    ${dayTotal > 0 ? `<span class="day-amount">${formatMoney(dayTotal)}</span>` : '<span class="plus-icon">+</span>'}
                 `;
 
                 cell.onclick = () => openDayModal(dateStr);
@@ -491,7 +532,7 @@
 
             const dayTotal = dayTransactions.reduce((sum, t) => sum + Number(t.amount || 0), 0);
             if (totalBadge) {
-                totalBadge.innerHTML = `<span style="display: inline-block; background: #059669; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold;">Total: £${dayTotal.toFixed(2)}</span>`;
+                totalBadge.innerHTML = `<span class="badge-pill">Total: ${formatMoney(dayTotal)}</span>`;
             }
 
             if (dayTransactions.length === 0) {
@@ -533,8 +574,8 @@
                     <div class="modal-date" style="font-size: 14px;">${monthName} ${parseInt(dNum, 10)}</div>
                 </div>
                 <div style="text-align: center; margin-bottom: 10px; flex-shrink: 0;">
-                    <span style="display: inline-block; background: #059669; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold;">
-                        ${dayDetailsCategoryFilter === 'All' ? 'Total' : dayDetailsCategoryFilter}: £${filteredTotal.toFixed(2)}
+                    <span class="badge-pill">
+                        ${dayDetailsCategoryFilter === 'All' ? 'Total' : dayDetailsCategoryFilter}: ${formatMoney(filteredTotal)}
                     </span>
                 </div>
             `;
@@ -562,29 +603,7 @@
                 html += `<div style="text-align: center; color: #9ca3af; padding: 16px; font-size: 11px;">No transactions found</div>`;
             } else {
                 filtered.forEach(t => {
-                    const cat = t.category || 'General';
-                    const iconName = categoryIcons[cat] || 'tag';
-                    html += `
-                        <div style="background: #1e293b; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
-                            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
-                                <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
-                            </div>
-                            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                                <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
-                                    ${t.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>'}
-                                </div>
-                                <div class="category-badge" style="flex-shrink: 0;">
-                                    <i data-lucide="${iconName}"></i>
-                                    <span>${cat}</span>
-                                </div>
-                            </div>
-                            <div style="display: flex; gap: 4px; margin-top: 2px;">
-                                <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Edit</button>
-                                <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Delete</button>
-                            </div>
-                        </div>
-                    `;
+                    html += renderTransactionCard(t);
                 });
             }
 
@@ -596,6 +615,11 @@
             `;
             container.innerHTML = html;
             if (window.lucide) lucide.createIcons();
+        }
+
+        function setDayDetailsFilter(cat) {
+            dayDetailsCategoryFilter = cat;
+            renderDayDetailsModalContent();
         }
 
         function renderDetailsModalContent() {
@@ -635,8 +659,8 @@
                     <div class="modal-date" style="font-size: 14px;">${currentMonthName} ${currentYear}</div>
                 </div>
                 <div style="text-align: center; margin-bottom: 10px; flex-shrink: 0;">
-                    <span style="display: inline-block; background: #059669; color: white; padding: 4px 10px; border-radius: 6px; font-size: 10px; font-weight: bold;">
-                        ${overviewCategoryFilter === 'All' ? 'Total' : overviewCategoryFilter}: £${currentFilteredTotal.toFixed(2)}
+                    <span class="badge-pill">
+                        ${overviewCategoryFilter === 'All' ? 'Total' : overviewCategoryFilter}: ${formatMoney(currentFilteredTotal)}
                     </span>
                 </div>
                 <div style="display: flex; gap: 4px; overflow-x: auto; margin-bottom: 10px; padding-bottom: 4px; flex-shrink: 0;" class="custom-scrollbar">
@@ -674,29 +698,7 @@
                     `;
 
                     dayItems.forEach(t => {
-                        const cat = t.category || 'General';
-                        const iconName = categoryIcons[cat] || 'tag';
-                        html += `
-                            <div style="background: #1e293b; border: 1px solid #334155; padding: 8px 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px; flex-shrink: 0;">
-                                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                                    <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
-                                    <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
-                                </div>
-                                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                                    <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
-                                        ${t.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>'}
-                                    </div>
-                                    <div class="category-badge" style="flex-shrink: 0;">
-                                        <i data-lucide="${iconName}"></i>
-                                        <span>${cat}</span>
-                                    </div>
-                                </div>
-                                <div style="display: flex; gap: 4px; margin-top: 2px;">
-                                    <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Edit</button>
-                                    <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Delete</button>
-                                </div>
-                            </div>
-                        `;
+                        html += renderTransactionCard(t);
                     });
                 });
             }
