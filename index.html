@@ -183,9 +183,7 @@
             <div id="dayTransactionsSummaryBox" style="margin-top: auto; margin-bottom: 12px; flex-shrink: 0;"></div>
 
             <div class="modal-buttons" id="modalButtonsContainer">
-                <button class="modal-btn btn-close" id="cancelBtn" style="display:none;" onclick="cancelEdit()">Cancel</button>
-                <button class="modal-btn btn-add" id="addBtn" onclick="handleSaveOrUpdate()">Add</button>
-                <button class="modal-btn btn-close" id="closeBtn" onclick="closeModal()">Close</button>
+                <!-- Dynamically updated: Update on the left, Cancel on the right when editing -->
             </div>
         </div>
     </div>
@@ -321,7 +319,20 @@
         function loadData() {
             const saved = localStorage.getItem('daily_spends_data');
             if (saved) {
-                try { transactions = JSON.parse(saved); } catch(e) { transactions = {}; }
+                try { 
+                    transactions = JSON.parse(saved); 
+                    // Migration fallback: ensure all legacy transactions have an 'id'
+                    for (const monthKey in transactions) {
+                        if (Array.isArray(transactions[monthKey])) {
+                            transactions[monthKey] = transactions[monthKey].map((t, idx) => {
+                                if (!t.id) {
+                                    return { ...t, id: `${t.date}-${idx}-${Date.now()}` };
+                                }
+                                return t;
+                            });
+                        }
+                    }
+                } catch(e) { transactions = {}; }
             }
         }
 
@@ -455,7 +466,7 @@
                 updateModalButtons();
             } else {
                 transactions[monthKey].push({
-                    id: Date.now().toString(),
+                    id: Date.now().toString() + Math.random().toString(36.substring(2, 5)),
                     date: selectedDate,
                     amount: amount,
                     category: selectedCategory,
