@@ -444,7 +444,7 @@
 
             let html = `
                 <div class="modal-header">
-                    <div class="modal-date">Transactions for ${formattedDate}</div>
+                    <div class="modal-date">${formattedDate}</div>
                 </div>
                 <div class="custom-scrollbar" style="display: flex; flex-direction: column; gap: 6px; max-height: 280px; overflow-y: auto; margin-bottom: 12px; padding-right: 4px;">
             `;
@@ -454,18 +454,18 @@
             } else {
                 dayTransactions.forEach(t => {
                     html += `
-                        <div style="background: #0f172a; border: 1px solid #1e293b; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
+                        <div style="background: #1e293b; border: 1px solid #334155; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                 <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
                                 <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
-                                    <span style="color: #64748b; font-size: 10px;">${t.time || ''}</span>
+                                    <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
                                     <span style="color: #cbd5e1; font-size: 11px;">${t.category || 'General'}</span>
                                 </div>
                             </div>
-                            ${t.notes ? `<div style="color: #cbd5e1; font-size: 11px;">${t.notes}</div>` : ''}
-                            <div style="display: flex; gap: 4px; margin-top: 2px;">
-                                <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Edit</button>
-                                <button onclick="deleteTransaction('${t.id}')" style="background: #ef4444; color: white; border: none; padding: 3px 8px; border-radius: 4px; font-size: 10px; cursor: pointer;">Delete</button>
+                            ${t.notes ? `<div style="color: #e2e8f0; font-size: 11px;">${t.notes}</div>` : ''}
+                            <div style="display: flex; gap: 4px; margin-top: 4px;">
+                                <button onclick="editTransaction('${t.id}')" style="background: #3b82f6; color: white; border: none; padding: 4px 10px; border-radius: 4px; font-size: 10px; cursor: pointer;">Edit</button>
+                                <button onclick="deleteTransaction('${t.id}')" style="background: #334155; color: #cbd5e1; border: 1px solid #475569; padding: 4px 10px; border-radius: 4px; font-size: 10px; cursor: pointer;">Delete</button>
                             </div>
                         </div>
                     `;
@@ -502,7 +502,7 @@
         document.getElementById('nextBtn').onclick = () => navigateMonth(1);
         document.getElementById('addBtn').onclick = handleSaveOrUpdate;
         document.getElementById('cancelBtn').onclick = cancelEdit;
-        document.getElementById('closeBtn').onclick, closeModal;
+        document.getElementById('closeBtn').onclick = closeModal;
         document.getElementById('helpBtn').onclick = showHelp;
         document.getElementById('modal').onclick = function(e) { if (e.target === this) closeModal(); };
         document.getElementById('detailsModal').onclick = function(e) { if (e.target === this) closeDetailsModal(); };
