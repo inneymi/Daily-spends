@@ -82,18 +82,18 @@
 
         #help-modal .modal-content { height: 420px; width: 310px; }
 
-        .modal-header { text-align: center; margin-bottom: 12px; flex-shrink: 0; }
+        .modal-header { text-align: center; margin-bottom: 8px; flex-shrink: 0; }
         .modal-date { font-size: 12px; font-weight: bold; color: #f9fafb; }
         
-        .amount-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 16px; text-align: center; outline: none; margin-bottom: 10px; flex-shrink: 0; }
+        .amount-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 16px; text-align: center; outline: none; margin-bottom: 8px; flex-shrink: 0; }
         .amount-input:focus { border-color: #3b82f6; background: #131b2e; }
         .amount-input::placeholder { color: #64748b; }
 
-        .notes-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 16px; outline: none; margin-bottom: 12px; flex-shrink: 0; }
+        .notes-input { width: 100%; padding: 8px 10px; background: #0f172a; border: 1px solid #1e293b; border-radius: 8px; color: #f9fafb; font-size: 16px; outline: none; margin-bottom: 8px; flex-shrink: 0; }
         .notes-input:focus { border-color: #3b82f6; background: #131b2e; }
         .notes-input::placeholder { color: #64748b; }
         
-        .modal-buttons { display: flex; gap: 6px; flex-shrink: 0; }
+        .modal-buttons { display: flex; gap: 6px; flex-shrink: 0; margin-top: 8px; }
         .modal-btn { flex: 1; padding: 6px; border: none; border-radius: 6px; cursor: pointer; font-size: 11px; font-weight: 500; }
         .btn-add { background: #3b82f6; color: white; }
         .btn-add:hover { background: #2563eb; }
@@ -102,10 +102,10 @@
         
         .error-message { color: #f87171; font-size: 10px; margin-bottom: 6px; text-align: center; display: none; }
         
-        .category-pills-container { margin-bottom: 12px; text-align: left; flex-shrink: 0; }
-        .category-label { font-size: 10px; color: #9ca3af; margin-bottom: 6px; font-weight: 500; }
+        .category-pills-container { margin-bottom: 8px; text-align: left; flex-shrink: 0; }
+        .category-label { font-size: 10px; color: #9ca3af; margin-bottom: 4px; font-weight: 500; }
         .category-pills { display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; }
-        .pill-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: #0f172a; border: 1px solid #1e293b; color: #94a3b8; padding: 6px 4px; border-radius: 6px; font-size: 10px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; }
+        .pill-btn { display: inline-flex; align-items: center; justify-content: center; gap: 4px; background: #0f172a; border: 1px solid #1e293b; color: #94a3b8; padding: 5px 4px; border-radius: 6px; font-size: 10px; white-space: nowrap; cursor: pointer; transition: all 0.2s ease; }
         .pill-btn svg, .pill-btn [data-lucide] { width: 10px !important; height: 10px !important; min-width: 10px; stroke-width: 2; }
         .pill-btn.active { background: #2563eb; color: #ffffff; border-color: #3b82f6; }
         .pill-btn:hover:not(.active) { background: #1e293b; color: #e2e8f0; }
@@ -153,7 +153,7 @@
         </div>
     </div>
 
-    <!-- Main Spending Modal (Add entry form) -->
+    <!-- Main Spending Modal (Add entry form & trigger to view transactions) -->
     <div class="modal" id="modal">
         <div class="modal-content" id="modalContentBox">
             <div class="modal-header">
@@ -164,6 +164,8 @@
             <input type="number" step="0.01" class="amount-input" id="amountInput" placeholder="Amount to add (£)">
             <div id="amountError" class="error-message"></div>
             
+            <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)" maxlength="100">
+
             <div class="category-pills-container">
                 <div class="category-label">Category</div>
                 <div class="category-pills" id="categoryPills">
@@ -177,7 +179,7 @@
                 <input type="hidden" id="categoryInput" value="General">
             </div>
             
-            <input type="text" class="notes-input" id="notesInput" placeholder="Notes" maxlength="100">
+            <div id="dayTransactionsLinkContainer" style="margin-bottom: 8px; flex-shrink: 0;"></div>
 
             <div class="modal-buttons" id="modalButtonsContainer">
                 <!-- Dynamically updated -->
@@ -215,15 +217,14 @@
             <div style="font-weight: bold; font-size: 14px; margin-bottom: 10px; text-align: center; flex-shrink: 0;">Daily Spends Help</div>
             <div class="custom-scrollbar" style="font-size: 11px; color: #9ca3af; margin-bottom: 12px; line-height: 1.6; flex: 1; overflow-y: auto; padding-right: 4px;">
                 <strong style="color: #34d399; display: block; margin-bottom: 3px; font-size: 12px;">Managing Expenses</strong>
-                • Select a day and view/add your spend<br>
+                • Select a day and add your spend<br>
+                • View individual transactions and edit/delete them via the link<br>
                 • Add optional notes (coffee, taxi, teabags, etc)<br>
-                • Click any transaction note to view it fully<br>
-                • Add, edit, and delete entries anytime<br><br>
+                • Click any transaction note to view it fully<br><br>
                 
                 <strong style="color: #34d399; display: block; margin-top: 4px; margin-bottom: 3px; font-size: 12px;">Viewing Your Data</strong>
                 • Tap monthly total at top to view all monthly transactions<br>
-                • Each day shows total spending<br>
-                • Tap transaction summaries to view details<br><br>
+                • Each day shows total spending<br><br>
 
                 <strong style="color: #34d399; display: block; margin-top: 4px; margin-bottom: 3px; font-size: 12px;">Data Storage</strong>
                 • Your spending data is automatically saved in your browser<br>
@@ -396,17 +397,38 @@
                 `;
 
                 cell.onclick = () => {
-                    if (dayTotal > 0 || dayTransactions.length > 0) {
-                        openDayDetailsModalForDate(dateStr);
-                    } else {
-                        openDayModal(dateStr);
-                    }
+                    openDayModal(dateStr);
                 };
                 grid.appendChild(cell);
             }
         }
 
-        function updateModalButtons() {
+        function updateModalState() {
+            const monthKey = selectedDate ? selectedDate.substring(0, 7) : '';
+            const dayTransactions = (transactions[monthKey] || []).filter(t => t.date === selectedDate);
+            const dayTotal = dayTransactions.reduce((sum, t) => sum + Number(t.amount || 0), 0);
+
+            const badgeEl = document.getElementById('modalDayTotalBadge');
+            if (badgeEl) {
+                badgeEl.innerHTML = `<span class="badge-pill">Total: ${formatMoney(dayTotal)}</span>`;
+            }
+
+            const linkContainer = document.getElementById('dayTransactionsLinkContainer');
+            if (linkContainer) {
+                if (dayTransactions.length > 0) {
+                    const notesCount = dayTransactions.filter(t => t.notes && t.notes.trim() !== '').length;
+                    const notesText = notesCount > 0 ? ` (${notesCount} with notes)` : '';
+                    linkContainer.innerHTML = `
+                        <div style="background: #1e293b; border: 1px solid #334155; border-radius: 8px; padding: 8px; text-align: center; cursor: pointer;" onclick="openDayDetailsModalFromMain()">
+                            <div style="color: #34d399; font-size: 11px; font-weight: 600;">${dayTransactions.length} transaction${dayTransactions.length === 1 ? '' : 's'}${notesText}</div>
+                            <div style="color: #94a3b8; font-size: 9px; margin-top: 2px;">Tap to view details</div>
+                        </div>
+                    `;
+                } else {
+                    linkContainer.innerHTML = '';
+                }
+            }
+
             const container = document.getElementById('modalButtonsContainer');
             if (!container) return;
 
@@ -437,13 +459,13 @@
             selectedCategory = 'General';
             updateCategoryPills();
             
-            updateModalButtons();
+            updateModalState();
             document.getElementById('modal').classList.add('show');
             if (window.lucide) lucide.createIcons();
         }
 
-        function openDayDetailsModalForDate(dateStr) {
-            selectedDate = dateStr;
+        function openDayDetailsModalFromMain() {
+            document.getElementById('modal').classList.remove('show');
             openDayDetailsModal();
         }
 
@@ -481,6 +503,9 @@
                 if (wasFromDetails) {
                     selectedDate = savedDate;
                     openDayDetailsModal();
+                } else {
+                    selectedDate = savedDate;
+                    openDayModal(savedDate);
                 }
                 return;
             } else {
@@ -500,6 +525,7 @@
 
             amountInput.value = '';
             notesInput.value = '';
+            updateModalState();
         }
 
         function deleteTransaction(id) {
@@ -561,7 +587,7 @@
             selectedCategory = transaction.category || 'General';
             updateCategoryPills();
 
-            updateModalButtons();
+            updateModalState();
             document.getElementById('modal').classList.add('show');
             if (window.lucide) lucide.createIcons();
         }
@@ -575,6 +601,9 @@
             if (wasFromDetails) {
                 selectedDate = savedDate;
                 openDayDetailsModal();
+            } else {
+                selectedDate = savedDate;
+                openDayModal(savedDate);
             }
         }
 
@@ -692,7 +721,7 @@
             html += `
                 </div>
                 <div class="modal-buttons" style="display: flex; gap: 6px;">
-                    <button class="modal-btn btn-add" onclick="closeDayDetailsModal(); openDayModal('${selectedDate}');">+ Add Transaction</button>
+                    <button class="modal-btn btn-add" onclick="closeDayDetailsModal(); openDayModal('${selectedDate}');">← Back to Add</button>
                     <button class="modal-btn btn-close" onclick="closeDayDetailsModal()">Close</button>
                 </div>
             `;
