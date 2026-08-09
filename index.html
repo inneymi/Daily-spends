@@ -164,7 +164,7 @@
                 <input type="hidden" id="categoryInput" value="General">
             </div>
             
-            <input type="text" class="notes-input" id="notesInput" placeholder="Notes (optional)" maxlength="100">
+            <input type="text" class="notes-input" id="notesInput" placeholder="Notes" maxlength="100">
             
             <div id="dayTransactionsContainer"></div>
 
@@ -206,6 +206,15 @@
         let transactions = {};
         let selectedCategory = 'General';
         let editingTransactionId = null;
+
+        const categoryIcons = {
+            'General': 'tag',
+            'Food': 'utensils',
+            'Transport': 'car',
+            'Bills': 'receipt',
+            'Shopping': 'shopping-bag',
+            'Fun': 'smile'
+        };
 
         function loadData() {
             const saved = localStorage.getItem('daily_spends_data');
@@ -352,6 +361,7 @@
                 buildCalendar();
                 renderDaySummaryCard();
                 renderDetailsModalContent();
+                if (window.lucide) lucide.createIcons();
             }
         }
 
@@ -393,6 +403,7 @@
         function openDetailsModal() {
             renderDetailsModalContent();
             document.getElementById('detailsModal').classList.add('show');
+            if (window.lucide) lucide.createIcons();
         }
 
         function updateCategoryPills() {
@@ -419,12 +430,10 @@
             }
 
             const count = dayTransactions.length;
-            const notesCount = dayTransactions.filter(t => t.notes && t.notes.trim() !== '').length;
-            const notesText = notesCount > 0 ? ` (${notesCount} with note${notesCount > 1 ? 's' : ''})` : '';
 
             container.innerHTML = `
                 <div class="transaction-summary" onclick="openDetailsModal()">
-                    <div style="font-weight: 600;">${count} transaction${count > 1 ? 's' : ''}${notesText}</div>
+                    <div style="font-weight: 600;">${count} transaction${count > 1 ? 's' : ''}</div>
                     <div style="font-size: 9px; color: #9ca3af; margin-top: 2px;">Tap to view details</div>
                 </div>
             `;
@@ -453,13 +462,18 @@
                 html += `<div style="text-align: center; color: #9ca3af; padding: 16px; font-size: 11px;">No transactions yet</div>`;
             } else {
                 dayTransactions.forEach(t => {
+                    const cat = t.category || 'General';
+                    const iconName = categoryIcons[cat] || 'tag';
                     html += `
                         <div style="background: #1e293b; border: 1px solid #334155; padding: 10px; border-radius: 8px; display: flex; flex-direction: column; gap: 4px;">
                             <div style="display: flex; justify-content: space-between; align-items: flex-start;">
                                 <span style="color: #34d399; font-weight: 600; font-size: 12px;">£${Number(t.amount).toFixed(2)}</span>
                                 <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 2px;">
                                     <span style="color: #94a3b8; font-size: 10px;">${t.time || ''}</span>
-                                    <span style="color: #cbd5e1; font-size: 11px;">${t.category || 'General'}</span>
+                                    <div style="display: flex; align-items: center; gap: 4px; color: #cbd5e1; font-size: 11px;">
+                                        <i data-lucide="${iconName}" style="width: 12px; height: 12px;"></i>
+                                        <span>${cat}</span>
+                                    </div>
                                 </div>
                             </div>
                             ${t.notes ? `<div style="color: #e2e8f0; font-size: 11px;">${t.notes}</div>` : ''}
