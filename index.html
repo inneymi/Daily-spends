@@ -266,6 +266,23 @@
         function renderTransactionCard(t) {
             const cat = t.category || 'General';
             const iconName = categoryIcons[cat] || 'tag';
+            const hasNotes = t.notes && t.notes.trim() !== '';
+            
+            let noteHtml = '';
+            if (hasNotes) {
+                noteHtml = `
+                    <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
+                        ${t.notes}
+                    </div>
+                `;
+            } else {
+                noteHtml = `
+                    <div class="clickable-note" style="color: #64748b; font-style: italic; cursor: default;">
+                        No notes
+                    </div>
+                `;
+            }
+
             return `
                 <div class="tx-card">
                     <div class="tx-header">
@@ -273,9 +290,7 @@
                         <span class="tx-time">${t.time || ''}</span>
                     </div>
                     <div class="tx-body">
-                        <div class="clickable-note" onclick="openNoteModal('${t.id}', '${t.date}')" title="Click to view notes">
-                            ${t.notes || '<span style="color:#64748b;font-style:italic;">No notes</span>'}
-                        </div>
+                        ${noteHtml}
                         <div class="category-badge" onclick="filterFromCard('${cat}')" title="Filter by ${cat}" style="flex-shrink: 0;">
                             <i data-lucide="${iconName}"></i>
                             <span>${cat}</span>
@@ -458,11 +473,28 @@
         }
 
         function editTransaction(id) {
-            const monthKey = selectedDate.substring(0, 7);
-            const transaction = (transactions[monthKey] || []).find(t => t.id === id);
+            const monthKey = selectedDate ? selectedDate.substring(0, 7) : null;
+            let transaction = null;
+            
+            if (monthKey && transactions[monthKey]) {
+                transaction = transactions[monthKey].find(t => t.id === id);
+            }
+            
+            if (!transaction) {
+                for (const mk in transactions) {
+                    const found = (transactions[mk] || []).find(t => t.id === id);
+                    if (found) {
+                        transaction = found;
+                        break;
+                    }
+                }
+            }
+
             if (!transaction) return;
 
             closeDayDetailsModal();
+            closeDetailsModal();
+            
             selectedDate = transaction.date;
             editingTransactionId = id;
             const [y, m, d] = selectedDate.split('-');
